@@ -1,0 +1,222 @@
+{
+  "css": [
+    {
+      "order": 0,
+      "id": "sugo-unified-css",
+      "file": "assets/css/00-sugo-unified-css.css",
+      "chars": 151635
+    },
+    {
+      "order": 1,
+      "id": "sugo-vision-upload-css",
+      "file": "assets/css/01-sugo-vision-upload-css.css",
+      "chars": 3274
+    },
+    {
+      "order": 2,
+      "id": "sugo-create-ticket-css",
+      "file": "assets/css/02-sugo-create-ticket-css.css",
+      "chars": 333
+    },
+    {
+      "order": 3,
+      "id": "sugo-compact-action-buttons-final-css",
+      "file": "assets/css/03-sugo-compact-action-buttons-final-css.css",
+      "chars": 2644
+    },
+    {
+      "order": 4,
+      "id": "sugo-action-row-user-final-css",
+      "file": "assets/css/04-sugo-action-row-user-final-css.css",
+      "chars": 1978
+    },
+    {
+      "order": 5,
+      "id": "sugo-ticket-emphasis-css",
+      "file": "assets/css/05-sugo-ticket-emphasis-css.css",
+      "chars": 439
+    },
+    {
+      "order": 6,
+      "id": "sugo-ai-answer-audit-css",
+      "file": "assets/css/06-sugo-ai-answer-audit-css.css",
+      "chars": 2441
+    },
+    {
+      "order": 7,
+      "id": "sugo-smart-ticket-builder-css",
+      "file": "assets/css/07-sugo-smart-ticket-builder-css.css",
+      "chars": 3474
+    },
+    {
+      "order": 8,
+      "id": "sugo-hide-redundant-ticket-meta-css",
+      "file": "assets/css/08-sugo-hide-redundant-ticket-meta-css.css",
+      "chars": 900
+    },
+    {
+      "order": 9,
+      "id": "sugo-startup-closed-menus-hotfix-css",
+      "file": "assets/css/09-sugo-startup-closed-menus-hotfix-css.css",
+      "chars": 459
+    },
+    {
+      "order": 10,
+      "id": "sugo-direct-edit-css",
+      "file": "assets/css/10-sugo-direct-edit-css.css",
+      "chars": 1540
+    },
+    {
+      "order": 11,
+      "id": "sugo-tiny-plus-existing-menus-css",
+      "file": "assets/css/11-sugo-tiny-plus-existing-menus-css.css",
+      "chars": 5471
+    },
+    {
+      "order": 12,
+      "id": "sugo-visible-favorite-button-css",
+      "file": "assets/css/12-sugo-visible-favorite-button-css.css",
+      "chars": 985
+    }
+  ],
+  "js": [
+    {
+      "order": 0,
+      "id": "sugo-critical-js",
+      "file": "assets/js/00-sugo-critical-js.js",
+      "chars": 498
+    },
+    {
+      "order": 1,
+      "id": "sugo-runtime-js",
+      "file": "assets/js/01-sugo-runtime-js.js",
+      "chars": 1059380
+    },
+    {
+      "order": 2,
+      "id": "sugo-startup-closed-menus-hotfix-js",
+      "file": "assets/js/02-sugo-startup-closed-menus-hotfix-js.js",
+      "chars": 787692
+    },
+    {
+      "order": 3,
+      "id": "sugo-favorites-recent-js",
+      "file": "assets/js/03-sugo-favorites-recent-js.js",
+      "chars": 8110
+    },
+    {
+      "order": 4,
+      "id": "sugo-ai-ticket-favorites-and-quick-access-js",
+      "file": "assets/js/04-sugo-ai-ticket-favorites-and-quick-access-js.js",
+      "chars": 11252
+    },
+    {
+      "order": 5,
+      "id": "sugo-search-performance-hotfix",
+      "file": "assets/js/05-sugo-search-performance-hotfix.js",
+      "chars": 1004
+    },
+    {
+      "order": 6,
+      "id": "sugo-precision-search-v4",
+      "file": "assets/js/06-sugo-precision-search-v4.js",
+      "chars": 28858
+    },
+    {
+      "order": 7,
+      "id": "sugo-typing-lag-hotfix-v5",
+      "file": "assets/js/07-sugo-typing-lag-hotfix-v5.js",
+      "chars": 15902
+    },
+    {
+      "order": 8,
+      "id": "sugo-favorites-remove-guard-v21",
+      "file": "assets/js/08-sugo-favorites-remove-guard-v21.js",
+      "chars": 7692
+    },
+    {
+      "order": 9,
+      "id": "sugo-favorites-open-hotfix-v2",
+      "file": "assets/js/09-sugo-favorites-open-hotfix-v2.js",
+      "chars": 6165
+    },
+    {
+      "order": 10,
+      "id": "sugo-recent-clear-favorites-persistence-hotfix-v1",
+      "file": "assets/js/10-sugo-recent-clear-favorites-persistence-hotfix-v1.js",
+      "chars": 6715
+    },
+    {
+      "order": 11,
+      "id": "sugo-sv-video-merge-20260626",
+      "file": "assets/js/11-sugo-sv-video-merge-20260626.js",
+      "chars": 69541
+    },
+    {
+      "order": 12,
+      "id": "sugo-speed-complete-answer-upgrade-v6",
+      "file": "assets/js/12-sugo-speed-complete-answer-upgrade-v6.js",
+      "chars": 19476
+    },
+    {
+      "order": 13,
+      "id": "sugo-stable-options-search-final-fix",
+      "file": "assets/js/13-sugo-stable-options-search-final-fix.js",
+      "chars": 2211
+    },
+    {
+      "order": 14,
+      "id": "sugo-loading-failsafe",
+      "file": "assets/js/14-sugo-loading-failsafe.js",
+      "chars": 471
+    },
+    {
+      "order": 15,
+      "id": "sugo-direct-section-edit-js",
+      "file": "assets/js/15-sugo-direct-section-edit-js.js",
+      "chars": 12331
+    },
+    {
+      "order": 16,
+      "id": "sugo-topic-dropdown-hard-open-fix-v3",
+      "file": "assets/js/16-sugo-topic-dropdown-hard-open-fix-v3.js",
+      "chars": 7085
+    },
+    {
+      "order": 17,
+      "id": "sugo-tiny-plus-existing-menus-js",
+      "file": "assets/js/17-sugo-tiny-plus-existing-menus-js.js",
+      "chars": 47496
+    },
+    {
+      "order": 18,
+      "id": "sugo-robust-content-language-dropdown-fix-js",
+      "file": "assets/js/18-sugo-robust-content-language-dropdown-fix-js.js",
+      "chars": 8988
+    },
+    {
+      "order": 19,
+      "id": "sugo-remove-redundant-ticket-meta-js",
+      "file": "assets/js/19-sugo-remove-redundant-ticket-meta-js.js",
+      "chars": 959
+    },
+    {
+      "order": 20,
+      "id": "sugo-visible-favorite-button-js",
+      "file": "assets/js/20-sugo-visible-favorite-button-js.js",
+      "chars": 10508
+    }
+  ],
+  "source": {
+    "html": "index(94).html",
+    "worker": "worker(76).js",
+    "original_html_bytes": 2871634,
+    "split_html_bytes": 86286,
+    "css_count": 13,
+    "js_count": 21
+  },
+  "sha256": {
+    "original_index": "131cdc631548f60760f7aedd4ceb9b09d94d89ad83e916752838996883d098cf",
+    "split_index": "62917d2ed71a66f3545f64171aa90467834d2ff672687d8546ddac379fb5fed8"
+  }
+}
