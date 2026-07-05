@@ -1,6 +1,7 @@
 /* =========================================================
-   SUGO Flyout Menu Override v1.0
+   SUGO Flyout Menu Override v1.1 Stable
    Replaces nested sidebar dropdowns with fixed flyout panels.
+   v1.1: fixes instant-close caused by observing class changes on original nav.
    Loads last and does not change the Worker/API/content data.
    ========================================================= */
 (function(){
@@ -302,6 +303,9 @@
 
   function installGuards(){
     document.addEventListener('click', handleOriginalNavClick, true);
+
+    // Close only when the user really clicks outside. Do not close on the same
+    // sidebar/flyout interaction that opened a panel.
     document.addEventListener('click', function(e){
       if(!stage || !stage.classList.contains('sugo-flyout-open')) return;
       if(stage.contains(e.target)) return;
@@ -310,9 +314,12 @@
       if(adminPopover && adminPopover.contains(e.target)) return;
       closeAll();
     }, true);
+
     document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeAll(); });
     window.addEventListener('resize', closeAll);
-    window.addEventListener('scroll', function(){ if(stage && stage.classList.contains('sugo-flyout-open')) closeAll(); }, true);
+
+    // IMPORTANT: do not close on scroll. Some browsers fire captured scroll
+    // events from sidebar/panel scrollbars immediately after opening.
   }
 
   function refreshAfterDynamicMenuChanges(){
@@ -335,11 +342,19 @@
 
     var observedNav = qs('#sidebarNav');
     if(observedNav && window.MutationObserver){
-      var mo = new MutationObserver(function(){
+      var mo = new MutationObserver(function(mutations){
+        // Watch only real menu rebuilds/additions. The previous version also
+        // watched class changes; every click adds .sugo-flyout-current/open,
+        // which triggered refreshAfterDynamicMenuChanges() and closed the
+        // flyout after less than a second.
+        var hasStructuralChange = mutations.some(function(m){
+          return m.type === 'childList' && (m.addedNodes.length || m.removedNodes.length);
+        });
+        if(!hasStructuralChange) return;
         window.clearTimeout(refreshAfterDynamicMenuChanges._t);
-        refreshAfterDynamicMenuChanges._t = window.setTimeout(refreshAfterDynamicMenuChanges, 80);
+        refreshAfterDynamicMenuChanges._t = window.setTimeout(refreshAfterDynamicMenuChanges, 180);
       });
-      mo.observe(observedNav, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] });
+      mo.observe(observedNav, { childList:true, subtree:true });
     }
   });
 })();
