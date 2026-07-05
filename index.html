@@ -11098,26 +11098,9 @@ showOnlyWelcome();
   }
 
   function observeAnswer(){
-    var body = document.getElementById('aiAnswerBody');
-    if(body && !body.__sugoSmartDirectionObserver){
-      var obs = new MutationObserver(function(){
-        refreshAnswerContainerDirection();
-        body.querySelectorAll('p, li, h1, h2, h3, blockquote, ul, ol').forEach(function(el){
-          if(!el.classList.contains('sugo-ltr-block') && !el.classList.contains('sugo-rtl-block')) {
-            applyDirectionToElement(el, selectedUiDirection());
-          }
-        });
-      });
-      obs.observe(body, { childList:true, subtree:true, characterData:true });
-      body.__sugoSmartDirectionObserver = obs;
-    }
-
-    var query = document.getElementById('aiAnswerQuery');
-    if(query && !query.__sugoSmartDirectionObserver){
-      var qobs = new MutationObserver(refreshQueryDirection);
-      qobs.observe(query, { childList:true, subtree:true, characterData:true });
-      query.__sugoSmartDirectionObserver = qobs;
-    }
+    // Low-CPU: persistent AI direction observers removed.
+    refreshAnswerContainerDirection();
+    refreshQueryDirection();
   }
 
   function initSmartDirection(){
@@ -11415,9 +11398,7 @@ showOnlyWelcome();
   function scan(scope){ qsa(scope || document, '.doc-card').forEach(wire); }
   function boot(){ scan(document); setTimeout(function(){ scan(document); }, 80); setTimeout(function(){ scan(document); }, 300); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
-  try{
-    new MutationObserver(function(records){ records.forEach(function(record){ if(record.target) scan(record.target); }); }).observe(document.body, {childList:true, subtree:true});
-  }catch(e){}
+  // Low-CPU: removed body-wide observer; filters refresh on boot and explicit SUGO_minimalDropdownFilters.refresh().
   window.SUGO_minimalDropdownFilters = { refresh:function(){ scan(document); } };
 })();
 
@@ -11896,15 +11877,7 @@ showOnlyWelcome();
   function init(){
     patchMarkdownDirection();
     refreshAnswerDirections();
-    var body = document.getElementById('aiAnswerBody');
-    if(body && !body.__sugoFinalDirectionCopyObserver){
-      var obs = new MutationObserver(function(){
-        clearTimeout(body.__sugoFinalDirectionCopyTimer);
-        body.__sugoFinalDirectionCopyTimer = setTimeout(refreshAnswerDirections, 20);
-      });
-      obs.observe(body, {childList:true, subtree:true, characterData:true});
-      body.__sugoFinalDirectionCopyObserver = obs;
-    }
+    // Low-CPU: removed persistent AI copy/direction observer; refresh runs on render/initial timers.
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -12111,23 +12084,7 @@ showOnlyWelcome();
     disconnectConflictingOldObservers();
     patchMarkdownAgain();
     applyAllDirections();
-    if(observer) return;
-
-    // Performance fix: do not observe the entire document or attributes.
-    // Watching class/style changes made every dropdown open trigger a full scan.
-    observer = new MutationObserver(function(records){
-      var shouldRefresh = records.some(function(record){
-        var target = record.target;
-        return target && !(target.closest && target.closest('#sidebar .search-row, select, option, input, textarea, button'));
-      });
-      if(shouldRefresh) scheduleApply();
-    });
-
-    ['#aiAnswerBody','#aiAnswerQuery','.content'].forEach(function(sel){
-      document.querySelectorAll(sel).forEach(function(el){
-        observer.observe(el, {childList:true, subtree:true, characterData:true});
-      });
-    });
+    // Low-CPU: removed persistent content observer; direction fixes run through patched renderMarkdown/show events.
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -12879,23 +12836,7 @@ showOnlyWelcome();
     }
   }, true);
   document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('#optionsToggleBtn,.control-deck')) setTimeout(lockOptionsEnglish,0); }, true);
-  try{
-    var lockOptionsTimer = null;
-    var obs = new MutationObserver(function(records){
-      var relevant = records.some(function(record){
-        var t = record.target;
-        if(!t) return false;
-        if(t.nodeType === 3) t = t.parentElement;
-        if(!t || !t.closest) return false;
-        return t.closest('#optionsSummary,#optionsToggleBtn,.control-deck,#languageSelect,#outputTypeSelect,#sopModeSelect,#responseModeSelect,#presetSelect');
-      });
-      if(!relevant) return;
-      clearTimeout(lockOptionsTimer);
-      lockOptionsTimer = setTimeout(lockOptionsEnglish, 80);
-    });
-    var root = document.getElementById('sidebar') || document.body;
-    if(root) obs.observe(root,{subtree:true,childList:true,characterData:true});
-  }catch(e){}
+  // Low-CPU: removed sidebar text MutationObserver; option text is locked on load/click/change.
 })();
 
 
@@ -14182,14 +14123,8 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
     });
   }
   function observeAiAnswer(){
+    // Low-CPU: persistent AI-answer observers removed. The bar is refreshed on boot/load/click.
     if(observerStarted) return;
-    var body = byId('aiAnswerBody');
-    var pane = byId('aiAnswerPane');
-    if(!body || !pane) return;
-    var mo = new MutationObserver(function(){ setTimeout(ensureAiFavoriteBar, 70); });
-    mo.observe(body, { childList:true, subtree:true, characterData:true });
-    var mo2 = new MutationObserver(function(){ setTimeout(ensureAiFavoriteBar, 70); });
-    mo2.observe(pane, { attributes:true, attributeFilter:['class'] });
     observerStarted = true;
   }
   function boot(){
@@ -15464,10 +15399,7 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
   document.addEventListener('keydown', handleKeyboard, true);
   document.addEventListener('DOMContentLoaded', function(){ setTimeout(refreshAndRepairItems, 0); setTimeout(refreshAndRepairItems, 500); });
   window.addEventListener('load', function(){ setTimeout(refreshAndRepairItems, 0); setTimeout(refreshAndRepairItems, 800); });
-  var panel = byId('sugoFavRecentPanel');
-  if(panel && window.MutationObserver){
-    new MutationObserver(refreshAndRepairItems).observe(panel, { childList:true, subtree:true });
-  }
+  // Low-CPU: removed favorite panel MutationObserver; repair runs on open/load events.
   window.SUGOFavoritesOpenHotfix = { version:'2.0.0', open: robustOpenPane, repair: refreshAndRepairItems };
 })();
 </script>
@@ -16346,9 +16278,13 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
       var t=e.target && e.target.closest && e.target.closest('.nav-l000-btn');
       if(t){ var id=t.getAttribute('data-pane'); setTimeout(function(){ injectEdit(id); }, 80); }
     }, true);
-    var obs=new MutationObserver(function(){ var id=activePaneId(); if(id) setTimeout(function(){ injectEdit(id); }, 80); });
-    obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-    setInterval(function(){ wrapShowPane(); var id=activePaneId(); if(id) injectEdit(id); }, 1200);
+    // Low-CPU: removed continuous DOM observer + 1200ms polling.
+    // showPane wrapper + click/change events above are enough to inject the toolbar when a topic opens.
+    window.addEventListener('load', function(){
+      wrapShowPane();
+      var id = activePaneId();
+      if(id) setTimeout(function(){ injectEdit(id); }, 80);
+    }, { once:true });
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
@@ -17810,13 +17746,7 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
   else refresh(document);
   setTimeout(function(){ refresh(document); }, 150);
   setTimeout(function(){ refresh(document); }, 600);
-  try{
-    new MutationObserver(function(records){
-      var needs = false;
-      records.forEach(function(record){ if(record.addedNodes && record.addedNodes.length) needs = true; });
-      if(needs) setTimeout(function(){ refresh(document); }, 30);
-    }).observe(document.body, { childList:true, subtree:true });
-  }catch(e){}
+  // Low-CPU: removed global MutationObserver. Refresh runs on showPane + initial timers only.
 })();
 </script>
 <!-- ===== /SUGO ROBUST CONTENT/LANGUAGE DROPDOWN FIX ===== -->
@@ -17848,9 +17778,7 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
   } else {
     clearRedundantTicketMeta();
   }
-  try {
-    new MutationObserver(clearRedundantTicketMeta).observe(document.documentElement, { childList:true, subtree:true });
-  } catch (e) {}
+  // Low-CPU: removed document-wide MutationObserver. Disabled renderers above already keep these panels hidden.
 })();
 </script>
 
@@ -18079,8 +18007,8 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
       setTimeout(syncActiveFavorite, 220);
     }
   }, true);
-  try{ new MutationObserver(function(){ setTimeout(syncActiveFavorite, 60); }).observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] }); }catch(e){}
-  setInterval(syncActiveFavorite, 1200);
+  // Low-CPU: removed body-wide MutationObserver and 1200ms polling.
+  // Favorite state updates on load, click, and showPane wrapper above.
 
   window.SUGOVisibleFavoriteButton = { sync: syncActiveFavorite, toggle: toggleFavorite, set: setFavorite, isFavorite: isFavorite };
 })();
@@ -19340,17 +19268,7 @@ svg *{
     return result;
   };
 
-  var sidebar=document.getElementById('sidebar');
-  if(sidebar && 'MutationObserver' in window){
-    new MutationObserver(scheduleSync).observe(sidebar,{attributes:true,attributeFilter:['class']});
-  }
-  if('ResizeObserver' in window){
-    var ro=new ResizeObserver(scheduleSync);
-    var panel=qs('#sidebar .control-deck.sugo-dropdown-options');
-    var row=qs('#sidebar .search-row');
-    if(panel) ro.observe(panel);
-    if(row) ro.observe(row);
-  }
+  // Low-CPU: no MutationObserver/ResizeObserver here; sync only on user/system events.
   ['resize','scroll','orientationchange'].forEach(function(evt){window.addEventListener(evt,scheduleSync,true);});
   document.addEventListener('click',scheduleSync,true);
   document.addEventListener('change',scheduleSync,true);
@@ -20101,19 +20019,8 @@ svg *{
     }
   }, true);
 
-  /* Mutation observers catch existing code that toggles .is-open / .active after click handlers run. */
-  function observeClasses(){
-    var panel = byId('sugoFavRecentPanel');
-    var cascade = byId('sugoCascadeMenu');
-    var nav = byId('sidebarNav');
-    var obs = new MutationObserver(function(){ setTimeout(refreshAllPositions, 0); });
-    if(panel) obs.observe(panel,{attributes:true,attributeFilter:['class'],subtree:true});
-    if(cascade) obs.observe(cascade,{attributes:true,attributeFilter:['class'],subtree:true});
-    if(nav) obs.observe(nav,{attributes:true,attributeFilter:['class'],subtree:true});
-    document.querySelectorAll('#sidebar .nav-lroot-children, #sidebar .nav-l0-children, #sidebar .nav-l00-children').forEach(function(el){
-      obs.observe(el,{attributes:true,attributeFilter:['class']});
-    });
-  }
+  /* Low-CPU: removed class MutationObservers; position refresh runs from click/change/resize events. */
+  function observeClasses(){}
 
   ['resize','scroll','orientationchange'].forEach(function(ev){ window.addEventListener(ev, refreshAllPositions, true); });
   document.addEventListener('keydown', function(event){ if(event.key === 'Escape') closeFavRecent(); }, true);
@@ -20349,10 +20256,7 @@ svg *{
   ['resize','scroll','orientationchange'].forEach(function(ev){ window.addEventListener(ev, schedule, true); });
 
   function boot(){
-    var nav = document.getElementById('sidebarNav') || document.getElementById('sidebar');
-    if(nav && window.MutationObserver){
-      new MutationObserver(schedule).observe(nav, {subtree:true, attributes:true, attributeFilter:['class','style']});
-    }
+    // Low-CPU: no class/style MutationObserver; schedule is driven by clicks and resize events.
     schedule();
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
@@ -20620,10 +20524,7 @@ svg *{
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') setTimeout(schedule, 0); }, true);
 
   function boot(){
-    var nav = document.getElementById('sidebarNav') || document.getElementById('sidebar');
-    if(nav && window.MutationObserver){
-      new MutationObserver(schedule).observe(nav, {subtree:true, attributes:true, attributeFilter:['class','style']});
-    }
+    // Low-CPU: no class/style MutationObserver; schedule is driven by clicks and resize events.
     schedule();
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
@@ -21058,13 +20959,7 @@ svg *{
   function boot(){
     ensureMenu();
     runAfterExisting();
-    if(window.MutationObserver){
-      var observer = new MutationObserver(function(){ if(!__sugoMenuV3Building) runAfterExisting(); });
-      ['sugoCascadeCategory','sugoCascadeSection','sugoCascadeTopic'].forEach(function(id){
-        var sel = byId(id);
-        if(sel) observer.observe(sel, {childList:true, subtree:true, attributes:true, attributeFilter:['disabled','value']});
-      });
-    }
+    // Low-CPU: no observer on select option changes. User change/click handlers above refresh the menu.
     ['resize','scroll','orientationchange'].forEach(function(ev){ window.addEventListener(ev, function(){ placeMenu(); }, true); });
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
@@ -21092,7 +20987,6 @@ svg *{
   document.addEventListener('click', function(e){
     if(e.target && e.target.closest && e.target.closest('.nav-l000-btn[data-pane]')){
       setTimeout(closeClassicFlyoutsOnly, 0);
-      setTimeout(closeClassicFlyoutsOnly, 90);
     }
   }, true);
 })();
@@ -21336,3 +21230,4 @@ select option{
 
 </body>
 </html>
+
