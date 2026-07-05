@@ -1,22 +1,26 @@
 /* =========================================================
-   SUGO Flyout Menu Override v1.0
-   Purpose: replace left sidebar accordion/dropdown navigation with
-   floating flyout panels without changing the original content/Worker.
+   SUGO Flyout Menu Override v2.0 — Stable + Native Theme
+   - Keeps original sidebar colors/feel.
+   - Stops old accordion dropdowns.
+   - Uses flyout panels for Category / Section / Topic.
+   - Does not change Worker/API/Admin/KV.
    ========================================================= */
 
 body.sugo-flyout-enabled{
-  --sugo-flyout-w: 288px;
+  --sugo-flyout-w: 292px;
   --sugo-flyout-gap: 10px;
-  --sugo-flyout-bg: #0d1729;
-  --sugo-flyout-bg-2: #111f36;
-  --sugo-flyout-line: rgba(255,255,255,.10);
-  --sugo-flyout-text: #eef6ff;
-  --sugo-flyout-muted: #9fb1ca;
-  --sugo-flyout-accent: #2563eb;
-  --sugo-flyout-accent-2: #06b6d4;
+  --sugo-flyout-bg: var(--sidebar-bg, #0d1524);
+  --sugo-flyout-bg-2: var(--sidebar-bg-2, #111c2f);
+  --sugo-flyout-bg-3: #081120;
+  --sugo-flyout-line: var(--sidebar-line, rgba(255,255,255,.08));
+  --sugo-flyout-text: var(--sidebar-text, #edf4ff);
+  --sugo-flyout-muted: var(--sidebar-muted, #9caec4);
+  --sugo-flyout-faint: var(--sidebar-faint, #64748b);
+  --sugo-flyout-accent: var(--accent, #1f5eff);
+  --sugo-flyout-accent-2: var(--accent-2, #0ea5e9);
 }
 
-/* Stop the old nested dropdown/accordion from appearing under items. */
+/* Old nested dropdown/accordion is still in DOM for data, but not visible. */
 body.sugo-flyout-enabled .nav-lroot-children,
 body.sugo-flyout-enabled .nav-l0-children,
 body.sugo-flyout-enabled .nav-l00-children{
@@ -29,7 +33,7 @@ body.sugo-flyout-enabled .nav-l00-children{
   border:0!important;
 }
 
-/* The old cascade/select navigation becomes hidden; the real roots stay visible. */
+/* Hide old select/cascade dropdown navigation while preserving its logic in JS. */
 body.sugo-flyout-enabled #sugoCascadeMenu{
   display:none!important;
 }
@@ -41,24 +45,16 @@ body.sugo-flyout-enabled #sidebarNav{
   padding-top:12px!important;
 }
 
-/* Keep the admin edit/reset row, but hide the Menu select that caused a dropdown. */
+/* Keep the admin row usable, remove the extra dropdown text. */
 body.sugo-flyout-enabled #sugoLibrarySwitch .sugo-select-wrap{
   display:none!important;
 }
-body.sugo-flyout-enabled #sugoLibrarySwitch{
-  padding:10px 16px!important;
-}
 body.sugo-flyout-enabled #sugoLibrarySwitch::after{
-  content:'Open menu items from the buttons below';
-  display:block;
-  margin-top:6px;
-  color:rgba(238,246,255,.56);
-  font-size:.66rem;
-  font-weight:800;
-  letter-spacing:.02em;
+  content:none!important;
+  display:none!important;
 }
 
-/* Root items remain in the sidebar as the flyout launchers. */
+/* Root items stay in the sidebar as flyout launchers. */
 body.sugo-flyout-enabled .nav-lroot{
   position:relative!important;
   margin:7px 0!important;
@@ -72,9 +68,9 @@ body.sugo-flyout-enabled .nav-lroot-btn.sugo-flyout-current,
 body.sugo-flyout-enabled .nav-l0-btn.sugo-flyout-current,
 body.sugo-flyout-enabled .nav-l00-btn.sugo-flyout-current{
   color:#fff!important;
-  background:linear-gradient(135deg,rgba(37,99,235,.34),rgba(6,182,212,.18))!important;
-  border-color:rgba(96,165,250,.42)!important;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 12px 24px rgba(0,0,0,.16)!important;
+  background:rgba(255,255,255,.115)!important;
+  border-color:rgba(255,255,255,.12)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 12px 24px rgba(0,0,0,.16)!important;
 }
 body.sugo-flyout-enabled .nav-lroot-chev.open svg,
 body.sugo-flyout-enabled .nav-l0-chev.open svg,
@@ -100,15 +96,12 @@ body.sugo-flyout-enabled .nav-l00-chev.open svg{
   display:flex;
   flex-direction:column;
   overflow:hidden;
-  border-radius:20px;
+  border-radius:18px;
   border:1px solid var(--sugo-flyout-line);
-  background:
-    radial-gradient(circle at 24% -10%,rgba(37,99,235,.22),transparent 38%),
-    linear-gradient(180deg,var(--sugo-flyout-bg-2),var(--sugo-flyout-bg));
-  box-shadow:0 28px 70px rgba(2,6,23,.38),0 0 0 1px rgba(255,255,255,.035) inset;
+  background:linear-gradient(180deg,var(--sugo-flyout-bg-2) 0%,var(--sugo-flyout-bg) 56%,var(--sugo-flyout-bg-3) 100%);
+  box-shadow:18px 22px 58px rgba(2,6,23,.34),0 0 0 1px rgba(255,255,255,.025) inset;
   color:var(--sugo-flyout-text);
   animation:sugoFlyoutIn .14s ease-out both;
-  backdrop-filter:blur(12px);
 }
 .sugo-flyout-panel[data-level="1"]{z-index:99999;}
 .sugo-flyout-panel[data-level="2"]{z-index:100000;}
@@ -118,22 +111,24 @@ body.sugo-flyout-enabled .nav-l00-chev.open svg{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:13px 14px 11px;
+  padding:13px 14px 12px;
   border-bottom:1px solid var(--sugo-flyout-line);
-  background:rgba(255,255,255,.045);
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
 }
 .sugo-flyout-kicker{
   flex:0 0 auto;
   display:inline-grid;
   place-items:center;
-  min-width:28px;
-  height:28px;
-  border-radius:10px;
-  background:linear-gradient(135deg,var(--sugo-flyout-accent),var(--sugo-flyout-accent-2));
+  min-width:30px;
+  height:30px;
+  padding:0 8px;
+  border-radius:11px;
+  background:rgba(31,94,255,.62);
   color:#fff;
-  font-size:.72rem;
+  font-size:.66rem;
   font-weight:900;
-  box-shadow:0 10px 20px rgba(37,99,235,.25);
+  letter-spacing:.04em;
+  box-shadow:0 12px 22px rgba(31,94,255,.22);
 }
 .sugo-flyout-title{
   min-width:0;
@@ -142,36 +137,45 @@ body.sugo-flyout-enabled .nav-l00-chev.open svg{
   white-space:nowrap;
   text-overflow:ellipsis;
   color:#fff;
-  font-family:'Plus Jakarta Sans','Cairo',system-ui,sans-serif;
-  font-size:.84rem;
+  font-family:var(--display-font,'Cairo','Plus Jakarta Sans',system-ui,sans-serif);
+  font-size:.87rem;
   font-weight:900;
   letter-spacing:-.01em;
 }
 .sugo-flyout-close{
   flex:0 0 auto;
-  width:28px;
-  height:28px;
+  width:30px;
+  height:30px;
   border:0;
   border-radius:10px;
   cursor:pointer;
   color:rgba(238,246,255,.78);
   background:rgba(255,255,255,.075);
   font-weight:900;
+  line-height:1;
 }
 .sugo-flyout-close:hover{
   color:#fff;
-  background:rgba(220,38,38,.85);
+  background:rgba(220,38,38,.82);
 }
 .sugo-flyout-list{
   padding:9px;
   overflow:auto;
   scrollbar-width:thin;
+  scrollbar-color:rgba(156,174,196,.45) transparent;
 }
-.sugo-flyout-empty{
+.sugo-flyout-empty,
+.sugo-flyout-error{
   padding:16px;
   color:var(--sugo-flyout-muted);
   font-size:.78rem;
   text-align:center;
+}
+.sugo-flyout-error{
+  color:#fecaca;
+  border:1px solid rgba(220,38,38,.24);
+  border-radius:12px;
+  background:rgba(220,38,38,.12);
 }
 .sugo-flyout-item{
   width:100%;
@@ -182,12 +186,12 @@ body.sugo-flyout-enabled .nav-l00-chev.open svg{
   margin:3px 0;
   padding:10px 11px;
   border:1px solid transparent;
-  border-radius:14px;
+  border-radius:12px;
   cursor:pointer;
   background:transparent;
-  color:rgba(238,246,255,.82);
+  color:rgba(238,246,255,.78);
   text-align:left;
-  font-family:'Plus Jakarta Sans','Cairo',system-ui,sans-serif;
+  font-family:var(--body-font,'Plus Jakarta Sans','Cairo',system-ui,sans-serif);
   font-size:.78rem;
   line-height:1.35;
   font-weight:800;
@@ -195,23 +199,24 @@ body.sugo-flyout-enabled .nav-l00-chev.open svg{
 .sugo-flyout-item:hover,
 .sugo-flyout-item.sugo-flyout-current{
   color:#fff;
-  border-color:rgba(96,165,250,.28);
-  background:rgba(255,255,255,.085);
+  border-color:rgba(255,255,255,.10);
+  background:rgba(255,255,255,.075);
 }
 .sugo-flyout-item.sugo-flyout-current{
-  background:linear-gradient(135deg,rgba(37,99,235,.34),rgba(6,182,212,.15));
+  background:rgba(255,255,255,.105);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
 }
 .sugo-flyout-dot{
   flex:0 0 auto;
   width:7px;
   height:7px;
   border-radius:999px;
-  background:rgba(159,177,202,.72);
+  background:rgba(156,174,196,.60);
 }
 .sugo-flyout-item:hover .sugo-flyout-dot,
 .sugo-flyout-item.sugo-flyout-current .sugo-flyout-dot{
   background:var(--sugo-flyout-accent-2);
-  box-shadow:0 0 0 4px rgba(6,182,212,.12);
+  box-shadow:0 0 0 4px rgba(14,165,233,.12);
 }
 .sugo-flyout-label{
   flex:1;
@@ -225,7 +230,6 @@ body.sugo-flyout-enabled .nav-l00-chev.open svg{
   flex:0 0 auto;
   color:rgba(238,246,255,.56);
   font-weight:900;
-  transform:translateX(0);
   transition:transform .16s ease,color .16s ease;
 }
 .sugo-flyout-item:hover .sugo-flyout-arrow{
@@ -235,7 +239,12 @@ body.sugo-flyout-enabled .nav-l00-chev.open svg{
 .sugo-flyout-topic .sugo-flyout-dot{
   width:5px;
   height:5px;
-  background:rgba(96,165,250,.75);
+  background:rgba(14,165,233,.72);
+}
+.sugo-flyout-topic.sugo-flyout-opened{
+  color:#fff;
+  background:rgba(31,94,255,.18);
+  border-color:rgba(31,94,255,.28);
 }
 
 @keyframes sugoFlyoutIn{

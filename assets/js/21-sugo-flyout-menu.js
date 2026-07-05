@@ -1,15 +1,15 @@
 /* =========================================================
-   SUGO Flyout Menu Override v1.1 Stable
-   Replaces nested sidebar dropdowns with fixed flyout panels.
-   v1.1: fixes instant-close caused by observing class changes on original nav.
-   Loads last and does not change the Worker/API/content data.
+   SUGO Flyout Menu Override v2.0 Stable
+   - Replaces nested sidebar dropdowns with fixed flyout panels.
+   - Opens topics through the original showPane path, with hard fallback.
+   - Uses original DOM as source of truth; Worker/API/Admin unchanged.
    ========================================================= */
 (function(){
   'use strict';
 
   var stage = null;
   var nav = null;
-  var panelWidth = 288;
+  var panelWidth = 292;
   var panelGap = 10;
   var bypass = false;
   var hoverTimer = null;
@@ -83,6 +83,7 @@
   function safeShowWelcome(){
     try{
       if(typeof window.showOnlyWelcome === 'function') window.showOnlyWelcome();
+      else if(typeof showOnlyWelcome === 'function') showOnlyWelcome();
     }catch(e){}
   }
 
@@ -139,11 +140,12 @@
     panel.setAttribute('role','menu');
     panel.innerHTML = '' +
       '<div class="sugo-flyout-head">' +
-        '<div class="sugo-flyout-kicker">' + kicker + '</div>' +
+        '<div class="sugo-flyout-kicker"></div>' +
         '<div class="sugo-flyout-title"></div>' +
         '<button class="sugo-flyout-close" type="button" aria-label="Close">×</button>' +
       '</div>' +
       '<div class="sugo-flyout-list"></div>';
+    qs('.sugo-flyout-kicker', panel).textContent = kicker || '';
     qs('.sugo-flyout-title', panel).textContent = title || 'Menu';
     qs('.sugo-flyout-close', panel).addEventListener('click', function(e){
       e.preventDefault(); e.stopPropagation();
@@ -161,6 +163,13 @@
     empty.className = 'sugo-flyout-empty';
     empty.textContent = 'No items in this level';
     list.appendChild(empty);
+  }
+
+  function renderError(list, message){
+    var err = document.createElement('div');
+    err.className = 'sugo-flyout-error';
+    err.textContent = message || 'Could not open this item.';
+    list.appendChild(err);
   }
 
   function buildFlyoutButton(label, type, hasChildren, original){
@@ -183,7 +192,7 @@
     var title = textOfButton(rootBtn) || 'Menu';
     var rootChildren = qs(':scope > .nav-lroot-children', root) || qs('.nav-lroot-children', root);
     var categories = directChildren(rootChildren, '.nav-l0');
-    var panel = makePanel(1, title, 'L1', anchor || rootBtn);
+    var panel = makePanel(1, title, 'MENU', anchor || rootBtn);
     var list = qs('.sugo-flyout-list', panel);
     if(!categories.length) renderEmpty(list);
     categories.forEach(function(cat){
@@ -209,7 +218,7 @@
     if(anchor) anchor.classList.add('sugo-flyout-current');
     var child = qs(':scope > .nav-l0-children', cat) || qs('.nav-l0-children', cat);
     var sections = directChildren(child, '.nav-l00');
-    var panel = makePanel(2, textOfButton(catBtn) || 'Category', 'L2', anchor || catBtn);
+    var panel = makePanel(2, textOfButton(catBtn) || 'Category', 'CAT', anchor || catBtn);
     var list = qs('.sugo-flyout-list', panel);
     if(!sections.length) renderEmpty(list);
     sections.forEach(function(sec){
@@ -235,7 +244,7 @@
     if(anchor) anchor.classList.add('sugo-flyout-current');
     var child = qs(':scope > .nav-l00-children', sec) || qs('.nav-l00-children', sec);
     var topics = directChildren(child, '.nav-l000-btn');
-    var panel = makePanel(3, textOfButton(secBtn) || 'Section', 'L3', anchor || secBtn);
+    var panel = makePanel(3, textOfButton(secBtn) || 'Section', 'TOPICS', anchor || secBtn);
     var list = qs('.sugo-flyout-list', panel);
     if(!topics.length) renderEmpty(list);
     topics.forEach(function(topicBtn){
@@ -244,29 +253,123 @@
       if(paneId) btn.setAttribute('data-pane', paneId);
       btn.addEventListener('click', function(e){
         e.preventDefault(); e.stopPropagation();
-        openTopic(topicBtn, btn);
+        var ok = openTopic(topicBtn, btn);
+        if(!ok){
+          var listNode = btn.closest('.sugo-flyout-list');
+          if(listNode && !listNode.querySelector('.sugo-flyout-error')) renderError(listNode, 'Topic did not open. Missing pane id: ' + (paneId || 'none'));
+        }
       });
       list.appendChild(btn);
     });
   }
 
-  function openTopic(topicBtn, flyoutBtn){
-    if(!topicBtn) return;
-    qsa('.sugo-flyout-item.sugo-flyout-current').forEach(function(el){ el.classList.remove('sugo-flyout-current'); });
-    if(flyoutBtn) flyoutBtn.classList.add('sugo-flyout-current');
-    var paneId = topicBtn.getAttribute('data-pane');
+  function isPaneActive(paneId){
+    var pane = document.getElementById(paneId);
+    return Boolean(pane && pane.classList.contains('active'));
+  }
+
+  function getPaneElement(paneId){
+    if(!paneId) return null;
+    var pane = document.getElementById(paneId);
+    if(pane) return pane;
+
+    try{
+      if(typeof window.preparePaneElement === 'function') pane = window.preparePaneElement(paneId);
+    }catch(e){}
+    if(pane) return pane;
+
+    try{
+      if(typeof preparePaneElement === 'function') pane = preparePaneElement(paneId);
+    }catch(e){}
+    if(pane) return pane;
+
+    try{ pane = qs('.content-pane[data-pane="' + cssEscape(paneId) + '"]'); }catch(e){}
+    return pane || document.getElementById(paneId);
+  }
+
+  function forceOpenPane(paneId){
+    var pane = getPaneElement(paneId);
+    if(!pane) return false;
+
+    try{ if(typeof window.closeAIPane === 'function') window.closeAIPane(); }catch(e){}
+    qsa('.content-pane,.ai-answer-pane').forEach(function(p){ p.classList.remove('active'); });
+    var welcome = qs('#welcomeMsg');
+    if(welcome) welcome.style.display = 'none';
+    pane.classList.add('active');
+
+    qsa('.nav-l000-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-pane') === paneId); });
+    try{ localStorage.setItem('sugo_last_pane', paneId); }catch(e){}
+    window.SUGO_ACTIVE_PANE = paneId;
+    window.SUGO_ACTIVE_PANE_TS = Date.now();
+
+    try{
+      if(window.SugoApp && window.SugoApp.navigation && typeof window.SugoApp.navigation.syncToPane === 'function'){
+        window.SugoApp.navigation.syncToPane(paneId, { persist:true });
+      }
+    }catch(e){}
+
+    return isPaneActive(paneId) || Boolean(pane.classList.contains('active'));
+  }
+
+  function callOriginalOpeners(topicBtn, paneId){
+    var ok = false;
+
     try{
       if(paneId && typeof window.showPane === 'function'){
         window.showPane(paneId, true);
-      }else{
-        bypass = true;
-        topicBtn.click();
-        bypass = false;
+        ok = isPaneActive(paneId);
       }
-    }catch(e){
-      bypass = false;
+    }catch(e){ ok = false; }
+
+    if(!ok){
+      try{
+        if(paneId && typeof showPane === 'function'){
+          showPane(paneId, true);
+          ok = isPaneActive(paneId);
+        }
+      }catch(e){ ok = false; }
     }
-    closePanelsFrom(2);
+
+    if(!ok && topicBtn){
+      try{
+        bypass = true;
+        topicBtn.dispatchEvent(new MouseEvent('click', { bubbles:true, cancelable:true, view:window }));
+        ok = isPaneActive(paneId);
+      }catch(e){ ok = false; }
+      finally{ bypass = false; }
+    }
+
+    return ok;
+  }
+
+  function openTopic(topicBtn, flyoutBtn){
+    if(!topicBtn) return false;
+    var paneId = topicBtn.getAttribute('data-pane') || (flyoutBtn && flyoutBtn.getAttribute('data-pane')) || '';
+    if(!paneId) return false;
+
+    qsa('.sugo-flyout-item.sugo-flyout-current,.sugo-flyout-topic.sugo-flyout-opened').forEach(function(el){
+      el.classList.remove('sugo-flyout-current');
+      el.classList.remove('sugo-flyout-opened');
+    });
+    if(flyoutBtn){
+      flyoutBtn.classList.add('sugo-flyout-current');
+      flyoutBtn.classList.add('sugo-flyout-opened');
+    }
+
+    var opened = callOriginalOpeners(topicBtn, paneId);
+    if(!opened) opened = forceOpenPane(paneId);
+
+    // One more safety retry after all older click handlers finish.
+    window.setTimeout(function(){
+      if(!isPaneActive(paneId)) forceOpenPane(paneId);
+    }, 80);
+
+    if(opened){
+      closeAll();
+    }else{
+      try{ console.warn('[SUGO Flyout] Could not open topic pane:', paneId); }catch(e){}
+    }
+    return opened;
   }
 
   function handleOriginalNavClick(event){
@@ -293,6 +396,8 @@
       return;
     }
     if(btn.classList.contains('nav-l00-btn')){
+      var cat = btn.closest('.nav-l0');
+      if(cat && !qs('.sugo-flyout-panel[data-level="2"]', stage || document)) renderCategory(cat, qs(':scope > .nav-l0-btn', cat) || btn);
       renderSection(btn.closest('.nav-l00'), btn);
       return;
     }
@@ -304,8 +409,7 @@
   function installGuards(){
     document.addEventListener('click', handleOriginalNavClick, true);
 
-    // Close only when the user really clicks outside. Do not close on the same
-    // sidebar/flyout interaction that opened a panel.
+    // Close only when clicking outside sidebar/flyout/admin popover.
     document.addEventListener('click', function(e){
       if(!stage || !stage.classList.contains('sugo-flyout-open')) return;
       if(stage.contains(e.target)) return;
@@ -317,9 +421,6 @@
 
     document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeAll(); });
     window.addEventListener('resize', closeAll);
-
-    // IMPORTANT: do not close on scroll. Some browsers fire captured scroll
-    // events from sidebar/panel scrollbars immediately after opening.
   }
 
   function refreshAfterDynamicMenuChanges(){
@@ -332,21 +433,17 @@
     setEnabled();
     installGuards();
 
-    // Old scripts may re-enable cascade mode after async menu refresh; keep the flyout source visible.
+    // Older scripts can re-enable cascade mode after async work; keep source roots visible.
     var runs = 0;
     var interval = window.setInterval(function(){
       setEnabled();
       runs += 1;
-      if(runs >= 20) window.clearInterval(interval);
+      if(runs >= 40) window.clearInterval(interval);
     }, 250);
 
     var observedNav = qs('#sidebarNav');
     if(observedNav && window.MutationObserver){
       var mo = new MutationObserver(function(mutations){
-        // Watch only real menu rebuilds/additions. The previous version also
-        // watched class changes; every click adds .sugo-flyout-current/open,
-        // which triggered refreshAfterDynamicMenuChanges() and closed the
-        // flyout after less than a second.
         var hasStructuralChange = mutations.some(function(m){
           return m.type === 'childList' && (m.addedNodes.length || m.removedNodes.length);
         });
