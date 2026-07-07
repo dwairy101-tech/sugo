@@ -1,0 +1,34 @@
+{
+  "assets/js/sugo.loader.js": {
+    "ok": true,
+    "stderr": ""
+  },
+  "assets/js/sugo.performance.phase3.js": {
+    "ok": true,
+    "stderr": ""
+  },
+  "assets/js/sugo.sw-register.phase3.js": {
+    "ok": true,
+    "stderr": ""
+  },
+  "sugo-sw.js": {
+    "ok": true,
+    "stderr": ""
+  },
+  "assets/js/sugo.core.phase2.js": {
+    "ok": true,
+    "stderr": ""
+  },
+  "assets/js/sugo.idle.phase2.js": {
+    "ok": true,
+    "stderr": ""
+  },
+  "assets/js/sugo.optional.phase3.js": {
+    "ok": true,
+    "stderr": ""
+  },
+  "worker.js": {
+    "ok": true,
+    "stderr": ""
+  }
+}

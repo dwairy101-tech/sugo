@@ -1,0 +1,11 @@
+{
+  "phase": 2,
+  "setPane_calls_removed_from_startup_js": 312,
+  "panes_externalized": 312,
+  "index_html_bytes": 85844,
+  "core_js_bytes": 263352,
+  "topic_index_js_bytes": 1043040,
+  "panes_dir_total_bytes": 3660221,
+  "loader_policy": "no forced idle/timer loading; phase2 loads on first interaction; phase3 loads only for admin/edit/upload features",
+  "memory_policy": "pane HTML is fetched per section instead of all pane HTML being retained in RAM on startup"
+}
