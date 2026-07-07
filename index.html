@@ -11174,6 +11174,10 @@ async function askAI(query, isFollowup, isContinuation, aiOptions) {
       headers: requestHeaders,
       signal: aiAbortController.signal,
       body: JSON.stringify({
+        // Explicit workspace routing for the upgraded Worker.
+        // This keeps Upload Image from being treated like a normal text Ask AI request.
+        task_type: attachedImage ? 'image_analysis' : ((isSmartTicket || selectedOutputType === 'ticket') ? 'create_ticket' : 'ask_ai'),
+        workspace: attachedImage ? 'upload_image' : ((isSmartTicket || selectedOutputType === 'ticket') ? 'create_ticket' : 'ask_ai'),
         max_completion_tokens: isTicketOutput ? (isDetailed || isStepMode ? 7000 : 4200) : (isDetailed || isStepMode ? 9000 : 5200),
         response_mode: responseModeForRequest,
         output_type: selectedOutputType,
@@ -11199,6 +11203,7 @@ async function askAI(query, isFollowup, isContinuation, aiOptions) {
         kb_query_intents: kb.queryIntents || [],
         has_image: !!attachedImage,
         images: imagePayload,
+        image: imagePayload && imagePayload[0] ? imagePayload[0] : undefined,
         cache: !attachedImage,
         stream: false,
         messages
@@ -19671,6 +19676,8 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
       else throw new Error('Image upload handler is not available.');
       renderAllVisionPreviews();
       setWorkspaceStatus('Image is ready. Add notes if needed, then click Analyze Image.', false);
+      var submitBtn = byId('sugoVisionSubmit');
+      if(submitBtn) setTimeout(function(){ submitBtn.focus(); }, 80);
     }catch(err){
       renderAllVisionPreviews();
       setWorkspaceStatus((err && err.message) || String(err), true);
@@ -19751,6 +19758,7 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
     var search = byId('searchInput');
     if(search) search.value = (byId('sugoVisionCaseNote') && byId('sugoVisionCaseNote').value || '').trim() || finalQuery;
     applyVisionStateToLegacyControls();
+    setWorkspaceStatus('Sending image to AI analysis…', false);
     hideWorkspaceOnly();
     if(typeof window.askAI === 'function'){
       var img = null;
@@ -19866,6 +19874,161 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
 })();
 </script>
 <!-- ===== /SUGO Stage 4: Upload Image Workspace Runtime ===== -->
+
+
+
+<!-- ===== SUGO Vision Button Persistence Fix ===== -->
+<style id="sugo-vision-button-persistence-fix-css">
+/* Keep Analyze Image visible after an image preview appears. */
+@media (min-width:1081px){
+  .sugo-vision-workspace.active .sugo-tool-primary-card{
+    display:flex!important;
+    flex-direction:column!important;
+    min-height:0!important;
+    overflow:auto!important;
+    padding-bottom:0!important;
+  }
+  .sugo-vision-workspace.active .sugo-tool-actions{
+    position:sticky!important;
+    bottom:0!important;
+    z-index:70!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+    flex-wrap:nowrap!important;
+    margin:10px -14px 0!important;
+    padding:10px 14px 12px!important;
+    border-top:1px solid #ede9fe!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.80),#ffffff 40%)!important;
+    box-shadow:0 -12px 24px rgba(15,23,42,.06)!important;
+  }
+  .sugo-vision-workspace.active .sugo-tool-submit{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:1 1 auto!important;
+    min-width:180px!important;
+    white-space:nowrap!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+  .sugo-vision-workspace.active .sugo-tool-secondary{
+    flex:0 0 auto!important;
+    white-space:nowrap!important;
+  }
+  .sugo-vision-workspace.active.sugo-has-vision-image .sugo-vision-dropzone{
+    min-height:62px!important;
+    padding:8px 12px!important;
+    border-radius:16px!important;
+  }
+  .sugo-vision-workspace.active.sugo-has-vision-image .sugo-vision-dropzone>div{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+  .sugo-vision-workspace.active.sugo-has-vision-image .sugo-vision-drop-icon{
+    display:none!important;
+  }
+  .sugo-vision-workspace.active.sugo-has-vision-image .sugo-vision-drop-title{
+    font-size:.78rem!important;
+  }
+  .sugo-vision-workspace.active.sugo-has-vision-image .sugo-vision-drop-title::after{
+    content:' / replace image';
+    color:#7c3aed;
+    font-weight:900;
+  }
+  .sugo-vision-workspace.active.sugo-has-vision-image .sugo-vision-drop-sub{
+    display:none!important;
+  }
+}
+@media (max-width:1080px){
+  .sugo-vision-workspace.active .sugo-tool-actions{
+    position:sticky!important;
+    bottom:0!important;
+    z-index:70!important;
+    padding:10px 0!important;
+    background:#fff!important;
+  }
+  .sugo-vision-workspace.active .sugo-tool-submit{
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+}
+</style>
+<script id="sugo-vision-button-persistence-fix-js">
+(function(){
+  function byId(id){ return document.getElementById(id); }
+  function hasVisionImage(){
+    try{ return typeof sugoAiAttachedImage !== 'undefined' && !!sugoAiAttachedImage; }
+    catch(e){ return false; }
+  }
+  function keepAnalyzeButtonVisible(){
+    var panel = byId('sugoVisionWorkspace');
+    var btn = byId('sugoVisionSubmit');
+    if(panel){ panel.classList.toggle('sugo-has-vision-image', hasVisionImage()); }
+    if(btn){
+      btn.hidden = false;
+      btn.removeAttribute('hidden');
+      btn.style.display = 'inline-flex';
+      btn.style.visibility = 'visible';
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    }
+  }
+
+  function wrapAsync(name){
+    var original = window[name];
+    if(typeof original !== 'function') return;
+    window[name] = async function(){
+      var result;
+      try{ result = await original.apply(this, arguments); }
+      finally{
+        keepAnalyzeButtonVisible();
+        setTimeout(keepAnalyzeButtonVisible, 60);
+        setTimeout(keepAnalyzeButtonVisible, 260);
+      }
+      return result;
+    };
+  }
+  function wrapSync(name){
+    var original = window[name];
+    if(typeof original !== 'function') return;
+    window[name] = function(){
+      var result = original.apply(this, arguments);
+      keepAnalyzeButtonVisible();
+      setTimeout(keepAnalyzeButtonVisible, 60);
+      return result;
+    };
+  }
+
+  wrapSync('sugoOpenVisionWorkspace');
+  wrapAsync('sugoHandleVisionWorkspaceImage');
+  wrapSync('sugoVisionClearWorkspace');
+  wrapSync('clearSugoVisionImage');
+
+  document.addEventListener('change', function(e){
+    if(e.target && e.target.id === 'sugoVisionWorkspaceInput'){
+      setTimeout(keepAnalyzeButtonVisible, 120);
+      setTimeout(keepAnalyzeButtonVisible, 600);
+    }
+  }, true);
+  document.addEventListener('click', function(e){
+    if(e.target && (e.target.id === 'sugoVisionSubmit' || e.target.closest('#sugoVisionSubmit'))){
+      keepAnalyzeButtonVisible();
+    }
+  }, true);
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', keepAnalyzeButtonVisible);
+  }else{
+    keepAnalyzeButtonVisible();
+  }
+})();
+</script>
+<!-- ===== /SUGO Vision Button Persistence Fix ===== -->
 
 </body>
 </html>
