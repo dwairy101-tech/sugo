@@ -1,6 +1,0 @@
-/* Lazy-loaded SUGO pane: sv-tickets-ban-sexual-picture */
-(function(){
-  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-tickets-ban-sexual-picture'); return; }
-  setPane("sv-tickets-ban-sexual-picture", createSupportMacroContent("Ban Due to Sexual Picture", [{"label": "Answer", "text": "The ban reason is the presence of an image containing sexual implications."}, {"label": "Ticket", "text": "Welcome to Sugo,\n\nThe ban reason is the presence of an image containing sexual implications.\n\nWe once again sincerely apologize for the inconvenience we have caused, and we truly thank you for your patience and understanding. We wish you a happy and successful day!\n\nSUGO Customer Service Team"}], "الحظر بسبب صورة ذات إيحاءات جنسية", [{"label": "الإجابة", "text": "سبب الحظر هو وجود صورة تحتوي على إيحاءات جنسية."}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nنعتذر جداً على المشكلة التي تواجهك\n\nسبب الحظر هو وجود صورة تحتوي على إيحاءات جنسية.\n\nنكرر اعتذارنا الخالص عن الإزعاج الذي تسببنا به، ونشكركم جزيل الشكر على صبركم وسعة صدركم. نتمنى لكم يوماً سعيداً وموفقاً!\n\nفريق خدمة عملاء سوجو"}]));
-  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
-})();

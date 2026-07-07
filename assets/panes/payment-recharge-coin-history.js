@@ -1,9 +1,0 @@
-/* Lazy-loaded SUGO pane: payment-recharge-coin-history */
-(function(){
-  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: payment-recharge-coin-history'); return; }
-  setPane("payment-recharge-coin-history", createDualContent(
-  "Welcome to the SUGO family!\nWe sincerely apologize for the issue you are experiencing.\n\nTo view your complete coin transaction history, follow these simple steps:\n\n• Go to the \"ME\" page.\n• Tap \"Recharge\".\n• Tap the record icon in the top right corner (usually looks like a clock or list).\n• You will see a detailed list of all your coin additions and deductions, including dates, amounts, and reasons for each transaction.\n• You can scroll through the history to review past activity.\n\nThis feature helps you track your spending and verify that all transactions are correct.\n\nBest regards,\nSugo Support Team\n\n• On the “ME” page at the bottom right of the app, tap “Recharge”. Then, hit the record icon in the top right corner to view your coin history—it’s all there for you!",
-  "مرحبًا،\n\nلعرض سجل معاملات العملات الكامل الخاص بك، اتبع هذه الخطوات البسيطة:\n\n• انتقل إلى صفحة \"أنا\".\n• اضغط على \"إعادة الشحن\".\n• اضغط على أيقونة السجل في الزاوية العلوية اليمنى (تبدو عادةً كساعة أو قائمة).\n• سترى قائمة مفصلة بجميع إضافات وخصومات العملات الخاصة بك، بما في ذلك التواريخ والمبالغ وأسباب كل معاملة.\n• يمكنك التمرير خلال السجل لمراجعة النشاط السابق.\n\nهذه الميزة تساعدك في تتبع إنفاقك والتحقق من صحة جميع المعاملات.\n\nمع أطيب التحيات،\nفريق دعم Sugo\n\n• من صفحة \"أنا\" في أسفل يمين التطبيق، اضغط على \"إعادة الشحن\". بعد ذلك، اضغط على أيقونة السجل في أعلى يمين الشاشة لعرض سجل عملاتك — ستجد كل التفاصيل هناك!"
-));;
-  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
-})();
