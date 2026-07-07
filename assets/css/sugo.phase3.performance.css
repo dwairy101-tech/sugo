@@ -1,0 +1,23 @@
+/* SUGO Phase 3 Performance Layer
+   Paint/layout containment for heavy knowledge content. */
+.content-pane[data-lazy="1"]{
+  content-visibility:auto;
+  contain-intrinsic-size: 900px 1200px;
+  contain: layout paint style;
+}
+.content-pane[data-lazy="1"].active{
+  content-visibility:visible;
+  contain: layout paint;
+}
+.content-pane:not(.active) .doc-card,
+.content-pane:not(.active) .macro-col,
+.content-pane:not(.active) .macro-grid{
+  animation:none!important;
+  transition:none!important;
+}
+.sugo-pane-loading-card{
+  min-height:120px;
+}
+@media (max-width: 768px){
+  .content-pane[data-lazy="1"]{contain-intrinsic-size: 640px 1000px;}
+}
