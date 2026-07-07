@@ -19383,7 +19383,7 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
         return { paneId:'sv-tickets-agency-change-sub-to-main', title:'Change Sub Agency to Main Agency', confidence:'high', score:999 };
       }
       if(/(انشاء|انشا|فتح|تقديم|طلب|create|open|apply|مضيف|مضيفات|host|anchor)/.test(q)){
-        return { paneId:'sv-refined-create-host-agency', title:'Create Host Agency', confidence:'high', score:999 };
+        return { paneId:'sv-tickets-agency-create', title:'Create Agency', confidence:'high', score:999 }; /* fixed: exact ticket macro */
       }
     }
     return null;
@@ -20184,6 +20184,411 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
 })();
 </script>
 <!-- ===== /SUGO Vision Button Persistence Fix ===== -->
+
+
+<!-- ===== SUGO Content Sentence Lexicon v4: auto dictionary from every SOP sentence ===== -->
+<script id="sugo-content-sentence-lexicon-v4-js">
+(function(){
+  'use strict';
+  if(window.__SUGO_CONTENT_SENTENCE_LEXICON_V4__) return;
+  window.__SUGO_CONTENT_SENTENCE_LEXICON_V4__ = true;
+
+  var VERSION = '4.0-content-sentence-lexicon';
+  var cache = null;
+  var oldGetRelevant = window.getRelevantKnowledgeBaseText;
+
+  function norm(value){
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[إأآا]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ؤ/g, 'و')
+      .replace(/ئ/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .replace(/ـ/g, '')
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function paneMap(){
+    try{ if(typeof paneContent !== 'undefined' && paneContent) return paneContent; }catch(e){}
+    try{ if(window.paneContent) return window.paneContent; }catch(e){}
+    return {};
+  }
+
+  function htmlText(html){
+    var tmp = document.createElement('div');
+    tmp.innerHTML = String(html || '');
+    return (tmp.textContent || tmp.innerText || '').replace(/\u00a0/g, ' ').replace(/[ \t]+/g, ' ').trim();
+  }
+
+  function langText(contentMap){
+    var html = contentMap && (contentMap.en || contentMap.html || '');
+    var tmp = document.createElement('div');
+    tmp.innerHTML = String(html || '');
+    var dividers = tmp.querySelectorAll('.lang-divider');
+    var enText = '', arText = '';
+    if(dividers.length >= 1 && dividers[0].nextElementSibling) enText = (dividers[0].nextElementSibling.textContent || '').trim();
+    if(dividers.length >= 2 && dividers[1].nextElementSibling) arText = (dividers[1].nextElementSibling.textContent || '').trim();
+    if(!enText && !arText) enText = htmlText(html);
+    return { enText: enText, arText: arText };
+  }
+
+  function directButtonMeta(paneId){
+    var title = '', category = '', section = '', library = '';
+    try{
+      var btn = document.querySelector('.nav-l000-btn[data-pane="' + CSS.escape(paneId) + '"]');
+      if(btn) title = (btn.textContent || '').trim();
+      var sec = btn && btn.closest('.nav-l00');
+      var cat = btn && btn.closest('.nav-l0');
+      var root = btn && btn.closest('.nav-lroot');
+      function text(node, selector){ var el = node && node.querySelector(selector); return (el && el.textContent || '').trim(); }
+      section = text(sec, ':scope > .nav-l00-btn span') || '';
+      category = text(cat, ':scope > .nav-l0-btn span') || '';
+      library = text(root, ':scope > .nav-lroot-btn span') || '';
+    }catch(e){}
+    if(!title) title = String(paneId || '').replace(/^sv-tickets-/, '').replace(/^sv-refined-/, '').replace(/^sc-/, '').replace(/-/g, ' ');
+    var path = [library, category, section].filter(Boolean).join(' › ');
+    return { title:title, category:category, section:section, library:library, path:path };
+  }
+
+  function cleanSentence(s){
+    return String(s || '')
+      .replace(/\s+/g, ' ')
+      .replace(/^[\-–—•*\d\s.)]+/, '')
+      .replace(/[\s:;،؛.؟?!]+$/, '')
+      .trim();
+  }
+
+  function splitSentences(text){
+    var raw = String(text || '')
+      .replace(/\r/g, '\n')
+      .replace(/([.؟?!])\s+/g, '$1\n')
+      .replace(/\n{2,}/g, '\n')
+      .split(/\n|[؛;]/g);
+    var seen = new Set();
+    var out = [];
+    raw.forEach(function(part){
+      var s = cleanSentence(part);
+      var n = norm(s);
+      if(n.length < 3 || n.length > 260) return;
+      // Remove generic greeting/footer lines from the lexicon so they do not beat the real topic.
+      if(/^(welcome to|thank you for contacting|sugo customer service team|مرحبا بك|مرحباً بك|شكرا لتواصلك|فريق خدمة عملاء)/i.test(s)) return;
+      if(seen.has(n)) return;
+      seen.add(n);
+      out.push({ raw:s, norm:n });
+    });
+    return out;
+  }
+
+  function tokenList(value){
+    return norm(value).split(/\s+/).filter(function(t){ return t && t.length > 1 && !STOP.has(t); });
+  }
+
+  var STOP = new Set('the is a an to of and or for in on with from please customer client issue problem case request reply ticket details profile professional tone dear hello hi we need additional information complete review provide following information first second third fourth fifth sixth seventh account id شكرا شكراً مرحبا مرحباً عزيزي العميل خدمة عملاء سوجو يرجى الرجاء نعتذر المشكلة الحالية التي تواجهك من في على عن الى إلى او أو مع هذا هذه لو اذا إذا بدي اريد أريد شو ليش العميل المستخدم مشكلة مشكله موضوع حالة حاله طلب رد تذكرة تذكره انشاء انشا فتح'.split(/\s+/));
+
+  function ngramsFromTokens(tokens, min, max){
+    var out = [];
+    for(var n = min; n <= max; n++){
+      if(tokens.length < n) continue;
+      for(var i = 0; i <= tokens.length - n; i++) out.push(tokens.slice(i, i+n).join(' '));
+    }
+    return out;
+  }
+
+  function buildEntry(paneId, contentMap){
+    var meta = directButtonMeta(paneId);
+    var lang = langText(contentMap);
+    var combined = [paneId, meta.title, meta.category, meta.section, meta.path, lang.enText, lang.arText].join('\n');
+    var sentences = splitSentences(combined);
+    var terms = new Set();
+    function addTerm(value){ var n = norm(value); if(n.length >= 3 && n.length <= 170) terms.add(n); }
+    [paneId.replace(/-/g,' '), meta.title, meta.category, meta.section, meta.path].forEach(addTerm);
+    sentences.slice(0, 180).forEach(function(s){
+      addTerm(s.raw);
+      var toks = tokenList(s.raw).slice(0, 16);
+      ngramsFromTokens(toks, 2, 5).forEach(addTerm);
+    });
+    var titleTokens = tokenList([paneId.replace(/-/g,' '), meta.title, meta.path].join(' '));
+    ngramsFromTokens(titleTokens, 1, 5).forEach(addTerm);
+    return {
+      id: paneId,
+      title: meta.title,
+      category: meta.category,
+      section: meta.section,
+      library: meta.library,
+      path: meta.path,
+      enText: lang.enText,
+      arText: lang.arText,
+      titleNorm: norm([paneId.replace(/-/g,' '), meta.title].join(' ')),
+      pathNorm: norm(meta.path),
+      allNorm: norm(combined),
+      sentences: sentences,
+      terms: Array.from(terms).slice(0, 260)
+    };
+  }
+
+  function buildLexicon(){
+    var map = paneMap();
+    var keys = Object.keys(map || {}).sort();
+    var signature = keys.length + ':' + keys.slice(0, 5).join('|') + ':' + keys.slice(-5).join('|');
+    if(cache && cache.signature === signature) return cache;
+    var entries = keys.map(function(id){ return buildEntry(id, map[id]); });
+    cache = { signature: signature, entries: entries, byId: {} };
+    entries.forEach(function(e){ cache.byId[e.id] = e; });
+    window.SUGO_CONTENT_SENTENCE_LEXICON = entries.map(function(e){
+      return { paneId:e.id, title:e.title, path:e.path, sentenceCount:e.sentences.length, termCount:e.terms.length };
+    });
+    return cache;
+  }
+
+  function hasPhrase(hay, phrase){
+    hay = ' ' + norm(hay) + ' ';
+    phrase = norm(phrase);
+    if(!phrase) return false;
+    return phrase.length <= 3 ? hay.indexOf(' ' + phrase + ' ') >= 0 : hay.indexOf(phrase) >= 0;
+  }
+
+  function queryAliases(q){
+    var aliases = new Set();
+    var n = norm(q);
+    aliases.add(n);
+    var replacements = [
+      [/\bوكاله\b/g, 'وكالة'], [/\bوكالة\b/g, 'وكاله'],
+      [/\bانشا\b/g, 'انشاء'], [/\bإنشاء\b/g, 'انشاء'],
+      [/\bفتح\b/g, 'انشاء'], [/\bopen\b/g, 'create'], [/\bapply\b/g, 'create'],
+      [/\bمضيفات\b/g, 'host'], [/\bمضيفه\b/g, 'host'], [/\bمذيعه\b/g, 'anchor']
+    ];
+    replacements.forEach(function(pair){ aliases.add(n.replace(pair[0], pair[1])); });
+    return Array.from(aliases).filter(Boolean);
+  }
+
+  function directRoute(query){
+    var q = norm(query);
+    if(!q) return null;
+    var hasAgency = /(وكاله|وكالة|agency|agent|host|anchor|مضيف|مضيفه|مذيع|مذيعه)/.test(q);
+    if(hasAgency){
+      if(/(شحن|recharge|top up|topup|coins|كوين|دفع|payment)/.test(q)) return { id:'sv-tickets-agency-create-recharge', reason:'direct: recharge agency' };
+      if(/(فرعي|فرعيه|فرعية|sub agency|subagency)/.test(q) && /(تحويل|ترقيه|ترقية|main|اساسي|اساسية)/.test(q)) return { id:'sv-tickets-agency-change-sub-to-main', reason:'direct: sub to main agency' };
+      if(/(فرعي|فرعيه|فرعية|sub agency|subagency)/.test(q)) return { id:'sv-tickets-agency-create-sub', reason:'direct: sub agency' };
+      if(/(واتساب|whatsapp|جروب|قروب|اداري|ادارة|management group)/.test(q)) return { id:'sv-tickets-agency-admin-whatsapp-group', reason:'direct: agency whatsapp group' };
+      if(/(نقل|تحويل|تغيير|change|transfer)/.test(q) && /(مضيف|مضيفه|anchor|host|وكاله|وكالة|agency)/.test(q)) return { id:'sv-tickets-agency-change-anchor', reason:'direct: change agency anchor' };
+      if(/(انشاء|انشا|فتح|تقديم|طلب|create|open|apply|new)/.test(q)) return { id:'sv-tickets-agency-create', reason:'direct: create agency' };
+    }
+    return null;
+  }
+
+  function scoreEntry(entry, query){
+    var qn = norm(query);
+    if(!qn) return null;
+    var aliases = queryAliases(query);
+    var qTokens = tokenList(query);
+    var qNgrams = ngramsFromTokens(qTokens, 2, Math.min(5, qTokens.length));
+    var score = 0;
+    var hits = [];
+
+    aliases.forEach(function(a){
+      if(!a) return;
+      if(entry.titleNorm === a){ score += 150; hits.push('exact-title'); }
+      else if(hasPhrase(entry.titleNorm, a)){ score += 95; hits.push(a); }
+      if(hasPhrase(entry.pathNorm, a)){ score += 45; hits.push('path:' + a); }
+      if(hasPhrase(entry.allNorm, a)){ score += 18; hits.push(a); }
+    });
+
+    var tokenHits = 0;
+    qTokens.forEach(function(t){
+      if(hasPhrase(entry.titleNorm, t)){ score += 14; tokenHits++; hits.push(t); }
+      else if(hasPhrase(entry.pathNorm, t)){ score += 8; tokenHits++; hits.push(t); }
+      else if(hasPhrase(entry.allNorm, t)){ score += 1.8; tokenHits++; hits.push(t); }
+    });
+    if(qTokens.length){
+      var coverage = tokenHits / qTokens.length;
+      if(coverage >= 1) score += 26;
+      else if(coverage >= 0.66) score += 14;
+      else if(qTokens.length >= 2 && coverage < 0.5) score -= 14;
+    }
+
+    entry.terms.forEach(function(term){
+      if(!term) return;
+      if(term === qn){ score += 110; hits.push('sentence-exact'); }
+      else if(qn.length >= 5 && term.indexOf(qn) >= 0){ score += 46; hits.push('sentence-contains-query'); }
+      else if(term.length >= 6 && qn.indexOf(term) >= 0){ score += 18; hits.push('query-contains-term'); }
+    });
+    qNgrams.forEach(function(g){
+      if(entry.terms.indexOf(g) >= 0){ score += 22; hits.push(g); }
+      else if(hasPhrase(entry.titleNorm, g)){ score += 16; hits.push(g); }
+      else if(hasPhrase(entry.allNorm, g)){ score += 4; hits.push(g); }
+    });
+
+    var id = String(entry.id || '').toLowerCase();
+    if((/agency|وكاله|وكالة/.test(qn)) && !/(agency|وكاله|وكالة|host|anchor)/.test(entry.allNorm + ' ' + id)) score -= 30;
+    if(/(انشاء|انشا|فتح|create|open|apply)/.test(qn) && /^sv-tickets-/.test(id)) score += 9;
+    if(/^sv-tickets-/.test(id)) score += 4;
+    score = Math.max(0, score);
+    if(score <= 0) return null;
+    return { id:entry.id, entry:entry, score:Math.round(score*10)/10, hits:Array.from(new Set(hits)).slice(0, 12), primary:false };
+  }
+
+  function rankByLexicon(query, limit){
+    var lex = buildLexicon();
+    var direct = directRoute(query);
+    var ranked = lex.entries.map(function(e){ return scoreEntry(e, query); }).filter(Boolean)
+      .sort(function(a,b){
+        if(b.score !== a.score) return b.score - a.score;
+        var at = /^sv-tickets-/.test(a.id), bt = /^sv-tickets-/.test(b.id);
+        if(at !== bt) return at ? -1 : 1;
+        return String(a.id).localeCompare(String(b.id));
+      });
+    if(direct && lex.byId[direct.id]){
+      var existing = ranked.find(function(r){ return r.id === direct.id; });
+      if(existing){ existing.score = Math.max(existing.score, 999); existing.primary = true; existing.hits.unshift(direct.reason); }
+      else ranked.unshift({ id:direct.id, entry:lex.byId[direct.id], score:999, hits:[direct.reason], primary:true });
+      ranked = ranked.filter(function(item, idx, arr){ return arr.findIndex(function(x){ return x.id === item.id; }) === idx; });
+    }
+    return ranked.slice(0, limit || 12);
+  }
+
+  function topicFromEntry(entry, score, hits, primary){
+    return {
+      id: entry.id,
+      title: entry.title,
+      label: entry.title || entry.id.replace(/-/g, ' '),
+      category: entry.category,
+      section: entry.section,
+      library: entry.library,
+      path: entry.path,
+      enText: entry.enText,
+      arText: entry.arText,
+      allText: entry.allNorm,
+      score: score,
+      hits: hits || [],
+      tags: [],
+      primary: !!primary,
+      selected: false,
+      confidence: primary || score >= 70 ? 'high' : score >= 28 ? 'medium' : 'low'
+    };
+  }
+
+  function clip(text, limit){
+    text = String(text || '');
+    limit = Number(limit || 2200);
+    if(text.length <= limit) return text;
+    var cut = text.slice(0, limit);
+    var stop = Math.max(cut.lastIndexOf('\n\n'), cut.lastIndexOf('. '), cut.lastIndexOf('؟'), cut.lastIndexOf('!'));
+    if(stop > limit * 0.65) cut = cut.slice(0, stop + 1);
+    else cut = cut.replace(/\s+\S*$/, '');
+    return cut + ' …';
+  }
+
+  function rebuildPacket(result, topics, maxCharsPerTopic){
+    maxCharsPerTopic = Math.max(Number(maxCharsPerTopic || 0), 2200);
+    var audit = topics.slice(0, 8).map(function(t, i){
+      return (i+1) + '. ' + t.id + ' | title: ' + (t.title || t.label || '') + ' | score: ' + (Math.round((t.score || 0)*10)/10) + ' | hits: ' + ((t.hits || []).slice(0,8).join(', ') || 'sentence-lexicon');
+    }).join('\n');
+    var routeLine = result && result.primaryRoute ? ('Primary route: ' + result.primaryRoute.name + '\nPrimary topic IDs: ' + ((result.primaryTopicIds || []).join(', '))) : 'Primary route: none';
+    result.text = routeLine + '\nSentence lexicon: enabled — extracted from every SOP content sentence. Use exact matched Ticket macro before broad articles.\nMatch audit:\n' + audit + '\n\n' + topics.map(function(t, i){
+      var priority = t.primary || i < 3;
+      var enLimit = priority ? Math.max(maxCharsPerTopic, 7600) : maxCharsPerTopic;
+      var arLimit = priority ? Math.max(Math.floor(maxCharsPerTopic * 0.92), 6800) : Math.floor(maxCharsPerTopic * 0.85);
+      return [
+        '### Topic: ' + t.id,
+        'Title: ' + (t.title || t.label || t.id),
+        'Path: ' + (t.path || ''),
+        'Match score: ' + Math.round((t.score || 0)*10)/10,
+        t.primary ? 'Primary route match: yes' : 'Primary route match: no',
+        t.selected ? 'Selected by user: yes' : 'Selected by user: no',
+        'English SOP:', clip(t.enText || '', enLimit),
+        '', 'Arabic SOP:', clip(t.arText || '', arLimit)
+      ].join('\n');
+    }).join('\n\n');
+    result.topics = topics;
+    result.topicIds = topics.map(function(t){ return t.id; });
+    result.bestTopic = topics[0] || null;
+    var bestScore = topics[0] ? Number(topics[0].score || 0) : 0;
+    result.confidence = bestScore >= 70 || (topics[0] && topics[0].primary) ? 'high' : bestScore >= 28 ? 'medium' : (result.confidence || 'low');
+    result.confidenceLabel = result.confidence === 'high' ? 'High' : result.confidence === 'medium' ? 'Medium' : 'Low';
+    result.confidenceScore = Math.max(Number(result.confidenceScore || 0), Math.round(bestScore*10)/10);
+    result.hasMeaningfulMatch = topics.length > 0;
+    result.sentenceLexiconEnabled = true;
+    return result;
+  }
+
+  window.getRelevantKnowledgeBaseText = function(query, maxTopics, maxCharsPerTopic, preferredPaneId, options){
+    options = options && typeof options === 'object' ? options : {};
+    maxTopics = Math.max(Number(maxTopics || 0), options.completeAnswer ? 12 : 8);
+    var base;
+    try{
+      base = typeof oldGetRelevant === 'function'
+        ? oldGetRelevant(query, maxTopics, maxCharsPerTopic, preferredPaneId, options)
+        : { topics: [], topicIds: [], confidence:'low', confidenceLabel:'Low', confidenceScore:0, hasMeaningfulMatch:false };
+    }catch(e){
+      base = { topics: [], topicIds: [], confidence:'low', confidenceLabel:'Low', confidenceScore:0, hasMeaningfulMatch:false };
+    }
+
+    var lexRank = rankByLexicon(query, Math.max(maxTopics, 12));
+    if(!lexRank.length) return base;
+    var baseTopics = Array.isArray(base.topics) ? base.topics.slice(0, maxTopics) : [];
+    var lexTopics = lexRank.map(function(r){ return topicFromEntry(r.entry, r.score, r.hits, r.primary); });
+    var best = lexTopics[0];
+    var shouldForce = !!(best && (best.primary || best.score >= 58 || (options.outputType === 'ticket' && /^sv-tickets-/.test(best.id) && best.score >= 26) || !baseTopics.length));
+    var merged;
+    if(shouldForce){
+      merged = lexTopics.concat(baseTopics.filter(function(t){ return !lexTopics.some(function(x){ return x.id === t.id; }); }));
+    }else{
+      merged = baseTopics.concat(lexTopics.filter(function(t){ return !baseTopics.some(function(x){ return x.id === t.id; }); }));
+    }
+    merged = merged.slice(0, maxTopics);
+    return rebuildPacket(base, merged, maxCharsPerTopic);
+  };
+  try{ getRelevantKnowledgeBaseText = window.getRelevantKnowledgeBaseText; }catch(e){}
+
+  // Also improve left-side search results using the same sentence lexicon.
+  var oldDoSearch = window.doSearch;
+  window.doSearch = function(query){
+    var q = String(query || '').trim();
+    if(!q){ if(typeof oldDoSearch === 'function') return oldDoSearch.apply(this, arguments); return; }
+    try{
+      var ranked = rankByLexicon(q, 80);
+      if(ranked.length){
+        var ids = new Set(ranked.filter(function(r){ return r.score >= 18 || r.primary; }).map(function(r){ return r.id; }));
+        if(!ids.size) ids = new Set(ranked.slice(0, 20).map(function(r){ return r.id; }));
+        var any = false;
+        document.querySelectorAll('.nav-l000-btn[data-pane]').forEach(function(btn){
+          var id = btn.getAttribute('data-pane');
+          var match = ids.has(id);
+          btn.classList.toggle('hidden-search', !match);
+          if(match) any = true;
+        });
+        document.querySelectorAll('.nav-l00').forEach(function(sec){
+          var vis = Array.prototype.some.call(sec.querySelectorAll('.nav-l000-btn[data-pane]'), function(b){ return !b.classList.contains('hidden-search'); });
+          sec.classList.toggle('hidden-search', !vis);
+          var child = sec.querySelector(':scope > .nav-l00-children'); if(vis && child) child.classList.add('open');
+        });
+        document.querySelectorAll('.nav-l0').forEach(function(cat){
+          var vis = Array.prototype.some.call(cat.querySelectorAll('.nav-l00'), function(s){ return !s.classList.contains('hidden-search'); });
+          cat.classList.toggle('hidden-search', !vis);
+          var child = cat.querySelector(':scope > .nav-l0-children'); if(vis && child) child.classList.add('open');
+        });
+        var nr = document.getElementById('noResults'); if(nr) nr.style.display = any ? 'none' : 'block';
+        return;
+      }
+    }catch(e){}
+    if(typeof oldDoSearch === 'function') return oldDoSearch.apply(this, arguments);
+  };
+  try{ doSearch = window.doSearch; }catch(e){}
+
+  function boot(){
+    try{ buildLexicon(); }catch(e){}
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  window.addEventListener('load', function(){ setTimeout(function(){ cache = null; boot(); }, 80); });
+  window.SUGO_CONTENT_LEXICON_V4 = { version:VERSION, rebuild:function(){ cache = null; return buildLexicon(); }, rank:rankByLexicon, directRoute:directRoute };
+})();
+</script>
+<!-- ===== /SUGO Content Sentence Lexicon v4 ===== -->
 
 </body>
 </html>
