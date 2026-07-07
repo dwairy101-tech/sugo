@@ -1,0 +1,102 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 1101
+  },
+  {
+    "path": "assets/css/main.css",
+    "bytes": 173697
+  },
+  {
+    "path": "assets/js/00-sugo-splash-failsafe.js",
+    "bytes": 295
+  },
+  {
+    "path": "assets/js/01-sugo-runtime-js.js",
+    "bytes": 1323096
+  },
+  {
+    "path": "assets/js/02-sugo-startup-closed-menus-hotfix-js.js",
+    "bytes": 1002659
+  },
+  {
+    "path": "assets/js/03-sugo-favorites-recent-js.js",
+    "bytes": 8116
+  },
+  {
+    "path": "assets/js/04-sugo-ai-ticket-favorites-and-quick-access-js.js",
+    "bytes": 11260
+  },
+  {
+    "path": "assets/js/05-sugo-search-performance-hotfix.js",
+    "bytes": 1003
+  },
+  {
+    "path": "assets/js/06-sugo-precision-search-v4.js",
+    "bytes": 29974
+  },
+  {
+    "path": "assets/js/07-sugo-typing-lag-hotfix-v5.js",
+    "bytes": 16282
+  },
+  {
+    "path": "assets/js/08-sugo-favorites-remove-guard-v21.js",
+    "bytes": 7701
+  },
+  {
+    "path": "assets/js/09-sugo-favorites-open-hotfix-v2.js",
+    "bytes": 6166
+  },
+  {
+    "path": "assets/js/10-sugo-recent-clear-favorites-persistence-hotfix-v1.js",
+    "bytes": 6718
+  },
+  {
+    "path": "assets/js/11-sugo-sv-video-merge-20260626.js",
+    "bytes": 87720
+  },
+  {
+    "path": "assets/js/12-sugo-speed-complete-answer-upgrade-v6.js",
+    "bytes": 19843
+  },
+  {
+    "path": "assets/js/13-sugo-stable-options-search-final-fix.js",
+    "bytes": 2210
+  },
+  {
+    "path": "assets/js/14-sugo-loading-failsafe.js",
+    "bytes": 470
+  },
+  {
+    "path": "assets/js/15-sugo-direct-section-edit-js.js",
+    "bytes": 12438
+  },
+  {
+    "path": "assets/js/16-sugo-topic-dropdown-hard-open-fix-v3.js",
+    "bytes": 7122
+  },
+  {
+    "path": "assets/js/17-sugo-tiny-plus-existing-menus-js.js",
+    "bytes": 47960
+  },
+  {
+    "path": "assets/js/18-sugo-robust-content-language-dropdown-fix-js.js",
+    "bytes": 8987
+  },
+  {
+    "path": "assets/js/19-sugo-remove-redundant-ticket-meta-js.js",
+    "bytes": 958
+  },
+  {
+    "path": "assets/js/20-sugo-visible-favorite-button-js.js",
+    "bytes": 10522
+  },
+  {
+    "path": "index.html",
+    "bytes": 87318
+  },
+  {
+    "path": "worker.js",
+    "bytes": 93510
+  }
+]
