@@ -15780,10 +15780,19 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
   function contentTarget(pane){
     if(!pane) return null;
     var existing = pane.querySelector(':scope > .sugo-direct-edit-target');
-    if(existing) return existing;
+    if(existing && !existing.classList.contains('sugo-admin-current-topic-toolbar')) return existing;
+    var preferred = pane.querySelector(':scope > .doc-card, :scope > .ai-answer-card, :scope > .macro-grid, :scope > .lang-block');
+    if(preferred){ preferred.classList.add('sugo-direct-edit-target'); return preferred; }
     var kids = Array.prototype.slice.call(pane.children || []);
     var target = kids.find(function(el){
-      return el && el.classList && !el.classList.contains('close-pane-btn') && !el.classList.contains('sugo-direct-edit-toolbar') && !el.classList.contains('sugo-inline-edit-toolbar');
+      return el && el.classList &&
+        !el.classList.contains('close-pane-btn') &&
+        !el.classList.contains('sugo-direct-edit-toolbar') &&
+        !el.classList.contains('sugo-inline-edit-toolbar') &&
+        !el.classList.contains('sugo-admin-current-topic-toolbar') &&
+        !el.classList.contains('sugo-visible-favorite-toolbar') &&
+        !el.classList.contains('sugo-fr-cardbar') &&
+        !el.hasAttribute('data-sugo-current-topic-edit');
     });
     if(target) target.classList.add('sugo-direct-edit-target');
     return target || null;
@@ -16705,30 +16714,38 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
   function paneTargetForTopicEdit(pane){
     if(!pane) return null;
     var existing=pane.querySelector(':scope > .sugo-direct-edit-target');
-    if(existing) return existing;
+    if(existing && !existing.classList.contains('sugo-admin-current-topic-toolbar')) return existing;
+    var preferred=pane.querySelector(':scope > .doc-card, :scope > .ai-answer-card, :scope > .macro-grid, :scope > .lang-block');
+    if(preferred) return preferred;
     var kids=Array.prototype.slice.call(pane.children || []);
     return kids.find(function(el){
       return el && el.classList &&
         !el.classList.contains('close-pane-btn') &&
         !el.classList.contains('sugo-direct-edit-toolbar') &&
-        !el.classList.contains('sugo-inline-edit-toolbar');
+        !el.classList.contains('sugo-inline-edit-toolbar') &&
+        !el.classList.contains('sugo-admin-current-topic-toolbar') &&
+        !el.classList.contains('sugo-visible-favorite-toolbar') &&
+        !el.classList.contains('sugo-fr-cardbar') &&
+        !el.hasAttribute('data-sugo-current-topic-edit');
     }) || null;
   }
 
   function paneHtmlForTopicEdit(paneId){
     var pane=byId('pane-'+paneId);
     var target=paneTargetForTopicEdit(pane);
-    if(target) return target.innerHTML || '';
+    var targetHtml = target ? String(target.innerHTML || '') : '';
+    // Do not read the admin toolbar as topic content. If the extracted HTML has no real topic markers, use the paneContent store.
+    if(targetHtml && /(?:doc-card|macro-col|sugo-section|lang-divider|macro-body|copy-buttons)/.test(targetHtml)) return targetHtml;
     var store=getPaneStoreForTopicEdit();
     var rec=store && store[paneId];
-    if(!rec) return '';
+    if(!rec) return targetHtml || '';
     return typeof rec === 'object' ? String(rec.en || rec.html || '') : String(rec || '');
   }
 
   function cloneTextForTopicEdit(node){
     if(!node) return '';
     var clone=node.cloneNode(true);
-    clone.querySelectorAll('button,.copy-buttons,.sugo-view-controls,.sugo-min-filter-panel,.sugo-efficiency-panel,.sugo-filter-empty,.lang-divider,.sugo-internal-title,.close-pane-btn,.sugo-direct-edit-toolbar,.sugo-inline-edit-toolbar').forEach(function(el){ el.remove(); });
+    clone.querySelectorAll('button,.copy-buttons,.sugo-view-controls,.sugo-min-filter-panel,.sugo-efficiency-panel,.sugo-filter-empty,.lang-divider,.sugo-internal-title,.close-pane-btn,.sugo-direct-edit-toolbar,.sugo-inline-edit-toolbar,.sugo-admin-current-topic-toolbar,.sugo-admin-current-topic-edit-btn,.sugo-visible-favorite-toolbar,.sugo-fr-cardbar').forEach(function(el){ el.remove(); });
     return cleanText(htmlToFormattedPlainTextForTopicEdit(clone), 300000);
   }
 
@@ -16899,8 +16916,8 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
       parsed.mode='text';
       parsed.enText=cloneTextForTopicEdit(enTextNode);
       parsed.arText=cloneTextForTopicEdit(arTextNode);
-      var enTitle=wrap.querySelector('.macro-col[dir="ltr"] .macro-title');
-      var arTitle=wrap.querySelector('.macro-col[dir="rtl"] .macro-title');
+      var enTitle=wrap.querySelector('.macro-col[dir="ltr"] .macro-title, .sugo-section[data-lang="en"] .macro-title, .sugo-section[data-lang="en"] h1, .sugo-section[data-lang="en"] h2');
+      var arTitle=wrap.querySelector('.macro-col[dir="rtl"] .macro-title, .sugo-section[data-lang="ar"] .macro-title, .sugo-section[data-lang="ar"] h1, .sugo-section[data-lang="ar"] h2');
       if(enTitle) parsed.enTitle=cloneTextForTopicEdit(enTitle) || parsed.enTitle;
       if(arTitle) parsed.arTitle=cloneTextForTopicEdit(arTitle) || parsed.arTitle;
     }
