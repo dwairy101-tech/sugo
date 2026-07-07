@@ -5133,6 +5133,781 @@ try { localStorage.removeItem('sugo_options_open'); localStorage.removeItem('sug
 }
 </style>
 
+
+
+
+
+<!-- ===== SUGO Stage 2: Ask AI Workspace CSS ===== -->
+<style id="sugo-stage2-ask-ai-workspace-css">
+.sugo-tool-workspace{
+  display:none;
+  animation:fadeInUp .24s ease;
+}
+.sugo-tool-workspace.active{
+  display:block!important;
+}
+.sugo-tool-workspace[hidden]{display:none!important;}
+.sugo-tool-hero{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+  padding:28px 30px;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(153,27,27,.35),transparent 38%),
+    linear-gradient(135deg,#050505 0%,#111113 54%,#250707 100%);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 24px 70px rgba(0,0,0,.22);
+  position:relative;
+  overflow:hidden;
+}
+.sugo-tool-hero:after{
+  content:'';
+  position:absolute;
+  inset:auto -60px -90px auto;
+  width:230px;
+  height:230px;
+  border-radius:999px;
+  background:rgba(153,27,27,.35);
+  filter:blur(45px);
+  pointer-events:none;
+}
+.sugo-tool-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 11px;
+  border-radius:999px;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.12);
+  color:#fecaca;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.sugo-tool-kicker:before{content:'✦';color:#ef4444;}
+.sugo-tool-hero h2{
+  margin:12px 0 6px;
+  color:#fff;
+  font-family:var(--display-font,'Cairo','Plus Jakarta Sans',system-ui,sans-serif);
+  font-size:clamp(1.7rem,2.5vw,2.45rem);
+  line-height:1.12;
+  font-weight:950;
+  letter-spacing:-.045em;
+}
+.sugo-tool-hero p{
+  max-width:760px;
+  color:#e5e7eb;
+  font-size:.98rem;
+  line-height:1.75;
+}
+.sugo-tool-close{
+  position:relative;
+  z-index:1;
+  width:42px;
+  height:42px;
+  border-radius:15px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  cursor:pointer;
+  font-size:18px;
+  font-weight:900;
+}
+.sugo-tool-close:hover{background:#991b1b;border-color:#991b1b;transform:rotate(90deg);}
+.sugo-tool-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 330px;
+  gap:18px;
+  align-items:start;
+}
+.sugo-tool-card{
+  border-radius:26px;
+  border:1px solid rgba(31,41,55,.12);
+  background:rgba(255,255,255,.96);
+  box-shadow:0 16px 42px rgba(15,23,42,.08);
+}
+.sugo-tool-primary-card{padding:24px;}
+.sugo-tool-options-card{padding:20px;position:sticky;top:22px;}
+.sugo-tool-label,
+.sugo-tool-options-title,
+.sugo-tool-option-label{
+  font-family:var(--display-font,'Cairo','Plus Jakarta Sans',system-ui,sans-serif);
+  color:#111827;
+  font-weight:950;
+}
+.sugo-tool-label{display:block;margin-bottom:10px;font-size:.9rem;}
+.sugo-tool-options-title{font-size:1rem;margin-bottom:16px;}
+.sugo-tool-option-label{font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.sugo-tool-textarea{
+  width:100%;
+  min-height:210px;
+  resize:vertical;
+  padding:16px 17px;
+  border-radius:20px;
+  border:1px solid #dbe3ef;
+  outline:none;
+  background:#fff;
+  color:#111827;
+  font:inherit;
+  line-height:1.75;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+}
+.sugo-tool-textarea:focus{
+  border-color:#991b1b;
+  box-shadow:0 0 0 4px rgba(153,27,27,.12);
+}
+.sugo-tool-hint{
+  margin-top:10px;
+  color:#64748b;
+  font-size:.82rem;
+  line-height:1.55;
+}
+.sugo-tool-chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:18px 0 0;
+}
+.sugo-tool-chip,
+.sugo-tool-secondary,
+.sugo-tool-seg,
+.sugo-tool-focus{
+  border:1px solid #e2e8f0;
+  background:#fff;
+  color:#334155;
+  cursor:pointer;
+  font-weight:900;
+}
+.sugo-tool-chip{
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:.76rem;
+}
+.sugo-tool-chip:hover,
+.sugo-tool-secondary:hover{
+  background:#fef2f2;
+  color:#991b1b;
+  border-color:#fecaca;
+}
+.sugo-tool-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:22px;
+  align-items:center;
+}
+.sugo-tool-submit{
+  min-height:44px;
+  padding:0 20px;
+  border:0;
+  border-radius:16px;
+  background:linear-gradient(135deg,#991b1b,#111111);
+  color:#fff;
+  cursor:pointer;
+  font-weight:950;
+  box-shadow:0 14px 28px rgba(153,27,27,.22);
+}
+.sugo-tool-submit:hover{transform:translateY(-1px);filter:brightness(1.05);}
+.sugo-tool-secondary{
+  min-height:44px;
+  padding:0 16px;
+  border-radius:16px;
+}
+.sugo-tool-option-group{margin:0 0 16px;padding-bottom:16px;border-bottom:1px solid #edf1f7;}
+.sugo-tool-option-group:last-of-type{border-bottom:0;margin-bottom:0;padding-bottom:0;}
+.sugo-tool-segments{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+  padding:5px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+}
+.sugo-tool-segments.three{grid-template-columns:1fr 1fr 1fr;}
+.sugo-tool-seg{
+  min-height:36px;
+  border-radius:12px;
+  font-size:.76rem;
+}
+.sugo-tool-seg:hover{background:#fff5f5;color:#991b1b;border-color:#fecaca;}
+.sugo-tool-seg.active,
+.sugo-tool-focus.active{
+  background:linear-gradient(135deg,#991b1b,#111111);
+  color:#fff;
+  border-color:transparent;
+  box-shadow:0 10px 18px rgba(153,27,27,.18);
+}
+.sugo-tool-stack{display:grid;gap:8px;}
+.sugo-tool-focus{
+  min-height:38px;
+  padding:0 12px;
+  border-radius:14px;
+  text-align:left;
+  font-size:.78rem;
+}
+.sugo-tool-focus:hover{background:#fff5f5;color:#991b1b;border-color:#fecaca;}
+.sugo-tool-note{
+  margin-top:16px;
+  padding:12px 13px;
+  border-radius:16px;
+  background:#0b0b0c;
+  color:#e5e7eb;
+  border:1px solid rgba(153,27,27,.45);
+  font-size:.78rem;
+  line-height:1.55;
+}
+.sugo-tool-note strong{color:#fecaca;}
+.sugo-ask-workspace.sugo-shake .sugo-tool-textarea{border-color:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.13);}
+@media(max-width:1080px){.sugo-tool-grid{grid-template-columns:1fr}.sugo-tool-options-card{position:static}.sugo-tool-hero{padding:24px 22px}}
+@media(max-width:768px){.sugo-tool-hero{border-radius:22px;flex-direction:row;padding:22px 18px}.sugo-tool-primary-card,.sugo-tool-options-card{padding:18px;border-radius:22px}.sugo-tool-segments.three{grid-template-columns:1fr}.sugo-tool-textarea{min-height:180px}.sugo-tool-actions{align-items:stretch}.sugo-tool-submit,.sugo-tool-secondary{width:100%}}
+</style>
+<!-- ===== /SUGO Stage 2: Ask AI Workspace CSS ===== -->
+
+<!-- ===== SUGO Stage 3: Create Ticket Workspace CSS ===== -->
+<style id="sugo-stage3-create-ticket-workspace-css">
+.sugo-ticket-workspace .sugo-tool-hero{
+  background:
+    radial-gradient(circle at 12% 0%,rgba(153,27,27,.32),transparent 38%),
+    radial-gradient(circle at 92% 12%,rgba(255,255,255,.08),transparent 28%),
+    linear-gradient(135deg,#050505 0%,#111113 48%,#2a0707 100%);
+}
+.sugo-ticket-workspace .sugo-tool-kicker:before{content:'✉';}
+.sugo-ticket-workspace .sugo-tool-submit{
+  background:linear-gradient(135deg,#7f1d1d,#111111);
+}
+.sugo-ticket-workspace .sugo-tool-note{
+  background:linear-gradient(180deg,#111113,#050505);
+}
+.sugo-ticket-fields{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:16px;
+}
+.sugo-ticket-field label{
+  display:block;
+  margin:0 0 7px;
+  color:#64748b;
+  font-size:.72rem;
+  font-weight:950;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.sugo-ticket-field input,
+.sugo-ticket-field textarea{
+  width:100%;
+  border:1px solid #dbe3ef;
+  border-radius:16px;
+  padding:12px 13px;
+  background:#fff;
+  color:#111827;
+  outline:none;
+  font:inherit;
+  line-height:1.55;
+}
+.sugo-ticket-field textarea{min-height:86px;resize:vertical;grid-column:1/-1;}
+.sugo-ticket-field input:focus,
+.sugo-ticket-field textarea:focus{border-color:#991b1b;box-shadow:0 0 0 4px rgba(153,27,27,.12);}
+.sugo-ticket-field.wide{grid-column:1/-1;}
+.sugo-ticket-workspace.sugo-shake .sugo-tool-textarea,
+.sugo-ticket-workspace.sugo-shake .sugo-ticket-field input:first-of-type{border-color:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.13);}
+.sugo-ticket-template-preview{
+  margin-top:16px;
+  padding:13px 14px;
+  border-radius:18px;
+  border:1px solid #fee2e2;
+  background:#fff7f7;
+  color:#7f1d1d;
+  font-size:.82rem;
+  line-height:1.65;
+}
+.sugo-ticket-template-preview strong{color:#111827;}
+.sugo-tool-focus[data-sugo-ticket-option="type"],
+.sugo-tool-focus[data-sugo-ticket-option="structure"]{text-align:left;justify-content:flex-start;}
+@media(max-width:768px){.sugo-ticket-fields{grid-template-columns:1fr}.sugo-ticket-field,.sugo-ticket-field.wide{grid-column:1/-1}}
+</style>
+<!-- ===== /SUGO Stage 3: Create Ticket Workspace CSS ===== -->
+
+<!-- ===== SUGO Stage 4: Upload Image Workspace CSS ===== -->
+<style id="sugo-stage4-upload-image-workspace-css">
+.sugo-vision-workspace .sugo-tool-hero{
+  background:
+    radial-gradient(circle at 12% 0%,rgba(124,58,237,.20),transparent 36%),
+    linear-gradient(135deg,#0f172a,#172554 54%,#581c87)!important;
+}
+.sugo-vision-workspace .sugo-tool-kicker:before{content:'🖼️';}
+.sugo-vision-workspace .sugo-tool-submit{
+  background:linear-gradient(135deg,#7c3aed,#2563eb)!important;
+  box-shadow:0 16px 32px rgba(124,58,237,.24)!important;
+}
+.sugo-vision-workspace .sugo-tool-note{
+  background:#f5f3ff!important;
+  border-color:#ddd6fe!important;
+  color:#4c1d95!important;
+}
+.sugo-vision-dropzone{
+  display:grid;
+  place-items:center;
+  min-height:210px;
+  padding:24px;
+  border:2px dashed #c4b5fd;
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(124,58,237,.10),transparent 45%),
+    linear-gradient(180deg,#ffffff,#fafaff);
+  text-align:center;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.sugo-vision-dropzone:hover,
+.sugo-vision-dropzone.dragging{
+  border-color:#7c3aed;
+  background:#f5f3ff;
+  transform:translateY(-1px);
+  box-shadow:0 18px 34px rgba(124,58,237,.12);
+}
+.sugo-vision-drop-icon{
+  width:64px;
+  height:64px;
+  display:grid;
+  place-items:center;
+  margin:0 auto 12px;
+  border-radius:22px;
+  background:linear-gradient(135deg,#ede9fe,#dbeafe);
+  color:#4c1d95;
+  font-size:2rem;
+}
+.sugo-vision-drop-title{
+  color:#111827;
+  font-family:var(--display-font,'Cairo',system-ui,sans-serif);
+  font-size:1.1rem;
+  font-weight:900;
+}
+.sugo-vision-drop-sub{
+  max-width:460px;
+  margin:7px auto 0;
+  color:#64748b;
+  font-size:.84rem;
+  line-height:1.65;
+}
+.sugo-vision-workspace-preview{
+  display:none;
+  margin-top:16px;
+  padding:14px;
+  border:1px solid #ddd6fe;
+  border-radius:22px;
+  background:#fff;
+  box-shadow:0 10px 24px rgba(15,23,42,.07);
+}
+.sugo-vision-workspace-preview.has-image{
+  display:grid;
+  grid-template-columns:112px minmax(0,1fr) auto;
+  gap:14px;
+  align-items:center;
+}
+.sugo-vision-workspace-preview .sugo-vision-thumb{
+  width:112px;
+  height:86px;
+  object-fit:cover;
+  border-radius:16px;
+  border:1px solid #e5e7eb;
+}
+.sugo-vision-workspace-preview .sugo-vision-name{
+  color:#111827;
+  font-weight:900;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.sugo-vision-workspace-preview .sugo-vision-sub{
+  margin-top:4px;
+  color:#64748b;
+  font-size:.78rem;
+}
+.sugo-vision-workspace-preview .sugo-vision-clear{
+  width:34px;
+  height:34px;
+  border:0;
+  border-radius:999px;
+  background:#fee2e2;
+  color:#991b1b;
+  cursor:pointer;
+  font-size:1.15rem;
+  font-weight:900;
+}
+.sugo-vision-workspace-preview .sugo-vision-clear:hover{
+  background:#dc2626;
+  color:#fff;
+}
+.sugo-vision-note-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:16px;
+}
+.sugo-vision-note-field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.sugo-vision-note-field.wide{grid-column:1/-1;}
+.sugo-vision-note-field label{
+  color:#475569;
+  font-size:.72rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.sugo-vision-note-field input,
+.sugo-vision-note-field textarea{
+  width:100%;
+  border:1px solid #dbe4f0;
+  border-radius:15px;
+  background:#fff;
+  color:#111827;
+  padding:11px 12px;
+  outline:0;
+  font-size:.88rem;
+}
+.sugo-vision-note-field input:focus,
+.sugo-vision-note-field textarea:focus{
+  border-color:#7c3aed;
+  box-shadow:0 0 0 4px rgba(124,58,237,.12);
+}
+.sugo-vision-status-line{
+  display:none;
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:#eff6ff;
+  color:#1d4ed8;
+  font-size:.82rem;
+  font-weight:800;
+}
+.sugo-vision-status-line.active{display:block;}
+.sugo-vision-status-line.error{background:#fef2f2;color:#b91c1c;}
+.sugo-vision-workspace.sugo-shake .sugo-vision-dropzone{
+  border-color:#dc2626;
+  box-shadow:0 0 0 4px rgba(220,38,38,.13);
+}
+.sugo-tool-focus[data-sugo-vision-option="analysis"]{text-align:left;justify-content:flex-start;}
+#sidebar #sugoVisionStatus,
+#sidebar #sugoVisionPreview{
+  display:none!important;
+}
+@media(max-width:768px){
+  .sugo-vision-note-grid{grid-template-columns:1fr;}
+  .sugo-vision-note-field,.sugo-vision-note-field.wide{grid-column:1/-1;}
+  .sugo-vision-workspace-preview.has-image{grid-template-columns:84px minmax(0,1fr) auto;}
+  .sugo-vision-workspace-preview .sugo-vision-thumb{width:84px;height:70px;}
+}
+</style>
+<!-- ===== /SUGO Stage 4: Upload Image Workspace CSS ===== -->
+
+
+
+<!-- ===== SUGO Stage 1: Remove global Options UI ===== -->
+<style id="sugo-stage1-options-removal-css">
+/*
+  Stage 1 goal:
+  Remove the old global Options drawer from the visible sidebar.
+  The original select elements stay in the DOM as internal defaults so the
+  existing Ask AI / Create Ticket / Upload Image logic keeps working.
+*/
+#optionsToggleBtn,
+#optionsSummary,
+#sidebar .control-deck,
+#sidebar .sugo-dropdown-options,
+#sidebar .sugo-option-card,
+#sidebar .control-block[data-control],
+#sidebar .response-mode-row[data-control],
+#sidebar .sugo-preset-card{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:0!important;
+  max-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  opacity:0!important;
+  overflow:hidden!important;
+}
+#sidebar.options-open .control-deck,
+#sidebar.options-open .response-mode-row,
+body .sidebar.options-open .control-deck,
+body .sidebar.options-open .response-mode-row{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  height:0!important;
+  max-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  opacity:0!important;
+  overflow:hidden!important;
+}
+#sidebar .search-row{
+  grid-template-columns:1fr!important;
+  gap:10px!important;
+}
+#sidebar .ask-ai-btn,
+#sidebar .create-ticket-btn,
+#sidebar .sugo-vision-upload-btn{
+  width:100%!important;
+}
+</style>
+<!-- ===== /SUGO Stage 1: Remove global Options UI ===== -->
+
+
+
+<!-- ===== SUGO Viewport Fit Patch: Dedicated Workspaces ===== -->
+<style id="sugo-workspaces-fit-viewport-css">
+/* Keep the three dedicated consoles inside the visible workspace on desktop. */
+@media (min-width: 1081px){
+  .content:has(.sugo-tool-workspace.active){
+    padding-top:20px!important;
+    padding-bottom:16px!important;
+    overflow:hidden!important;
+  }
+  .content:has(.sugo-tool-workspace.active)::before{
+    margin-bottom:10px!important;
+    padding:5px 10px!important;
+    font-size:.66rem!important;
+    line-height:1.2!important;
+  }
+  .sugo-tool-workspace.active{
+    height:calc(100vh - 86px)!important;
+    max-height:calc(100vh - 86px)!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:12px!important;
+    overflow:hidden!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-hero{
+    flex:0 0 auto!important;
+    margin-bottom:0!important;
+    padding:15px 18px!important;
+    border-radius:20px!important;
+    min-height:0!important;
+    box-shadow:0 14px 36px rgba(0,0,0,.18)!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-hero h2{
+    margin:7px 0 3px!important;
+    font-size:clamp(1.25rem,1.55vw,1.65rem)!important;
+    line-height:1.08!important;
+    letter-spacing:-.03em!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-hero p{
+    max-width:850px!important;
+    font-size:.82rem!important;
+    line-height:1.45!important;
+    display:-webkit-box!important;
+    -webkit-line-clamp:2!important;
+    -webkit-box-orient:vertical!important;
+    overflow:hidden!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-kicker{
+    padding:4px 9px!important;
+    font-size:.62rem!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-close{
+    width:34px!important;
+    height:34px!important;
+    border-radius:12px!important;
+    font-size:15px!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-grid{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    grid-template-columns:minmax(0,1fr) 300px!important;
+    gap:12px!important;
+    align-items:stretch!important;
+    overflow:hidden!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-card{
+    min-height:0!important;
+    max-height:100%!important;
+    border-radius:20px!important;
+    box-shadow:0 10px 26px rgba(15,23,42,.07)!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-primary-card,
+  .sugo-tool-workspace.active .sugo-tool-options-card{
+    padding:14px!important;
+    overflow:auto!important;
+    scrollbar-width:thin!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-options-card{
+    position:relative!important;
+    top:auto!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-label{
+    margin-bottom:7px!important;
+    font-size:.78rem!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-textarea{
+    min-height:118px!important;
+    max-height:152px!important;
+    resize:none!important;
+    padding:11px 12px!important;
+    border-radius:15px!important;
+    line-height:1.52!important;
+    font-size:.88rem!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-hint,
+  .sugo-tool-workspace.active .sugo-tool-note{
+    margin-top:8px!important;
+    font-size:.72rem!important;
+    line-height:1.38!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-chip-row{
+    margin-top:10px!important;
+    gap:6px!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-chip{
+    padding:6px 9px!important;
+    font-size:.68rem!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-actions{
+    margin-top:12px!important;
+    gap:8px!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-submit,
+  .sugo-tool-workspace.active .sugo-tool-secondary{
+    min-height:38px!important;
+    border-radius:13px!important;
+    padding:0 14px!important;
+    font-size:.8rem!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-options-title{
+    margin-bottom:10px!important;
+    font-size:.9rem!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-option-group{
+    margin-bottom:10px!important;
+    padding-bottom:10px!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-option-label{
+    margin-bottom:5px!important;
+    font-size:.62rem!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-segments{
+    padding:4px!important;
+    border-radius:13px!important;
+    gap:4px!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-seg,
+  .sugo-tool-workspace.active .sugo-tool-focus{
+    min-height:31px!important;
+    border-radius:10px!important;
+    font-size:.68rem!important;
+  }
+  .sugo-tool-workspace.active .sugo-tool-stack{
+    gap:6px!important;
+  }
+  .sugo-ticket-workspace.active .sugo-ticket-fields,
+  .sugo-vision-workspace.active .sugo-vision-note-grid{
+    gap:8px!important;
+    margin-top:10px!important;
+  }
+  .sugo-ticket-workspace.active .sugo-ticket-field label,
+  .sugo-vision-workspace.active .sugo-vision-note-field label{
+    margin-bottom:4px!important;
+    font-size:.62rem!important;
+  }
+  .sugo-ticket-workspace.active .sugo-ticket-field input,
+  .sugo-ticket-workspace.active .sugo-ticket-field textarea,
+  .sugo-vision-workspace.active .sugo-vision-note-field input,
+  .sugo-vision-workspace.active .sugo-vision-note-field textarea{
+    padding:9px 10px!important;
+    border-radius:12px!important;
+    font-size:.82rem!important;
+    line-height:1.35!important;
+  }
+  .sugo-ticket-workspace.active .sugo-ticket-field textarea,
+  .sugo-vision-workspace.active .sugo-vision-note-field textarea{
+    min-height:54px!important;
+    max-height:74px!important;
+    resize:none!important;
+  }
+  .sugo-ticket-workspace.active .sugo-ticket-template-preview{
+    margin-top:10px!important;
+    padding:9px 10px!important;
+    border-radius:14px!important;
+    font-size:.72rem!important;
+    line-height:1.42!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-dropzone{
+    min-height:122px!important;
+    padding:12px!important;
+    border-radius:18px!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-drop-icon{
+    width:42px!important;
+    height:42px!important;
+    border-radius:15px!important;
+    margin-bottom:6px!important;
+    font-size:1.35rem!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-drop-title{
+    font-size:.9rem!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-drop-sub{
+    margin-top:3px!important;
+    font-size:.72rem!important;
+    line-height:1.38!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-status-line{
+    margin-top:8px!important;
+    padding:8px 9px!important;
+    border-radius:12px!important;
+    font-size:.72rem!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-workspace-preview{
+    margin-top:8px!important;
+    padding:9px!important;
+    border-radius:16px!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-workspace-preview.has-image{
+    grid-template-columns:76px minmax(0,1fr) auto!important;
+    gap:9px!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-workspace-preview .sugo-vision-thumb{
+    width:76px!important;
+    height:56px!important;
+    border-radius:12px!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-workspace-preview .sugo-vision-name{
+    font-size:.82rem!important;
+  }
+  .sugo-vision-workspace.active .sugo-vision-workspace-preview .sugo-vision-sub{
+    font-size:.68rem!important;
+  }
+}
+
+/* On smaller screens, keep the page usable with compact spacing and normal vertical scrolling. */
+@media (max-width:1080px){
+  .sugo-tool-workspace.active .sugo-tool-hero{padding:18px!important;margin-bottom:12px!important;}
+  .sugo-tool-workspace.active .sugo-tool-hero h2{font-size:1.45rem!important;}
+  .sugo-tool-workspace.active .sugo-tool-grid{gap:12px!important;}
+  .sugo-tool-workspace.active .sugo-tool-primary-card,
+  .sugo-tool-workspace.active .sugo-tool-options-card{padding:16px!important;}
+}
+</style>
+<!-- ===== /SUGO Viewport Fit Patch ===== -->
+
 </head>
 <body class="sugo-final-polished">
 
@@ -5156,13 +5931,13 @@ try { localStorage.removeItem('sugo_options_open'); localStorage.removeItem('sug
     <div class="search-row">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <textarea id="searchInput" rows="1" placeholder="Search Arabic / English keywords..." oninput="sugoFastSearchInput(this);" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();askAI(this.value);}"></textarea>
+        <textarea id="searchInput" rows="1" placeholder="Search Arabic / English keywords..." oninput="sugoFastSearchInput(this);" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sugoOpenAskAIWorkspace(event);}"></textarea>
       </div>
-      <button class="ask-ai-btn" id="askAIBtn" onclick="askAI(document.getElementById('searchInput').value)" title="Ask AI">✦ Ask AI</button>
-      <button class="ask-ai-btn create-ticket-btn" id="createTicketBtn" type="button" onclick="createSmartTicket(document.getElementById('searchInput').value)" title="Create a smart ready-to-send customer ticket">Create Ticket</button>
+      <button class="ask-ai-btn" id="askAIBtn" onclick="return sugoOpenAskAIWorkspace(event)" title="Ask AI">✦ Ask AI</button>
+      <button class="ask-ai-btn create-ticket-btn" id="createTicketBtn" type="button" onclick="return sugoOpenTicketWorkspace(event)" title="Open dedicated ticket workspace">Create Ticket</button>
       <div class="sugo-vision-uploader" id="sugoVisionUploader">
         <input id="sugoVisionInput" type="file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleSugoVisionImage(this.files && this.files[0]); this.value='';">
-        <button class="sugo-vision-upload-btn" id="sugoVisionUploadBtn" type="button" onclick="sugoTriggerVisionUpload()">Upload image</button>
+        <button class="sugo-vision-upload-btn" id="sugoVisionUploadBtn" type="button" onclick="return sugoOpenVisionWorkspace(event)" title="Open dedicated image workspace">Upload image</button>
         <div class="sugo-vision-status" id="sugoVisionStatus"></div>
         <div class="sugo-vision-preview" id="sugoVisionPreview" aria-live="polite"></div>
       </div>
@@ -6020,6 +6795,298 @@ try { localStorage.removeItem('sugo_options_open'); localStorage.removeItem('sug
       <h2>SUGO Knowledge Base</h2>
       <p>Select a topic from the sidebar to begin</p>
     </div>
+
+    <!-- ===== SUGO Stage 2: Dedicated Ask AI Workspace ===== -->
+    <div class="sugo-tool-workspace sugo-ask-workspace" id="sugoAskAIWorkspace" hidden aria-live="polite">
+      <div class="sugo-tool-hero">
+        <div>
+          <span class="sugo-tool-kicker">Dedicated AI Workspace</span>
+          <h2>Ask AI Console</h2>
+          <p>Ask SUGO policy, troubleshooting, account, payment, agency, host, game, or escalation questions. This workspace creates an agent answer only.</p>
+        </div>
+        <button class="sugo-tool-close" type="button" onclick="sugoCloseAskAIWorkspace()" aria-label="Close Ask AI workspace">✕</button>
+      </div>
+
+      <div class="sugo-tool-grid">
+        <section class="sugo-tool-card sugo-tool-primary-card">
+          <label class="sugo-tool-label" for="sugoAskAIInput">Question / Case details</label>
+          <textarea id="sugoAskAIInput" class="sugo-tool-textarea" rows="8" placeholder="Example: user cannot receive recharge coins, what should the agent check and what should we reply?"></textarea>
+          <div class="sugo-tool-hint" id="sugoAskAIHint">Use this for agent guidance, SOP explanation, correct action, missing info, and escalation path.</div>
+
+          <div class="sugo-tool-chip-row" aria-label="Ask AI quick prompts">
+            <button type="button" class="sugo-tool-chip" data-sugo-ask-chip="What is the correct agent action for this case?">Agent action</button>
+            <button type="button" class="sugo-tool-chip" data-sugo-ask-chip="Check the relevant SOP and list the missing information needed before escalation.">Missing info</button>
+            <button type="button" class="sugo-tool-chip" data-sugo-ask-chip="Explain the escalation path and what evidence is required.">Escalation</button>
+            <button type="button" class="sugo-tool-chip" data-sugo-ask-chip="Give a short customer reply draft, but keep it as an agent answer not a ticket.">Short reply draft</button>
+          </div>
+
+          <div class="sugo-tool-actions">
+            <button class="sugo-tool-submit" id="sugoAskAISubmit" type="button" onclick="sugoSubmitAskAIWorkspace()">Generate AI Answer</button>
+            <button class="sugo-tool-secondary" type="button" onclick="sugoAskAIClear()">Clear</button>
+          </div>
+        </section>
+
+        <aside class="sugo-tool-card sugo-tool-options-card" aria-label="Ask AI options">
+          <div class="sugo-tool-options-title">Ask AI Options</div>
+
+          <div class="sugo-tool-option-group" data-sugo-ask-group="language">
+            <div class="sugo-tool-option-label">Language</div>
+            <div class="sugo-tool-segments" role="group" aria-label="Answer language">
+              <button type="button" class="sugo-tool-seg active" data-sugo-ask-option="language" data-value="english">English</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-ask-option="language" data-value="arabic">Arabic</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-ask-group="response">
+            <div class="sugo-tool-option-label">Answer depth</div>
+            <div class="sugo-tool-segments three" role="group" aria-label="Answer depth">
+              <button type="button" class="sugo-tool-seg active" data-sugo-ask-option="response" data-value="brief">Brief</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-ask-option="response" data-value="detailed">Detailed</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-ask-option="response" data-value="step">Steps</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-ask-group="sop">
+            <div class="sugo-tool-option-label">Knowledge mode</div>
+            <div class="sugo-tool-segments" role="group" aria-label="Knowledge mode">
+              <button type="button" class="sugo-tool-seg active" data-sugo-ask-option="sop" data-value="hybrid">Hybrid</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-ask-option="sop" data-value="sop_only">SOP Only</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-ask-group="focus">
+            <div class="sugo-tool-option-label">Ask AI focus</div>
+            <div class="sugo-tool-stack" role="group" aria-label="Ask AI focus">
+              <button type="button" class="sugo-tool-focus active" data-sugo-ask-option="focus" data-value="agent">Agent guidance</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-ask-option="focus" data-value="sop_check">SOP check + confidence</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-ask-option="focus" data-value="troubleshoot">Troubleshooting steps</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-ask-option="focus" data-value="escalation">Escalation review</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-note">
+            This is locked to <strong>Answer</strong> output. Ticket creation and image analysis will get their own specialized workspaces in the next stages.
+          </div>
+        </aside>
+      </div>
+    </div>
+    <!-- ===== /SUGO Stage 2: Dedicated Ask AI Workspace ===== -->
+
+    <!-- ===== SUGO Stage 3: Dedicated Create Ticket Workspace ===== -->
+    <div class="sugo-tool-workspace sugo-ticket-workspace" id="sugoTicketWorkspace" hidden aria-live="polite">
+      <div class="sugo-tool-hero">
+        <div>
+          <span class="sugo-tool-kicker">Dedicated Ticket Workspace</span>
+          <h2>Create Ticket Console</h2>
+          <p>Build a clean ready-to-send customer reply, escalation note, or missing-information request from the case details. This workspace is locked to Ticket output.</p>
+        </div>
+        <button class="sugo-tool-close" type="button" onclick="sugoCloseTicketWorkspace()" aria-label="Close ticket workspace">✕</button>
+      </div>
+
+      <div class="sugo-tool-grid">
+        <section class="sugo-tool-card sugo-tool-primary-card">
+          <label class="sugo-tool-label" for="sugoTicketInput">Customer conversation / Case details</label>
+          <textarea id="sugoTicketInput" class="sugo-tool-textarea" rows="8" placeholder="Paste the customer message, agent notes, issue type, screenshots text, payment/order details, or what happened..."></textarea>
+          <div class="sugo-tool-hint" id="sugoTicketHint">Use this only when you want a final ticket/customer reply or escalation-ready text.</div>
+
+          <div class="sugo-ticket-fields" aria-label="Ticket details">
+            <div class="sugo-ticket-field">
+              <label for="sugoTicketUserId">User ID / UID</label>
+              <input id="sugoTicketUserId" type="text" placeholder="Optional">
+            </div>
+            <div class="sugo-ticket-field">
+              <label for="sugoTicketOrderId">Order / Room / Agency ID</label>
+              <input id="sugoTicketOrderId" type="text" placeholder="Optional">
+            </div>
+            <div class="sugo-ticket-field wide">
+              <label for="sugoTicketEvidence">Evidence / Internal notes</label>
+              <textarea id="sugoTicketEvidence" rows="3" placeholder="Optional: screenshots, time, amount, country, device, payment method, previous action, or escalation note..."></textarea>
+            </div>
+          </div>
+
+          <div class="sugo-tool-chip-row" aria-label="Create Ticket quick prompts">
+            <button type="button" class="sugo-tool-chip" data-sugo-ticket-chip="Write a ready-to-send customer support reply based on this case.">Ready reply</button>
+            <button type="button" class="sugo-tool-chip" data-sugo-ticket-chip="Write a polite missing-information request and list exactly what the user must provide.">Missing info</button>
+            <button type="button" class="sugo-tool-chip" data-sugo-ticket-chip="Create an internal escalation summary with evidence required and recommended next team/action.">Escalation note</button>
+            <button type="button" class="sugo-tool-chip" data-sugo-ticket-chip="Rewrite the customer reply to be shorter, safer, and more professional.">Polish reply</button>
+          </div>
+
+          <div class="sugo-tool-actions">
+            <button class="sugo-tool-submit" id="sugoTicketSubmit" type="button" onclick="sugoSubmitTicketWorkspace()">Generate Ticket</button>
+            <button class="sugo-tool-secondary" type="button" onclick="sugoTicketClear()">Clear</button>
+          </div>
+        </section>
+
+        <aside class="sugo-tool-card sugo-tool-options-card" aria-label="Create Ticket options">
+          <div class="sugo-tool-options-title">Create Ticket Options</div>
+
+          <div class="sugo-tool-option-group" data-sugo-ticket-group="language">
+            <div class="sugo-tool-option-label">Ticket language</div>
+            <div class="sugo-tool-segments" role="group" aria-label="Ticket language">
+              <button type="button" class="sugo-tool-seg active" data-sugo-ticket-option="language" data-value="english">English</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-ticket-option="language" data-value="arabic">Arabic</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-ticket-group="response">
+            <div class="sugo-tool-option-label">Ticket depth</div>
+            <div class="sugo-tool-segments three" role="group" aria-label="Ticket depth">
+              <button type="button" class="sugo-tool-seg" data-sugo-ticket-option="response" data-value="brief">Short</button>
+              <button type="button" class="sugo-tool-seg active" data-sugo-ticket-option="response" data-value="detailed">Complete</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-ticket-option="response" data-value="step">Step</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-ticket-group="sop">
+            <div class="sugo-tool-option-label">Knowledge mode</div>
+            <div class="sugo-tool-segments" role="group" aria-label="Knowledge mode">
+              <button type="button" class="sugo-tool-seg" data-sugo-ticket-option="sop" data-value="hybrid">Hybrid</button>
+              <button type="button" class="sugo-tool-seg active" data-sugo-ticket-option="sop" data-value="sop_only">SOP Only</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-ticket-group="type">
+            <div class="sugo-tool-option-label">Ticket type</div>
+            <div class="sugo-tool-stack" role="group" aria-label="Ticket type">
+              <button type="button" class="sugo-tool-focus active" data-sugo-ticket-option="type" data-value="customer_reply">Customer reply</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-ticket-option="type" data-value="missing_info">Missing information</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-ticket-option="type" data-value="internal_escalation">Internal escalation</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-ticket-option="type" data-value="policy_sensitive">Policy-sensitive reply</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-ticket-group="tone">
+            <div class="sugo-tool-option-label">Tone</div>
+            <div class="sugo-tool-segments three" role="group" aria-label="Ticket tone">
+              <button type="button" class="sugo-tool-seg active" data-sugo-ticket-option="tone" data-value="professional">Pro</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-ticket-option="tone" data-value="empathetic">Empathy</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-ticket-option="tone" data-value="firm">Firm</button>
+            </div>
+          </div>
+
+          <div class="sugo-ticket-template-preview" id="sugoTicketTemplatePreview">
+            <strong>Output:</strong> clean customer-facing ticket, no duplicated greeting/closing, with missing info only when needed.
+          </div>
+
+          <div class="sugo-tool-note">
+            This is locked to <strong>Ticket</strong> output. Ask AI remains for guidance only, and Upload Image will get its own workspace in the next stage.
+          </div>
+        </aside>
+      </div>
+    </div>
+    <!-- ===== /SUGO Stage 3: Dedicated Create Ticket Workspace ===== -->
+
+    <!-- ===== SUGO Stage 4: Dedicated Upload Image Workspace ===== -->
+    <div class="sugo-tool-workspace sugo-vision-workspace" id="sugoVisionWorkspace" hidden aria-live="polite">
+      <div class="sugo-tool-hero">
+        <div>
+          <span class="sugo-tool-kicker">Dedicated Vision Workspace</span>
+          <h2>Upload Image Console</h2>
+          <p>Upload a screenshot or evidence image, then let AI read it, match it with SUGO SOP, and return either agent guidance or a ready ticket.</p>
+        </div>
+        <button class="sugo-tool-close" type="button" onclick="sugoCloseVisionWorkspace()" aria-label="Close image workspace">✕</button>
+      </div>
+
+      <div class="sugo-tool-grid">
+        <section class="sugo-tool-card sugo-tool-primary-card">
+          <label class="sugo-tool-label" for="sugoVisionCaseNote">Image / Screenshot evidence</label>
+
+          <input id="sugoVisionWorkspaceInput" type="file" accept="image/png,image/jpeg,image/webp" hidden onchange="sugoHandleVisionWorkspaceImage(this.files && this.files[0]); this.value='';">
+          <div class="sugo-vision-dropzone" id="sugoVisionDropzone" role="button" tabindex="0" onclick="sugoTriggerVisionWorkspaceUpload()">
+            <div>
+              <div class="sugo-vision-drop-icon">🖼️</div>
+              <div class="sugo-vision-drop-title">Click to upload image</div>
+              <div class="sugo-vision-drop-sub">Supports JPG, PNG, and WebP. The image is compressed locally before being sent to the AI Worker.</div>
+            </div>
+          </div>
+
+          <div class="sugo-vision-status-line" id="sugoVisionWorkspaceStatus"></div>
+          <div class="sugo-vision-workspace-preview" id="sugoVisionWorkspacePreview" aria-live="polite"></div>
+
+          <div class="sugo-vision-note-grid" aria-label="Image case details">
+            <div class="sugo-vision-note-field">
+              <label for="sugoVisionUserId">User ID / UID</label>
+              <input id="sugoVisionUserId" type="text" placeholder="Optional">
+            </div>
+            <div class="sugo-vision-note-field">
+              <label for="sugoVisionContextId">Order / Room / Agency ID</label>
+              <input id="sugoVisionContextId" type="text" placeholder="Optional">
+            </div>
+            <div class="sugo-vision-note-field wide">
+              <label for="sugoVisionCaseNote">Case note / what should AI check?</label>
+              <textarea id="sugoVisionCaseNote" rows="4" placeholder="Optional: describe what happened, what the screenshot should prove, user complaint, amount, country, device, or previous action..."></textarea>
+            </div>
+          </div>
+
+          <div class="sugo-tool-chip-row" aria-label="Upload Image quick prompts">
+            <button type="button" class="sugo-tool-chip" data-sugo-vision-chip="Read the screenshot and identify the visible issue, error message, and correct agent action.">Read screenshot</button>
+            <button type="button" class="sugo-tool-chip" data-sugo-vision-chip="Check if this image supports a ban/moderation decision and what wording should be used safely.">Ban evidence</button>
+            <button type="button" class="sugo-tool-chip" data-sugo-vision-chip="Analyze payment/recharge/withdrawal evidence and list missing details before escalation.">Payment evidence</button>
+            <button type="button" class="sugo-tool-chip" data-sugo-vision-chip="Create a safe customer reply based on the attached image and SOP match.">Reply from image</button>
+          </div>
+
+          <div class="sugo-tool-actions">
+            <button class="sugo-tool-submit" id="sugoVisionSubmit" type="button" onclick="sugoSubmitVisionWorkspace()">Analyze Image</button>
+            <button class="sugo-tool-secondary" type="button" onclick="sugoVisionClearWorkspace()">Clear</button>
+          </div>
+        </section>
+
+        <aside class="sugo-tool-card sugo-tool-options-card" aria-label="Upload Image options">
+          <div class="sugo-tool-options-title">Upload Image Options</div>
+
+          <div class="sugo-tool-option-group" data-sugo-vision-group="language">
+            <div class="sugo-tool-option-label">Result language</div>
+            <div class="sugo-tool-segments" role="group" aria-label="Image result language">
+              <button type="button" class="sugo-tool-seg active" data-sugo-vision-option="language" data-value="english">English</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-vision-option="language" data-value="arabic">Arabic</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-vision-group="output">
+            <div class="sugo-tool-option-label">AI output</div>
+            <div class="sugo-tool-segments" role="group" aria-label="Image output type">
+              <button type="button" class="sugo-tool-seg active" data-sugo-vision-option="output" data-value="answer">Vision answer</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-vision-option="output" data-value="ticket">Vision ticket</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-vision-group="response">
+            <div class="sugo-tool-option-label">Detail level</div>
+            <div class="sugo-tool-segments three" role="group" aria-label="Image detail level">
+              <button type="button" class="sugo-tool-seg active" data-sugo-vision-option="response" data-value="brief">Brief</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-vision-option="response" data-value="detailed">Detailed</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-vision-option="response" data-value="step">Steps</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-vision-group="sop">
+            <div class="sugo-tool-option-label">Knowledge mode</div>
+            <div class="sugo-tool-segments" role="group" aria-label="Image knowledge mode">
+              <button type="button" class="sugo-tool-seg active" data-sugo-vision-option="sop" data-value="hybrid">Hybrid</button>
+              <button type="button" class="sugo-tool-seg" data-sugo-vision-option="sop" data-value="sop_only">SOP Only</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-option-group" data-sugo-vision-group="analysis">
+            <div class="sugo-tool-option-label">Image analysis type</div>
+            <div class="sugo-tool-stack" role="group" aria-label="Image analysis type">
+              <button type="button" class="sugo-tool-focus active" data-sugo-vision-option="analysis" data-value="screenshot_case">Screenshot case reading</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-vision-option="analysis" data-value="ban_moderation">Ban / moderation evidence</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-vision-option="analysis" data-value="payment_evidence">Recharge / withdrawal evidence</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-vision-option="analysis" data-value="account_identity">Account / profile / agency</button>
+              <button type="button" class="sugo-tool-focus" data-sugo-vision-option="analysis" data-value="app_error">App error / crash screenshot</button>
+            </div>
+          </div>
+
+          <div class="sugo-tool-note" id="sugoVisionOptionPreview">
+            This is locked to <strong>image analysis</strong>. Choose Vision answer for agent guidance, or Vision ticket for a customer-ready reply.
+          </div>
+        </aside>
+      </div>
+    </div>
+    <!-- ===== /SUGO Stage 4: Dedicated Upload Image Workspace ===== -->
+
+
     <div class="ai-answer-pane" id="aiAnswerPane">
       <button class="close-pane-btn" onclick="closeAIPane();">✕</button>
       <div class="ai-answer-card">
@@ -10046,6 +11113,10 @@ async function askAI(query, isFollowup, isContinuation, aiOptions) {
       ? "## ATTACHED IMAGE ANALYSIS:\nThe user attached an image/screenshot. Read the visible content carefully, identify any error message, account/profile/payment/room details, and connect it with the relevant SOP. Do not invent unreadable text or hidden details. If the image is unclear, say what cannot be confirmed. In Ticket mode, use the image as evidence but write only a clean customer-facing message.\n\n"
       : "";
 
+    const askToolInstruction = (typeof aiOptions.askToolInstruction === 'string' && aiOptions.askToolInstruction.trim())
+      ? "## ASK AI DEDICATED WORKSPACE PROFILE:\n" + aiOptions.askToolInstruction.trim().slice(0, 1200) + "\n\n"
+      : "";
+
     const systemPrompt =
       "You are an expert SUGO app support specialist for the MENA region. " +
       "SUGO (also known as Sugo Live or VoiceMaker) is a popular live voice and social app operating in MENA. " +
@@ -10053,6 +11124,7 @@ async function askAI(query, isFollowup, isContinuation, aiOptions) {
       knowledgeModeInstruction +
       modeInstruction +
       imageInstruction +
+      askToolInstruction +
       "## SOURCE DISCIPLINE:\n" +
       "- Treat the provided SOP text as the source of truth when it contains a match.\n" +
       "- If INTERNAL MATCHES show a Primary route, use that route first and do not replace it with a broad overview, generic appeal, or unrelated unban article.\n" +
@@ -17972,6 +19044,828 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
 })();
 </script>
 <!-- ===== /SUGO Visible Current Topic Content Editor Hotfix ===== -->
+
+
+
+<!-- ===== SUGO Stage 1: Options runtime lock ===== -->
+<script id="sugo-stage1-options-removal-js">
+(function(){
+  function lockOldOptionsUI(){
+    var sidebar = document.getElementById('sidebar');
+    if(sidebar) sidebar.classList.remove('options-open');
+
+    var btn = document.getElementById('optionsToggleBtn');
+    if(btn){
+      btn.hidden = true;
+      btn.setAttribute('aria-hidden','true');
+      btn.setAttribute('tabindex','-1');
+    }
+
+    var deck = document.querySelector('#sidebar .control-deck');
+    if(deck){
+      deck.hidden = true;
+      deck.setAttribute('aria-hidden','true');
+    }
+  }
+
+  window.toggleSugoOptions = function(event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    lockOldOptionsUI();
+    return false;
+  };
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', lockOldOptionsUI);
+  }else{
+    lockOldOptionsUI();
+  }
+  window.addEventListener('load', lockOldOptionsUI);
+  setTimeout(lockOldOptionsUI, 250);
+  setTimeout(lockOldOptionsUI, 900);
+})();
+</script>
+<!-- ===== /SUGO Stage 1: Options runtime lock ===== -->
+
+
+<!-- ===== SUGO Stage 2: Ask AI Workspace Runtime ===== -->
+<script id="sugo-stage2-ask-ai-workspace-js">
+(function(){
+  var askState = {
+    language: 'english',
+    response: 'brief',
+    sop: 'hybrid',
+    focus: 'agent'
+  };
+
+  function byId(id){ return document.getElementById(id); }
+  function currentSearchText(){ return (byId('searchInput') && byId('searchInput').value || '').trim(); }
+
+  function setHiddenSelect(id, value){
+    var el = byId(id);
+    if(!el) return;
+    if(Array.from(el.options || []).some(function(opt){ return opt.value === value; })){
+      el.value = value;
+      try{ el.dispatchEvent(new Event('change', { bubbles:true })); }catch(e){}
+    }
+  }
+
+  function applyAskStateToLegacyControls(){
+    setHiddenSelect('languageSelect', askState.language);
+    setHiddenSelect('outputTypeSelect', 'answer');
+    setHiddenSelect('sopModeSelect', askState.sop);
+    setHiddenSelect('responseModeSelect', askState.response);
+    if(typeof window.setResponseMode === 'function'){
+      try{ window.setResponseMode(askState.response); }catch(e){}
+    }
+  }
+
+  function focusInstruction(){
+    if(askState.focus === 'sop_check'){
+      return 'This request came from the dedicated Ask AI workspace. Treat it as an agent-facing SOP check. Start with the best matching policy/procedure, mention confidence when useful, separate what is confirmed by SOP from what needs verification, and avoid writing a customer ticket.';
+    }
+    if(askState.focus === 'troubleshoot'){
+      return 'This request came from the dedicated Ask AI workspace. Treat it as an agent-facing troubleshooting answer. Provide practical steps in the correct order, include what evidence to request, and mention when to escalate. Do not write a customer ticket.';
+    }
+    if(askState.focus === 'escalation'){
+      return 'This request came from the dedicated Ask AI workspace. Treat it as an escalation review. Identify whether escalation is needed, which team/path should handle it if known, what missing information/evidence is required, and what the agent should avoid promising. Do not write a customer ticket.';
+    }
+    return 'This request came from the dedicated Ask AI workspace. Treat it as an agent-facing support answer. Give the correct action, relevant SOP conditions, missing information, and safe customer guidance. Do not write a customer ticket unless the user specifically asks inside the question.';
+  }
+
+  function hideWorkspaceOnly(){
+    var panel = byId('sugoAskAIWorkspace');
+    if(panel){ panel.classList.remove('active'); panel.hidden = true; }
+    var area = byId('contentArea');
+    if(area) area.classList.remove('sugo-stage2-ask-open');
+  }
+
+  function openWorkspace(event){
+    if(event){ event.preventDefault(); event.stopPropagation(); }
+    var panel = byId('sugoAskAIWorkspace');
+    if(!panel){
+      if(typeof window.askAI === 'function') window.askAI(currentSearchText());
+      return false;
+    }
+    var input = byId('sugoAskAIInput');
+    var source = currentSearchText();
+    if(input && source && !input.value.trim()) input.value = source;
+
+    try{
+      document.querySelectorAll('.content-pane.active').forEach(function(el){ el.classList.remove('active'); });
+    }catch(e){}
+    var aiPane = byId('aiAnswerPane');
+    if(aiPane) aiPane.classList.remove('active');
+    var welcome = byId('welcomeMsg');
+    if(welcome) welcome.style.display = 'none';
+    var breadcrumb = byId('sugoBreadcrumb');
+    if(breadcrumb) breadcrumb.innerHTML = '';
+
+    panel.hidden = false;
+    panel.classList.add('active');
+    var area = byId('contentArea');
+    if(area) area.classList.add('sugo-stage2-ask-open');
+    syncButtons();
+    setTimeout(function(){ if(input) input.focus(); }, 60);
+    return false;
+  }
+
+  function closeWorkspace(){
+    hideWorkspaceOnly();
+    var anyActive = document.querySelector('.content-pane.active, #aiAnswerPane.active');
+    var welcome = byId('welcomeMsg');
+    if(welcome && !anyActive) welcome.style.display = '';
+    return false;
+  }
+
+  function syncButtons(){
+    document.querySelectorAll('[data-sugo-ask-option]').forEach(function(btn){
+      var key = btn.getAttribute('data-sugo-ask-option');
+      var val = btn.getAttribute('data-value');
+      btn.classList.toggle('active', askState[key] === val);
+      btn.setAttribute('aria-pressed', askState[key] === val ? 'true' : 'false');
+    });
+    var hint = byId('sugoAskAIHint');
+    if(hint){
+      if(askState.focus === 'sop_check') hint.textContent = 'SOP check mode: verifies the strongest KB match, confidence, and missing details before answering.';
+      else if(askState.focus === 'troubleshoot') hint.textContent = 'Troubleshooting mode: returns ordered actions, evidence needed, and escalation trigger.';
+      else if(askState.focus === 'escalation') hint.textContent = 'Escalation mode: checks whether escalation is needed and what information must be attached.';
+      else hint.textContent = 'Agent guidance mode: correct action, policy conditions, missing info, and safe support guidance.';
+    }
+  }
+
+  function submitWorkspace(){
+    var panel = byId('sugoAskAIWorkspace');
+    var input = byId('sugoAskAIInput');
+    var q = (input && input.value || currentSearchText()).trim();
+    if(!q){
+      if(panel){
+        panel.classList.add('sugo-shake');
+        setTimeout(function(){ panel.classList.remove('sugo-shake'); }, 520);
+      }
+      if(input) input.focus();
+      return false;
+    }
+    var search = byId('searchInput');
+    if(search) search.value = q;
+    applyAskStateToLegacyControls();
+    hideWorkspaceOnly();
+    if(typeof window.askAI === 'function'){
+      window.askAI(q, false, false, {
+        forceOutputType: 'answer',
+        forceResponseMode: askState.response,
+        smartTicket: false,
+        askToolInstruction: focusInstruction()
+      });
+    }
+    return false;
+  }
+
+  function clearWorkspace(){
+    var input = byId('sugoAskAIInput');
+    if(input){ input.value = ''; input.focus(); }
+    return false;
+  }
+
+  document.addEventListener('click', function(e){
+    var opt = e.target.closest('[data-sugo-ask-option]');
+    if(opt){
+      e.preventDefault();
+      var key = opt.getAttribute('data-sugo-ask-option');
+      var val = opt.getAttribute('data-value');
+      if(key && val && Object.prototype.hasOwnProperty.call(askState, key)){
+        askState[key] = val;
+        syncButtons();
+      }
+      return;
+    }
+    var chip = e.target.closest('[data-sugo-ask-chip]');
+    if(chip){
+      e.preventDefault();
+      var text = chip.getAttribute('data-sugo-ask-chip') || '';
+      var input = byId('sugoAskAIInput');
+      if(input){
+        var current = input.value.trim();
+        input.value = current ? current + "\n" + text : text;
+        input.focus();
+      }
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e){
+    var input = byId('sugoAskAIInput');
+    if(e.target === input && e.key === 'Enter' && (e.ctrlKey || e.metaKey)){
+      e.preventDefault();
+      submitWorkspace();
+    }
+  });
+
+  window.sugoOpenAskAIWorkspace = openWorkspace;
+  window.sugoCloseAskAIWorkspace = closeWorkspace;
+  window.sugoSubmitAskAIWorkspace = submitWorkspace;
+  window.sugoAskAIClear = clearWorkspace;
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncButtons);
+  else syncButtons();
+})();
+</script>
+<!-- ===== /SUGO Stage 2: Ask AI Workspace Runtime ===== -->
+
+<!-- ===== SUGO Stage 3: Create Ticket Workspace Runtime ===== -->
+<script id="sugo-stage3-create-ticket-workspace-js">
+(function(){
+  var ticketState = {
+    language: 'english',
+    response: 'detailed',
+    sop: 'sop_only',
+    type: 'customer_reply',
+    tone: 'professional'
+  };
+
+  function byId(id){ return document.getElementById(id); }
+  function currentSearchText(){ return (byId('searchInput') && byId('searchInput').value || '').trim(); }
+
+  function setHiddenSelect(id, value){
+    var el = byId(id);
+    if(!el) return;
+    if(Array.from(el.options || []).some(function(opt){ return opt.value === value; })){
+      el.value = value;
+      try{ el.dispatchEvent(new Event('change', { bubbles:true })); }catch(e){}
+    }
+  }
+
+  function applyTicketStateToLegacyControls(){
+    setHiddenSelect('languageSelect', ticketState.language);
+    setHiddenSelect('outputTypeSelect', 'ticket');
+    setHiddenSelect('sopModeSelect', ticketState.sop);
+    setHiddenSelect('responseModeSelect', ticketState.response);
+    if(typeof window.setResponseMode === 'function'){
+      try{ window.setResponseMode(ticketState.response); }catch(e){}
+    }
+  }
+
+  function closeAskWorkspaceSilently(){
+    var panel = byId('sugoAskAIWorkspace');
+    if(panel){ panel.classList.remove('active'); panel.hidden = true; }
+    var area = byId('contentArea');
+    if(area) area.classList.remove('sugo-stage2-ask-open');
+  }
+
+  function hideWorkspaceOnly(){
+    var panel = byId('sugoTicketWorkspace');
+    if(panel){ panel.classList.remove('active'); panel.hidden = true; }
+    var area = byId('contentArea');
+    if(area) area.classList.remove('sugo-stage3-ticket-open');
+  }
+
+  function openWorkspace(event){
+    if(event){ event.preventDefault(); event.stopPropagation(); }
+    var panel = byId('sugoTicketWorkspace');
+    if(!panel){
+      if(typeof window.createSmartTicket === 'function') window.createSmartTicket(currentSearchText());
+      return false;
+    }
+    closeAskWorkspaceSilently();
+    var input = byId('sugoTicketInput');
+    var source = currentSearchText();
+    if(input && source && !input.value.trim()) input.value = source;
+
+    try{ document.querySelectorAll('.content-pane.active').forEach(function(el){ el.classList.remove('active'); }); }catch(e){}
+    var aiPane = byId('aiAnswerPane');
+    if(aiPane) aiPane.classList.remove('active');
+    var welcome = byId('welcomeMsg');
+    if(welcome) welcome.style.display = 'none';
+    var breadcrumb = byId('sugoBreadcrumb');
+    if(breadcrumb) breadcrumb.innerHTML = '';
+
+    panel.hidden = false;
+    panel.classList.add('active');
+    var area = byId('contentArea');
+    if(area) area.classList.add('sugo-stage3-ticket-open');
+    syncButtons();
+    setTimeout(function(){ if(input) input.focus(); }, 60);
+    return false;
+  }
+
+  function closeWorkspace(){
+    hideWorkspaceOnly();
+    var anyActive = document.querySelector('.content-pane.active, #aiAnswerPane.active, #sugoAskAIWorkspace.active');
+    var welcome = byId('welcomeMsg');
+    if(welcome && !anyActive) welcome.style.display = '';
+    return false;
+  }
+
+  function syncButtons(){
+    document.querySelectorAll('[data-sugo-ticket-option]').forEach(function(btn){
+      var key = btn.getAttribute('data-sugo-ticket-option');
+      var val = btn.getAttribute('data-value');
+      var active = ticketState[key] === val;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    var hint = byId('sugoTicketHint');
+    if(hint){
+      if(ticketState.type === 'missing_info') hint.textContent = 'Missing information mode: write a polite request that asks only for required data/evidence.';
+      else if(ticketState.type === 'internal_escalation') hint.textContent = 'Internal escalation mode: summarize the issue, evidence, missing info, and recommended escalation path.';
+      else if(ticketState.type === 'policy_sensitive') hint.textContent = 'Policy-sensitive mode: avoid promises, avoid blame, and keep wording safe for bans, abuse, payments, VIP, agency, or withdrawals.';
+      else hint.textContent = 'Customer reply mode: write a clean ready-to-send SUGO support response.';
+    }
+    var preview = byId('sugoTicketTemplatePreview');
+    if(preview){
+      var typeText = {
+        customer_reply: 'clean customer-facing ticket',
+        missing_info: 'missing-information request',
+        internal_escalation: 'internal escalation summary',
+        policy_sensitive: 'safe policy-sensitive reply'
+      }[ticketState.type] || 'ticket';
+      var toneText = {
+        professional: 'professional',
+        empathetic: 'empathetic',
+        firm: 'firm but polite'
+      }[ticketState.tone] || 'professional';
+      preview.innerHTML = '<strong>Output:</strong> ' + typeText + ' · ' + toneText + ' · ' + (ticketState.sop === 'sop_only' ? 'SOP Only' : 'Hybrid') + '.';
+    }
+  }
+
+  function ticketInstruction(){
+    var typeRules = {
+      customer_reply: 'Create a ready-to-send customer-facing support ticket/reply. Include a natural greeting, clear action/result, any required missing information, and a natural polite closing from SUGO Customer Support Team.',
+      missing_info: 'Create a polite missing-information request only. Ask for the exact required details/evidence and do not promise resolution before those details are provided.',
+      internal_escalation: 'Create an internal escalation note, not a customer reply. Include case summary, suspected category, evidence attached, missing evidence, risk level, and recommended next team/action.',
+      policy_sensitive: 'Create a safe policy-sensitive reply. Avoid blame, avoid guarantees, avoid unsupported policy claims, and request verification/escalation when required.'
+    };
+    var toneRules = {
+      professional: 'Use a professional, concise support tone.',
+      empathetic: 'Use a warmer empathetic tone while staying concise and policy-safe.',
+      firm: 'Use a firm but polite tone. Do not sound aggressive.'
+    };
+    return [
+      'This request came from the dedicated Create Ticket workspace, not the Ask AI guidance workspace.',
+      'Output type is locked to Ticket. Do not provide analysis before the ticket unless the selected ticket type is internal escalation.',
+      typeRules[ticketState.type] || typeRules.customer_reply,
+      toneRules[ticketState.tone] || toneRules.professional,
+      'Do not duplicate greetings or closings. Do not add fake ticket IDs, fake dates, fake agent names, or unsupported SLA promises.',
+      'If facts are missing, ask for them clearly instead of inventing them.'
+    ].join(' ');
+  }
+
+  function buildTicketQuery(raw){
+    var parts = [];
+    parts.push('Create Ticket workspace request.');
+    parts.push('Selected ticket type: ' + ticketState.type + '.');
+    parts.push('Selected tone: ' + ticketState.tone + '.');
+    parts.push('Customer/case details:\n' + raw);
+    var userId = (byId('sugoTicketUserId') && byId('sugoTicketUserId').value || '').trim();
+    var orderId = (byId('sugoTicketOrderId') && byId('sugoTicketOrderId').value || '').trim();
+    var evidence = (byId('sugoTicketEvidence') && byId('sugoTicketEvidence').value || '').trim();
+    if(userId) parts.push('User ID / UID: ' + userId);
+    if(orderId) parts.push('Order / Room / Agency ID: ' + orderId);
+    if(evidence) parts.push('Evidence / internal notes:\n' + evidence);
+    return parts.join('\n\n');
+  }
+
+  function submitWorkspace(){
+    var panel = byId('sugoTicketWorkspace');
+    var input = byId('sugoTicketInput');
+    var raw = (input && input.value || currentSearchText()).trim();
+    var hasImage = false;
+    try{ hasImage = (typeof sugoAiAttachedImage !== 'undefined' && !!sugoAiAttachedImage); }catch(e){}
+    if(!raw && !hasImage){
+      if(panel){ panel.classList.add('sugo-shake'); setTimeout(function(){ panel.classList.remove('sugo-shake'); }, 520); }
+      if(input) input.focus();
+      return false;
+    }
+    var finalQuery = raw ? buildTicketQuery(raw) : 'Create a ready-to-send customer support ticket based on the attached image.';
+    var search = byId('searchInput');
+    if(search) search.value = raw || finalQuery;
+    applyTicketStateToLegacyControls();
+    hideWorkspaceOnly();
+    if(typeof window.askAI === 'function'){
+      window.askAI(finalQuery, false, false, {
+        forceOutputType: 'ticket',
+        forceResponseMode: ticketState.response,
+        smartTicket: true,
+        askToolInstruction: ticketInstruction()
+      });
+    }
+    return false;
+  }
+
+  function clearWorkspace(){
+    ['sugoTicketInput','sugoTicketUserId','sugoTicketOrderId','sugoTicketEvidence'].forEach(function(id){ var el = byId(id); if(el) el.value = ''; });
+    var input = byId('sugoTicketInput');
+    if(input) input.focus();
+    return false;
+  }
+
+  document.addEventListener('click', function(e){
+    var opt = e.target.closest('[data-sugo-ticket-option]');
+    if(opt){
+      e.preventDefault();
+      var key = opt.getAttribute('data-sugo-ticket-option');
+      var val = opt.getAttribute('data-value');
+      if(key && val && Object.prototype.hasOwnProperty.call(ticketState, key)){
+        ticketState[key] = val;
+        syncButtons();
+      }
+      return;
+    }
+    var chip = e.target.closest('[data-sugo-ticket-chip]');
+    if(chip){
+      e.preventDefault();
+      var text = chip.getAttribute('data-sugo-ticket-chip') || '';
+      var input = byId('sugoTicketInput');
+      if(input){
+        var current = input.value.trim();
+        input.value = current ? current + '\n' + text : text;
+        input.focus();
+      }
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e){
+    var input = byId('sugoTicketInput');
+    if(e.target === input && e.key === 'Enter' && (e.ctrlKey || e.metaKey)){
+      e.preventDefault();
+      submitWorkspace();
+    }
+  });
+
+  var originalAskOpen = window.sugoOpenAskAIWorkspace;
+  if(typeof originalAskOpen === 'function'){
+    window.sugoOpenAskAIWorkspace = function(event){
+      hideWorkspaceOnly();
+      return originalAskOpen(event);
+    };
+  }
+
+  window.sugoOpenTicketWorkspace = openWorkspace;
+  window.sugoCloseTicketWorkspace = closeWorkspace;
+  window.sugoSubmitTicketWorkspace = submitWorkspace;
+  window.sugoTicketClear = clearWorkspace;
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncButtons);
+  else syncButtons();
+})();
+</script>
+<!-- ===== /SUGO Stage 3: Create Ticket Workspace Runtime ===== -->
+
+
+
+
+<!-- ===== SUGO Stage 4: Upload Image Workspace Runtime ===== -->
+<script id="sugo-stage4-upload-image-workspace-js">
+(function(){
+  var visionState = {
+    language: 'english',
+    output: 'answer',
+    response: 'brief',
+    sop: 'hybrid',
+    analysis: 'screenshot_case'
+  };
+
+  function byId(id){ return document.getElementById(id); }
+  function currentSearchText(){ return (byId('searchInput') && byId('searchInput').value || '').trim(); }
+
+  function setHiddenSelect(id, value){
+    var el = byId(id);
+    if(!el) return;
+    if(Array.from(el.options || []).some(function(opt){ return opt.value === value; })){
+      el.value = value;
+      try{ el.dispatchEvent(new Event('change', { bubbles:true })); }catch(e){}
+    }
+  }
+
+  function applyVisionStateToLegacyControls(){
+    setHiddenSelect('languageSelect', visionState.language);
+    setHiddenSelect('outputTypeSelect', visionState.output);
+    setHiddenSelect('sopModeSelect', visionState.sop);
+    setHiddenSelect('responseModeSelect', visionState.response);
+    if(typeof window.setResponseMode === 'function'){
+      try{ window.setResponseMode(visionState.response); }catch(e){}
+    }
+  }
+
+  function escapeLocal(text){
+    if(typeof window.escapeHtml === 'function') return window.escapeHtml(text);
+    return String(text || '').replace(/[&<>'"]/g, function(ch){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[ch];
+    });
+  }
+
+  function setWorkspaceStatus(message, isError){
+    var el = byId('sugoVisionWorkspaceStatus');
+    if(!el) return;
+    if(!message){
+      el.classList.remove('active','error');
+      el.textContent = '';
+      return;
+    }
+    el.textContent = message;
+    el.classList.add('active');
+    el.classList.toggle('error', !!isError);
+  }
+
+  function renderPreviewElement(preview){
+    if(!preview) return;
+    var img = null;
+    try{ img = sugoAiAttachedImage; }catch(e){ img = null; }
+    if(!img){
+      preview.classList.remove('has-image');
+      preview.innerHTML = '';
+      return;
+    }
+    var sizeText = typeof window.sugoFormatBytes === 'function' ? window.sugoFormatBytes(img.size) : ((img.size || 0) + ' B');
+    preview.classList.add('has-image');
+    preview.innerHTML = '' +
+      '<img class="sugo-vision-thumb" src="' + img.previewDataUrl + '" alt="Attached image preview">' +
+      '<div class="sugo-vision-meta">' +
+        '<div class="sugo-vision-name">' + escapeLocal(img.name) + '</div>' +
+        '<div class="sugo-vision-sub">' + escapeLocal(img.width + '×' + img.height + ' · ' + sizeText + ' compressed') + '</div>' +
+      '</div>' +
+      '<button class="sugo-vision-clear" type="button" onclick="clearSugoVisionImage(); if(window.sugoRenderVisionWorkspacePreview) window.sugoRenderVisionWorkspacePreview();" title="Remove image">×</button>';
+  }
+
+  function renderAllVisionPreviews(){
+    renderPreviewElement(byId('sugoVisionPreview'));
+    renderPreviewElement(byId('sugoVisionWorkspacePreview'));
+  }
+
+  function closeAskWorkspaceSilently(){
+    var panel = byId('sugoAskAIWorkspace');
+    if(panel){ panel.classList.remove('active'); panel.hidden = true; }
+    var area = byId('contentArea');
+    if(area) area.classList.remove('sugo-stage2-ask-open');
+  }
+
+  function closeTicketWorkspaceSilently(){
+    var panel = byId('sugoTicketWorkspace');
+    if(panel){ panel.classList.remove('active'); panel.hidden = true; }
+    var area = byId('contentArea');
+    if(area) area.classList.remove('sugo-stage3-ticket-open');
+  }
+
+  function hideWorkspaceOnly(){
+    var panel = byId('sugoVisionWorkspace');
+    if(panel){ panel.classList.remove('active'); panel.hidden = true; }
+    var area = byId('contentArea');
+    if(area) area.classList.remove('sugo-stage4-vision-open');
+  }
+
+  function openWorkspace(event){
+    if(event){ event.preventDefault(); event.stopPropagation(); }
+    var panel = byId('sugoVisionWorkspace');
+    if(!panel){
+      if(typeof window.sugoTriggerVisionUpload === 'function') window.sugoTriggerVisionUpload();
+      return false;
+    }
+    closeAskWorkspaceSilently();
+    closeTicketWorkspaceSilently();
+
+    try{ document.querySelectorAll('.content-pane.active').forEach(function(el){ el.classList.remove('active'); }); }catch(e){}
+    var aiPane = byId('aiAnswerPane');
+    if(aiPane) aiPane.classList.remove('active');
+    var welcome = byId('welcomeMsg');
+    if(welcome) welcome.style.display = 'none';
+    var breadcrumb = byId('sugoBreadcrumb');
+    if(breadcrumb) breadcrumb.innerHTML = '';
+
+    var note = byId('sugoVisionCaseNote');
+    var source = currentSearchText();
+    if(note && source && !note.value.trim()) note.value = source;
+
+    panel.hidden = false;
+    panel.classList.add('active');
+    var area = byId('contentArea');
+    if(area) area.classList.add('sugo-stage4-vision-open');
+    syncButtons();
+    renderAllVisionPreviews();
+    setTimeout(function(){
+      var drop = byId('sugoVisionDropzone');
+      if(drop) drop.focus();
+    }, 60);
+    return false;
+  }
+
+  function closeWorkspace(){
+    hideWorkspaceOnly();
+    var anyActive = document.querySelector('.content-pane.active, #aiAnswerPane.active, #sugoAskAIWorkspace.active, #sugoTicketWorkspace.active');
+    var welcome = byId('welcomeMsg');
+    if(welcome && !anyActive) welcome.style.display = '';
+    return false;
+  }
+
+  function triggerUpload(){
+    var input = byId('sugoVisionWorkspaceInput') || byId('sugoVisionInput');
+    if(input) input.click();
+    return false;
+  }
+
+  async function handleWorkspaceImage(file){
+    if(!file) return false;
+    setWorkspaceStatus('Preparing image for AI analysis…', false);
+    try{
+      if(typeof window.handleSugoVisionImage === 'function') await window.handleSugoVisionImage(file);
+      else throw new Error('Image upload handler is not available.');
+      renderAllVisionPreviews();
+      setWorkspaceStatus('Image is ready. Add notes if needed, then click Analyze Image.', false);
+    }catch(err){
+      renderAllVisionPreviews();
+      setWorkspaceStatus((err && err.message) || String(err), true);
+    }
+    return false;
+  }
+
+  function syncButtons(){
+    document.querySelectorAll('[data-sugo-vision-option]').forEach(function(btn){
+      var key = btn.getAttribute('data-sugo-vision-option');
+      var val = btn.getAttribute('data-value');
+      var active = visionState[key] === val;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    var preview = byId('sugoVisionOptionPreview');
+    if(preview){
+      var analysisText = {
+        screenshot_case: 'screenshot reading',
+        ban_moderation: 'ban / moderation evidence',
+        payment_evidence: 'payment or withdrawal evidence',
+        account_identity: 'account / profile / agency check',
+        app_error: 'app error / crash screenshot'
+      }[visionState.analysis] || 'image analysis';
+      preview.innerHTML = '<strong>Output:</strong> ' + (visionState.output === 'ticket' ? 'Vision ticket' : 'Vision answer') + ' · ' + analysisText + ' · ' + (visionState.sop === 'sop_only' ? 'SOP Only' : 'Hybrid') + '.';
+    }
+  }
+
+  function visionInstruction(){
+    var analysisRules = {
+      screenshot_case: 'Read the screenshot carefully. Identify visible text, error messages, UI state, account or transaction clues, and the likely support category. Separate what is visible from what is assumed.',
+      ban_moderation: 'Treat the image as possible moderation or ban evidence. Describe only visible evidence, avoid unsupported accusations, and use safe policy wording. If the image is insufficient, request more evidence or escalate.',
+      payment_evidence: 'Treat the image as recharge, payment, withdrawal, exchange, or balance evidence. Extract visible amounts, order IDs, dates, status messages, and missing details before escalation. Do not promise refunds or credit.',
+      account_identity: 'Treat the image as account, profile, agency, host, or identity evidence. Extract visible IDs/names/status carefully and request verification if ownership or identity is not conclusive.',
+      app_error: 'Treat the image as an app issue screenshot. Identify the exact visible error or crash state, then give refresh/log/upload/cache/device steps and escalation trigger if the issue continues.'
+    };
+    return [
+      'This request came from the dedicated Upload Image workspace, not the normal Ask AI or Create Ticket workspace.',
+      'The image is the primary evidence. Read visible content carefully, but never invent unreadable text, hidden details, IDs, amounts, dates, or policy decisions.',
+      analysisRules[visionState.analysis] || analysisRules.screenshot_case,
+      visionState.output === 'ticket'
+        ? 'Final output must be a customer-ready Vision Ticket. Use the image as evidence internally, but do not mention internal analysis, confidence labels, or source chips.'
+        : 'Final output must be agent-facing Vision Answer. Include visible findings, likely SOP match, correct action, missing information, and escalation path when needed.',
+      'For sensitive cases such as ban, abuse, recharge, withdrawal, VIP, agency, host, identity, or account ownership, be conservative and request verification/escalation if the SOP or image is not conclusive.'
+    ].join(' ');
+  }
+
+  function buildVisionQuery(){
+    var parts = [];
+    parts.push('Upload Image workspace request.');
+    parts.push('Selected image analysis type: ' + visionState.analysis + '.');
+    parts.push('Selected output: ' + visionState.output + '.');
+    var userId = (byId('sugoVisionUserId') && byId('sugoVisionUserId').value || '').trim();
+    var contextId = (byId('sugoVisionContextId') && byId('sugoVisionContextId').value || '').trim();
+    var note = (byId('sugoVisionCaseNote') && byId('sugoVisionCaseNote').value || '').trim();
+    if(userId) parts.push('User ID / UID: ' + userId);
+    if(contextId) parts.push('Order / Room / Agency ID: ' + contextId);
+    if(note) parts.push('Case note / requested check:\n' + note);
+    if(!note){
+      parts.push(visionState.output === 'ticket'
+        ? 'Create a safe customer-ready reply based on the attached image and the strongest SUGO SOP match.'
+        : 'Analyze the attached image and explain the visible issue, likely SOP match, correct agent action, missing information, and escalation path if needed.');
+    }
+    return parts.join('\n\n');
+  }
+
+  function submitWorkspace(){
+    var panel = byId('sugoVisionWorkspace');
+    var hasImage = false;
+    try{ hasImage = (typeof sugoAiAttachedImage !== 'undefined' && !!sugoAiAttachedImage); }catch(e){}
+    if(!hasImage){
+      if(panel){ panel.classList.add('sugo-shake'); setTimeout(function(){ panel.classList.remove('sugo-shake'); }, 520); }
+      setWorkspaceStatus('Please upload an image first.', true);
+      triggerUpload();
+      return false;
+    }
+    var finalQuery = buildVisionQuery();
+    var search = byId('searchInput');
+    if(search) search.value = (byId('sugoVisionCaseNote') && byId('sugoVisionCaseNote').value || '').trim() || finalQuery;
+    applyVisionStateToLegacyControls();
+    hideWorkspaceOnly();
+    if(typeof window.askAI === 'function'){
+      var img = null;
+      try{ img = sugoAiAttachedImage; }catch(e){ img = null; }
+      window.askAI(finalQuery, false, false, {
+        forceOutputType: visionState.output,
+        forceResponseMode: visionState.response,
+        smartTicket: visionState.output === 'ticket',
+        askToolInstruction: visionInstruction(),
+        _attachedImage: img
+      });
+    }
+    return false;
+  }
+
+  function clearWorkspace(){
+    ['sugoVisionUserId','sugoVisionContextId','sugoVisionCaseNote'].forEach(function(id){ var el = byId(id); if(el) el.value = ''; });
+    if(typeof window.clearSugoVisionImage === 'function') window.clearSugoVisionImage();
+    renderAllVisionPreviews();
+    setWorkspaceStatus('', false);
+    return false;
+  }
+
+  document.addEventListener('click', function(e){
+    var opt = e.target.closest('[data-sugo-vision-option]');
+    if(opt){
+      e.preventDefault();
+      var key = opt.getAttribute('data-sugo-vision-option');
+      var val = opt.getAttribute('data-value');
+      if(key && val && Object.prototype.hasOwnProperty.call(visionState, key)){
+        visionState[key] = val;
+        syncButtons();
+      }
+      return;
+    }
+    var chip = e.target.closest('[data-sugo-vision-chip]');
+    if(chip){
+      e.preventDefault();
+      var text = chip.getAttribute('data-sugo-vision-chip') || '';
+      var input = byId('sugoVisionCaseNote');
+      if(input){
+        var current = input.value.trim();
+        input.value = current ? current + '\n' + text : text;
+        input.focus();
+      }
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e){
+    var drop = byId('sugoVisionDropzone');
+    if(e.target === drop && (e.key === 'Enter' || e.key === ' ')){
+      e.preventDefault();
+      triggerUpload();
+      return;
+    }
+    var note = byId('sugoVisionCaseNote');
+    if(e.target === note && e.key === 'Enter' && (e.ctrlKey || e.metaKey)){
+      e.preventDefault();
+      submitWorkspace();
+    }
+  });
+
+  var dropzoneReady = false;
+  function setupDropzone(){
+    if(dropzoneReady) return;
+    var drop = byId('sugoVisionDropzone');
+    if(!drop) return;
+    dropzoneReady = true;
+    ['dragenter','dragover'].forEach(function(type){
+      drop.addEventListener(type, function(e){ e.preventDefault(); e.stopPropagation(); drop.classList.add('dragging'); });
+    });
+    ['dragleave','drop'].forEach(function(type){
+      drop.addEventListener(type, function(e){ e.preventDefault(); e.stopPropagation(); drop.classList.remove('dragging'); });
+    });
+    drop.addEventListener('drop', function(e){
+      var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if(file) handleWorkspaceImage(file);
+    });
+  }
+
+  // Override preview rendering so both the hidden legacy sidebar preview and the new workspace preview stay in sync.
+  window.sugoRenderVisionWorkspacePreview = renderAllVisionPreviews;
+  window.renderSugoVisionPreview = renderAllVisionPreviews;
+
+  var originalAskOpen = window.sugoOpenAskAIWorkspace;
+  if(typeof originalAskOpen === 'function'){
+    window.sugoOpenAskAIWorkspace = function(event){
+      hideWorkspaceOnly();
+      return originalAskOpen(event);
+    };
+  }
+
+  var originalTicketOpen = window.sugoOpenTicketWorkspace;
+  if(typeof originalTicketOpen === 'function'){
+    window.sugoOpenTicketWorkspace = function(event){
+      hideWorkspaceOnly();
+      return originalTicketOpen(event);
+    };
+  }
+
+  window.sugoOpenVisionWorkspace = openWorkspace;
+  window.sugoCloseVisionWorkspace = closeWorkspace;
+  window.sugoTriggerVisionWorkspaceUpload = triggerUpload;
+  window.sugoHandleVisionWorkspaceImage = handleWorkspaceImage;
+  window.sugoSubmitVisionWorkspace = submitWorkspace;
+  window.sugoVisionClearWorkspace = clearWorkspace;
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ syncButtons(); setupDropzone(); renderAllVisionPreviews(); });
+  }else{
+    syncButtons(); setupDropzone(); renderAllVisionPreviews();
+  }
+})();
+</script>
+<!-- ===== /SUGO Stage 4: Upload Image Workspace Runtime ===== -->
 
 </body>
 </html>
