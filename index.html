@@ -66,7 +66,8 @@ html.sugo-booting body{
 @keyframes sugoOpeningSpin{to{transform:rotate(360deg)}}
 @keyframes sugoOpeningLoad{0%{transform:translateX(-125%)}100%{transform:translateX(235%)}}
 </style>
-<link rel="stylesheet" href="assets/css/main.css">
+<link id="sugo-app-css" rel="stylesheet" href="./assets/sugo-app.css">
+
 <script id="sugo-critical-js">
 // ===== id="sugo-opening-critical-js" =====
 
@@ -105,7 +106,6 @@ try { localStorage.removeItem('sugo_options_open'); localStorage.removeItem('sug
 
 
 
-<script defer src="assets/js/00-sugo-splash-failsafe.js"></script>
 </head>
 <body class="sugo-final-polished">
 
@@ -1018,7 +1018,8 @@ try { localStorage.removeItem('sugo_options_open'); localStorage.removeItem('sug
   </div>
 </div>
 
-<script defer src="assets/js/01-sugo-runtime-js.js"></script>
+<script id="sugo-app-js" src="./assets/sugo-app.js" defer></script>
+
 
 <div style="position:fixed; bottom:10px; right:14px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:500; letter-spacing:0.04em; color:#9ca3af; opacity:0.9; z-index:9999; pointer-events:none; background:#fff; border:1px solid #e5e7eb; padding:4px 14px; border-radius:20px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">Created By Dwairy</div>
 
@@ -1040,74 +1041,74 @@ try { localStorage.removeItem('sugo_options_open'); localStorage.removeItem('sug
 
 <!-- SUGO STARTUP CLOSED MENUS HOTFIX -->
 
-<script defer src="assets/js/02-sugo-startup-closed-menus-hotfix-js.js"></script>
+
 <!-- /SUGO STARTUP CLOSED MENUS HOTFIX -->
 
 
-<script defer src="assets/js/03-sugo-favorites-recent-js.js"></script>
 
 
-<script defer src="assets/js/04-sugo-ai-ticket-favorites-and-quick-access-js.js"></script>
-
-<script defer src="assets/js/05-sugo-search-performance-hotfix.js"></script>
 
 
-<script defer src="assets/js/06-sugo-precision-search-v4.js"></script>
 
-<script defer src="assets/js/07-sugo-typing-lag-hotfix-v5.js"></script>
+
+
+
+
+
+
 
 
 <!-- SUGO Favorites Open Hotfix - added by ChatGPT 2026-06-25 -->
 <!-- SUGO FAVORITES REMOVE GUARD v2.1 — must run before open hotfix -->
-<script defer src="assets/js/08-sugo-favorites-remove-guard-v21.js"></script>
 
-<script defer src="assets/js/09-sugo-favorites-open-hotfix-v2.js"></script>
+
+
 
 
 <!-- SUGO Recent Clear Favorites Persistence Hotfix - added by ChatGPT 2026-06-25 -->
-<script defer src="assets/js/10-sugo-recent-clear-favorites-persistence-hotfix-v1.js"></script>
 
 
-<script defer src="assets/js/11-sugo-sv-video-merge-20260626.js"></script>
+
+
 
 
 <!-- SUGO Speed + Complete Answer Upgrade v6.0 — added by ChatGPT -->
-<script defer src="assets/js/12-sugo-speed-complete-answer-upgrade-v6.js"></script>
+
 
 
 <!-- SUGO STABLE OPTIONS + SEARCH FIX: prevents delayed reset from closing UI after click/typing -->
-<script defer src="assets/js/13-sugo-stable-options-search-final-fix.js"></script>
+
 
 
 <!-- ===== SUGO SAFE ADMIN EXTENSIONS - FINAL ===== -->
-<script defer src="assets/js/14-sugo-loading-failsafe.js"></script>
+
 <!-- ===== SUGO Direct Section Edit + Navigation Fix ===== -->
 
-<script defer src="assets/js/15-sugo-direct-section-edit-js.js"></script>
+
 <!-- ===== /SUGO Direct Section Edit + Navigation Fix ===== -->
 
 <!-- ===== SUGO Topic Dropdown Hard Open Fix ===== -->
-<script defer src="assets/js/16-sugo-topic-dropdown-hard-open-fix-v3.js"></script>
+
 <!-- ===== /SUGO Topic Dropdown Hard Open Fix ===== -->
 
 <!-- ===== SUGO Tiny Plus Existing Menus v3 - stable integrated ===== -->
 
-<script defer src="assets/js/17-sugo-tiny-plus-existing-menus-js.js"></script>
+
 <!-- ===== /SUGO SAFE ADMIN EXTENSIONS - FINAL ===== -->
 
 
 <!-- ===== SUGO ROBUST CONTENT/LANGUAGE DROPDOWN FIX ===== -->
-<script defer src="assets/js/18-sugo-robust-content-language-dropdown-fix-js.js"></script>
+
 <!-- ===== /SUGO ROBUST CONTENT/LANGUAGE DROPDOWN FIX ===== -->
 
 
-<script defer src="assets/js/19-sugo-remove-redundant-ticket-meta-js.js"></script>
+
 
 
 
 <!-- ===== SUGO Visible Favorite Button Hotfix - added by ChatGPT 2026-06-29 ===== -->
 
-<script defer src="assets/js/20-sugo-visible-favorite-button-js.js"></script>
+
 <!-- ===== /SUGO Visible Favorite Button Hotfix ===== -->
 
 </body>
