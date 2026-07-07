@@ -1,6 +1,0 @@
-/* Lazy-loaded SUGO pane: sv-clean-duplicate */
-(function(){
-  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-clean-duplicate'); return; }
-  setPane("sv-clean-duplicate", createSupportMacroContent("Duplicate Conversation", [{"label": "Use Case", "text": "Use when the same inquiry has already been answered in another conversation."}, {"label": "Ticket", "text": "Welcome to the SUGO family!\nWe are very happy and honored to have you with us.\nHow can we assist you today?\n\nYour inquiry has already been answered in another conversation.\n\nPlease follow up through the same conversation to avoid duplication and help us serve you faster.\n\nThank you for contacting SUGO. We are always happy to serve you. We wish you a wonderful day!\n\nSUGO Customer Service Team"}], "محادثة مكررة", [{"label": "الاستخدام", "text": "يستخدم عندما يكون نفس الاستفسار قد تم الرد عليه في محادثة أخرى."}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nيسعدنا ويشرفنا جداً تواجدك معنا.\nكيف يمكننا مساعدتك اليوم؟\n\nتم الرد على استفسارك مسبقًا في محادثة أخرى.\n\nيرجى المتابعة من خلال نفس المحادثة لتجنب التكرار ولمساعدتك بشكل أسرع.\n\nشكراً لتواصلك مع سوجو، يسعدنا دائماً خدمتك. نتمنى لك يوماً رائعاً!\n\nفريق خدمة عملاء سوجو"}]));
-  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
-})();

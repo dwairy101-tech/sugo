@@ -1,6 +1,0 @@
-/* Lazy-loaded SUGO pane: sv-clean-request-id */
-(function(){
-  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-clean-request-id'); return; }
-  setPane("sv-clean-request-id", createSupportMacroContent("Request Customer ID", [{"label": "Use Case", "text": "Use when the customer reports an issue but did not provide the account ID."}, {"label": "Ticket", "text": "Welcome to the SUGO family!\nWe sincerely apologize for the issue you are experiencing.\n\nTo help you properly, please send us your SUGO ID.\n\nWe once again sincerely apologize for the inconvenience we have caused, and we truly thank you for your patience and understanding. We wish you a happy and successful day!\n\nSUGO Customer Service Team"}], "طلب الآي دي", [{"label": "الاستخدام", "text": "يستخدم عندما يذكر العميل وجود مشكلة بدون إرسال الآي دي الخاص بالحساب."}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nنعتذر جداً على المشكلة التي تواجهك\n\nحتى نتمكن من مساعدتك بشكل صحيح، يرجى إرسال الآي دي الخاص بحسابك على سوجو.\n\nنكرر اعتذارنا الخالص عن الإزعاج الذي تسببنا به، ونشكركم جزيل الشكر على صبركم وسعة صدركم. نتمنى لكم يوماً سعيداً وموفقاً!\n\nفريق خدمة عملاء سوجو"}]));
-  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
-})();

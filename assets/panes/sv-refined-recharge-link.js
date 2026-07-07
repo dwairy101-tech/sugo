@@ -1,6 +1,0 @@
-/* Lazy-loaded SUGO pane: sv-refined-recharge-link */
-(function(){
-  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-refined-recharge-link'); return; }
-  setPane("sv-refined-recharge-link", createSupportMacroContent("Recharge Link", [{"label": "Answer", "text": "https://web-app.voicemaker.media/web/pay.html"}, {"label": "Ticket", "text": "Welcome to the SUGO family!\nWe sincerely apologize for the issue you are experiencing.\n\nhttps://web-app.voicemaker.media/web/pay.html\n\nWe once again sincerely apologize for the inconvenience we have caused, and we truly thank you for your patience and understanding. We wish you a happy and successful day!\n\nSUGO Customer Service Team"}], "رابط الشحن", [{"label": "الإجابة", "text": "نعتذر عن المشكلة التي تواجهك.\n\nو سيتم توضيح رابط الشحن الخاص بينا\nhttps://web-app.voicemaker.media/web/pay.html"}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nنعتذر جداً على المشكلة التي تواجهك\n\nو سيتم توضيح رابط الشحن الخاص بينا\nhttps://web-app.voicemaker.media/web/pay.html\n\nنكرر اعتذارنا الخالص عن الإزعاج الذي تسببنا به، ونشكركم جزيل الشكر على صبركم وسعة صدركم. نتمنى لكم يوماً سعيداً وموفقاً!\n\nفريق خدمة عملاء سوجو"}]));
-  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
-})();
