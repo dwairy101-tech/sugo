@@ -10983,8 +10983,22 @@ async function askAI(query, isFollowup, isContinuation, aiOptions) {
   }
   if (!query) return;
 
-  const activePaneFresh = window.SUGO_ACTIVE_PANE && window.SUGO_ACTIVE_PANE_TS && (Date.now() - window.SUGO_ACTIVE_PANE_TS < 180000);
-  const preferredPaneForAI = window.SUGO_EXACT_AI_PANE || (activePaneFresh ? window.SUGO_ACTIVE_PANE : null);
+  // SUGO FIX 2026-07-07:
+  // Keep the AI prompt and the SOP lookup query separate.
+  // Ticket/Image workspaces add control text such as "Create Ticket workspace request";
+  // using that control text for SOP search can route to the wrong article.
+  const kbLookupQuery = (typeof aiOptions.kbQuery === 'string' && aiOptions.kbQuery.trim())
+    ? aiOptions.kbQuery.trim()
+    : query;
+
+  // Do not automatically bias a fresh search toward the last opened pane.
+  // Only use a pane when a user clicked an exact "Ask AI" source button or a caller explicitly allows it.
+  const exactPaneFromOptions = (typeof aiOptions.exactPaneId === 'string' && aiOptions.exactPaneId.trim())
+    ? aiOptions.exactPaneId.trim()
+    : null;
+  const allowActivePaneBias = aiOptions.useActivePane === true || aiOptions.allowActivePaneBias === true;
+  const activePaneFresh = allowActivePaneBias && window.SUGO_ACTIVE_PANE && window.SUGO_ACTIVE_PANE_TS && (Date.now() - window.SUGO_ACTIVE_PANE_TS < 180000);
+  const preferredPaneForAI = exactPaneFromOptions || window.SUGO_EXACT_AI_PANE || (activePaneFresh ? window.SUGO_ACTIVE_PANE : null);
 
   if (!isContinuation) {
     const now = Date.now();
@@ -11066,7 +11080,7 @@ async function askAI(query, isFollowup, isContinuation, aiOptions) {
     document.getElementById('aiSources').innerHTML = '';
     document.getElementById('aiFollowupRow').classList.remove('active');
     resetAIAnswerAudit();
-    const _quickKB = getRelevantKnowledgeBaseText(query, attachedImage ? 6 : 12, attachedImage ? 2200 : 3200, preferredPaneForAI, { outputType: selectedOutputType, preferTicketTopics: isTicketOutput, smartTicket: isSmartTicket, compactPrompt: false, completeAnswer: true });
+    const _quickKB = getRelevantKnowledgeBaseText(kbLookupQuery, attachedImage ? 6 : 12, attachedImage ? 2200 : 3200, preferredPaneForAI, { outputType: selectedOutputType, preferTicketTopics: isTicketOutput, smartTicket: isSmartTicket, compactPrompt: false, completeAnswer: true });
     const _quickHasContent = _quickKB.hasMeaningfulMatch && _quickKB.text.trim().length > 150;
     startLoadingMessages(body, !_quickHasContent && !strictSopForRequest);
     window._aiContinuationTarget = body;
@@ -11083,7 +11097,7 @@ async function askAI(query, isFollowup, isContinuation, aiOptions) {
   aiAbortController = new AbortController();
 
   try {
-    const kb = getRelevantKnowledgeBaseText(query, attachedImage ? 6 : 12, attachedImage ? 2200 : 3200, preferredPaneForAI, { outputType: selectedOutputType, preferTicketTopics: isTicketOutput, smartTicket: isSmartTicket, compactPrompt: false, completeAnswer: true });
+    const kb = getRelevantKnowledgeBaseText(kbLookupQuery, attachedImage ? 6 : 12, attachedImage ? 2200 : 3200, preferredPaneForAI, { outputType: selectedOutputType, preferTicketTopics: isTicketOutput, smartTicket: isSmartTicket, compactPrompt: false, completeAnswer: true });
     if (window.SUGO_EXACT_AI_PANE && preferredPaneForAI === window.SUGO_EXACT_AI_PANE) { window.SUGO_EXACT_AI_PANE = null; }
     const kbHasContent = !!(kb.hasMeaningfulMatch && kb.text.trim().length > 150);
 
@@ -19222,6 +19236,7 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
         forceOutputType: 'answer',
         forceResponseMode: askState.response,
         smartTicket: false,
+        kbQuery: q,
         askToolInstruction: focusInstruction()
       });
     }
@@ -19452,6 +19467,7 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
         forceOutputType: 'ticket',
         forceResponseMode: ticketState.response,
         smartTicket: true,
+        kbQuery: raw,
         askToolInstruction: ticketInstruction()
       });
     }
@@ -19763,10 +19779,19 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
     if(typeof window.askAI === 'function'){
       var img = null;
       try{ img = sugoAiAttachedImage; }catch(e){ img = null; }
+      var noteForKb = (byId('sugoVisionCaseNote') && byId('sugoVisionCaseNote').value || '').trim();
+      var analysisKbMap = {
+        screenshot_case: 'screenshot visible issue support case SUGO app',
+        ban_moderation: 'ban abuse report moderation violation screenshot evidence',
+        payment_evidence: 'recharge payment withdrawal invoice transaction receipt screenshot',
+        account_identity: 'account profile identity verification user id agency host screenshot',
+        app_error: 'app error crash bug technical issue screenshot not working'
+      };
       window.askAI(finalQuery, false, false, {
         forceOutputType: visionState.output,
         forceResponseMode: visionState.response,
         smartTicket: visionState.output === 'ticket',
+        kbQuery: noteForKb || analysisKbMap[visionState.analysis] || 'image screenshot support issue',
         askToolInstruction: visionInstruction(),
         _attachedImage: img
       });
