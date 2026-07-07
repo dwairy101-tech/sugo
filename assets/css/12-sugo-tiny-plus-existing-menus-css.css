@@ -1,0 +1,51 @@
+.sugo-tiny-label-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:6px!important;margin-bottom:5px!important;}
+  .sugo-tiny-label-row label{margin:0!important;}
+  .sugo-tiny-actions{display:inline-flex!important;align-items:center!important;gap:4px!important;}
+  .sugo-tiny-plus-btn,.sugo-tiny-edit-btn,.sugo-tiny-del-btn{
+    width:18px!important;height:18px!important;min-width:18px!important;padding:0!important;margin:0!important;
+    border-radius:999px!important;border:1px solid rgba(153,27,27,.45)!important;
+    background:rgba(153,27,27,.12)!important;color:#fca5a5!important;
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    font-size:11px!important;line-height:1!important;font-weight:900!important;cursor:pointer!important;box-shadow:none!important;
+  }
+  .sugo-tiny-edit-btn{border-color:rgba(95,143,141,.48)!important;background:rgba(95,143,141,.13)!important;color:#b7e1dd!important;font-size:10px!important;}
+  .sugo-tiny-del-btn{border-color:rgba(220,38,38,.50)!important;background:rgba(220,38,38,.13)!important;color:#fecaca!important;font-size:13px!important;}
+  .sugo-tiny-plus-btn:hover,.sugo-tiny-edit-btn:hover,.sugo-tiny-del-btn:hover{background:#991b1b!important;color:#fff!important;transform:none!important;}
+  .sugo-tiny-edit-btn:hover{background:#406d6b!important;}
+  .sugo-tiny-del-btn:hover{background:#b91c1c!important;}
+
+  .sugo-single-edit-row{justify-content:space-between!important;}
+  .sugo-single-edit-btn{
+    min-width:42px!important;height:22px!important;padding:0 9px!important;margin:0!important;
+    border-radius:999px!important;border:1px solid rgba(255,255,255,.16)!important;
+    background:rgba(255,255,255,.075)!important;color:#eef5f4!important;
+    font-size:10px!important;line-height:1!important;font-weight:900!important;cursor:pointer!important;box-shadow:none!important;
+  }
+  .sugo-single-edit-btn:hover,.sugo-admin-menu-on .sugo-single-edit-btn{background:#5f8f8d!important;color:#fff!important;border-color:#7aa6a3!important;}
+  .sugo-tiny-admin-popover{position:fixed;z-index:10080;display:inline-flex;gap:5px;padding:5px;border-radius:999px;background:#263746;border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 30px rgba(0,0,0,.24);}
+  .sugo-tiny-admin-popover button{width:24px!important;height:24px!important;padding:0!important;border-radius:999px!important;border:1px solid rgba(255,255,255,.14)!important;background:rgba(255,255,255,.08)!important;color:#fff!important;font-size:13px!important;font-weight:900!important;cursor:pointer!important;}
+  .sugo-tiny-admin-popover button:hover{background:#5f8f8d!important;}
+  .sugo-admin-level-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+  .sugo-admin-level-grid button{border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#111827;font-weight:900;padding:11px 12px;cursor:pointer;text-align:center;}
+  .sugo-admin-level-grid button:hover{background:#edf6f4;border-color:#7aa6a3;color:#406d6b;}
+  .sugo-tiny-plus-backdrop{position:fixed;inset:0;z-index:10070;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.46);padding:16px;}
+  .sugo-tiny-plus-backdrop.active{display:flex;}
+  .sugo-tiny-plus-card{width:min(94vw,480px);max-height:88vh;overflow:auto;background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 24px 75px rgba(0,0,0,.28);padding:18px;direction:ltr;text-align:left;}
+  .sugo-tiny-plus-card h3{margin:0 0 8px;color:#111827;font-size:1rem;font-weight:950;}
+  .sugo-tiny-plus-card p{margin:0 0 12px;color:#64748b;font-size:.82rem;line-height:1.55;}
+  .sugo-tiny-plus-card label{display:block;margin:10px 0 5px;color:#334155;font-size:.72rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;}
+  .sugo-tiny-plus-card input,.sugo-tiny-plus-card textarea{width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:10px 12px;color:#111827;background:#fff;outline:none;font:inherit;font-size:.9rem;}
+  .sugo-tiny-plus-card textarea{min-height:150px;resize:vertical;line-height:1.7;}
+  .sugo-tiny-plus-card select{width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:10px 12px;color:#111827;background:#fff;outline:none;font:inherit;font-size:.9rem;}
+  .sugo-tiny-plus-card .sugo-topic-builder{margin-top:12px;padding:12px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc;}
+  .sugo-tiny-plus-card .sugo-topic-builder-title{margin:0 0 8px;color:#0f172a;font-size:.82rem;font-weight:950;}
+  .sugo-tiny-plus-card .sugo-topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .sugo-tiny-plus-card .sugo-topic-full{grid-column:1 / -1;}
+  .sugo-tiny-plus-card .sugo-topic-ar{direction:rtl;text-align:right;font-family:'Cairo',system-ui,sans-serif;}
+  .sugo-tiny-plus-card .sugo-topic-en{direction:ltr;text-align:left;}
+  .sugo-tiny-plus-card .sugo-topic-hint{font-size:.74rem;color:#64748b;line-height:1.55;margin-top:7px;}
+  @media(max-width:720px){.sugo-tiny-plus-card .sugo-topic-grid{grid-template-columns:1fr;}.sugo-tiny-plus-card .sugo-topic-full{grid-column:auto;}}
+  .sugo-tiny-plus-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;}
+  .sugo-tiny-plus-actions button{border:0;border-radius:10px;padding:9px 13px;font-weight:900;cursor:pointer;font-size:.84rem;}
+  .sugo-tiny-plus-save{background:#15803d;color:#fff;}
+  .sugo-tiny-plus-cancel{background:#e5e7eb;color:#111827;}

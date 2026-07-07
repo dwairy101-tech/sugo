@@ -1,0 +1,6 @@
+/* Lazy-loaded SUGO pane: sv-tickets-recharge-link */
+(function(){
+  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-tickets-recharge-link'); return; }
+  setPane("sv-tickets-recharge-link", createSupportMacroContent("Recharge Link", [{"label": "Answer", "text": "Our direct recharge link is:\nhttps://web-app.voicemaker.media/web/pay.html"}, {"label": "Ticket", "text": "Welcome to the SUGO family!\nWe are very happy and honored to have you with us.\nHow can we assist you today?\n\nOur direct recharge link is:\nhttps://web-app.voicemaker.media/web/pay.html\n\nThank you for contacting SUGO. We are always happy to serve you. We wish you a wonderful day!\n\nSUGO Customer Service Team"}], "رابط الشحن", [{"label": "الإجابة", "text": "رابط الشحن المباشر الخاص بنا هو:\nhttps://web-app.voicemaker.media/web/pay.html"}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nيسعدنا ويشرفنا جداً تواجدك معنا.\nكيف يمكننا مساعدتك اليوم؟\n\nرابط الشحن المباشر الخاص بنا هو:\nhttps://web-app.voicemaker.media/web/pay.html\n\nشكراً لتواصلك مع سوجو، يسعدنا دائماً خدمتك. نتمنى لك يوماً رائعاً!\n\nفريق خدمة عملاء سوجو"}]));
+  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
+})();

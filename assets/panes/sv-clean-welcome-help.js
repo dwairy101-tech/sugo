@@ -1,0 +1,6 @@
+/* Lazy-loaded SUGO pane: sv-clean-welcome-help */
+(function(){
+  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-clean-welcome-help'); return; }
+  setPane("sv-clean-welcome-help", createSupportMacroContent("Welcome / How Can We Help", [{"label": "Use Case", "text": "Use when opening a conversation, replying to general feedback, or asking the customer how support can assist."}, {"label": "Ticket", "text": "Welcome to the SUGO family!\nWe are very happy and honored to have you with us.\nHow can we assist you today?\n\nThank you for using SUGO.\n\nYou are now speaking with SUGO Customer Service. How can we assist you today?\n\nThank you for contacting SUGO. We are always happy to serve you. We wish you a wonderful day!\n\nSUGO Customer Service Team"}], "ترحيب وطلب توضيح الخدمة", [{"label": "الاستخدام", "text": "يستخدم عند بداية المحادثة أو عند الرد على ملاحظات عامة أو عند سؤال العميل عن طريقة المساعدة."}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nيسعدنا ويشرفنا جداً تواجدك معنا.\nكيف يمكننا مساعدتك اليوم؟\n\nشكرًا لاستخدامك سوجو.\n\nأنت الآن تتواصل مع خدمة عملاء سوجو. كيف يمكننا مساعدتك اليوم؟\n\nشكراً لتواصلك مع سوجو، يسعدنا دائماً خدمتك. نتمنى لك يوماً رائعاً!\n\nفريق خدمة عملاء سوجو"}]));
+  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
+})();

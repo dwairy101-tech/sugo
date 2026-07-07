@@ -1,0 +1,6 @@
+/* Lazy-loaded SUGO pane: sv-tickets-ban-insulting */
+(function(){
+  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-tickets-ban-insulting'); return; }
+  setPane("sv-tickets-ban-insulting", createSupportMacroContent("Ban Due to Insulting Another User", [{"label": "Answer", "text": "The ban reason is abuse or insulting behavior directed at another person."}, {"label": "Ticket", "text": "Welcome to Sugo,\n\nThe ban reason is abuse or insulting behavior directed at another person.\n\nWe once again sincerely apologize for the inconvenience we have caused, and we truly thank you for your patience and understanding. We wish you a happy and successful day!\n\nSUGO Customer Service Team"}], "الحظر بسبب الإساءة إلى مستخدم آخر", [{"label": "الإجابة", "text": "سبب الحظر هو توجيه إساءة أو عبارات مهينة إلى شخص آخر."}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nنعتذر جداً على المشكلة التي تواجهك\n\nسبب الحظر هو توجيه إساءة أو عبارات مهينة إلى شخص آخر.\n\nنكرر اعتذارنا الخالص عن الإزعاج الذي تسببنا به، ونشكركم جزيل الشكر على صبركم وسعة صدركم. نتمنى لكم يوماً سعيداً وموفقاً!\n\nفريق خدمة عملاء سوجو"}]));
+  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
+})();
