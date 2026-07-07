@@ -16818,6 +16818,13 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
     }) || null;
   }
 
+  function topicMetaHasRealContent(meta){
+    if(!meta || typeof meta !== 'object') return false;
+    return ['enText','arText','enAnswer','arAnswer','enTicket','arTicket','enMention','arMention','enForm','arForm'].some(function(key){
+      return !!cleanText(meta[key] || '', 300000);
+    });
+  }
+
   function topicTargetByPaneId(paneId){
     var nav=byId('sidebarNav');
     if(!nav || !paneId) return null;
@@ -16829,7 +16836,10 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
   function topicMetaFromPane(paneId, fallbackName){
     var item=findCustomTopicItem(paneId);
     var meta=item ? unpackTopicMeta(item.body) : null;
-    if(meta) return meta;
+    // Important: the saved/integrated menu can contain an empty meta shell for built-in topics.
+    // Do not trust that empty shell, otherwise the edit form opens with blank Answer/Ticket fields.
+    // Only use saved meta when it actually contains content; otherwise read the currently rendered pane.
+    if(meta && topicMetaHasRealContent(meta)) return meta;
 
     var html=paneHtmlForTopicEdit(paneId);
     var wrap=document.createElement('div');
