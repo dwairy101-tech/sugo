@@ -9200,6 +9200,21 @@ function buildPanes() {
   renderedPanes.clear();
 }
 
+
+function sugoTrimLazyPanesExcept(activePaneId) {
+  // Performance guard: keep only the currently opened SOP pane in the DOM.
+  // The full SOP text remains in paneContent for search/AI, but closed panes are removed
+  // so RAM does not grow every time the user opens another topic.
+  const keepId = activePaneId ? `pane-${activePaneId}` : '';
+  document.querySelectorAll('.content-pane[data-lazy="1"]').forEach(pane => {
+    if (!keepId || pane.id !== keepId) {
+      const rawId = pane.id && pane.id.startsWith('pane-') ? pane.id.slice(5) : '';
+      pane.remove();
+      try { if (typeof renderedPanes !== 'undefined' && renderedPanes && renderedPanes.delete) renderedPanes.delete(rawId); } catch(e) {}
+    }
+  });
+}
+
 function clearAllContentAndWelcome() {
   document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
   document.getElementById('welcomeMsg').style.display = 'flex';
@@ -9212,6 +9227,9 @@ function showOnlyWelcome() {
 }
 
 function showPane(paneId, save = true) {
+  // Remove old opened topic DOM before creating the new one.
+  // This prevents RAM/DOM growth when browsing many SOP topics.
+  if (typeof sugoTrimLazyPanesExcept === 'function') sugoTrimLazyPanesExcept(paneId);
   const pane = preparePaneElement(paneId);
   if (!pane) return;
   window.SUGO_ACTIVE_PANE = paneId;
@@ -9223,6 +9241,8 @@ function showPane(paneId, save = true) {
   if (clicked) clicked.classList.add('active');
   if (save) localStorage.setItem('sugo_last_pane', paneId);
   if (window.SugoApp && SugoApp.navigation) SugoApp.navigation.syncToPane(paneId, { persist: save });
+  // Run one more cleanup after the browser finishes style/layout work.
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => sugoTrimLazyPanesExcept(paneId));
 }
 
 function handleL0Click(btn) {
@@ -20186,16 +20206,17 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
 <!-- ===== /SUGO Vision Button Persistence Fix ===== -->
 
 
-<!-- ===== SUGO Content Sentence Lexicon v4: auto dictionary from every SOP sentence ===== -->
-<script id="sugo-content-sentence-lexicon-v4-js">
+<!-- ===== SUGO Content Lexicon v5: performance-safe on-demand dictionary ===== -->
+<script id="sugo-content-lexicon-v5-performance-js">
 (function(){
   'use strict';
-  if(window.__SUGO_CONTENT_SENTENCE_LEXICON_V4__) return;
-  window.__SUGO_CONTENT_SENTENCE_LEXICON_V4__ = true;
+  if(window.__SUGO_CONTENT_LEXICON_V5_PERFORMANCE__) return;
+  window.__SUGO_CONTENT_LEXICON_V5_PERFORMANCE__ = true;
 
-  var VERSION = '4.0-content-sentence-lexicon';
-  var cache = null;
+  var VERSION = '5.0-performance-safe-on-demand-lexicon';
   var oldGetRelevant = window.getRelevantKnowledgeBaseText;
+  var oldDoSearch = window.doSearch;
+  var searchTimer = null;
 
   function norm(value){
     return String(value || '')
@@ -20208,10 +20229,14 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
       .replace(/ئ/g, 'ي')
       .replace(/ة/g, 'ه')
       .replace(/ـ/g, '')
+      .replace(/&(?:nbsp|amp|quot|lt|gt);/g, ' ')
+      .replace(/<[^>]+>/g, ' ')
       .replace(/[^\p{L}\p{N}\s]/gu, ' ')
       .replace(/\s+/g, ' ')
       .trim();
   }
+
+  var STOP = new Set('the is a an to of and or for in on with from please customer client issue problem case request reply ticket details profile professional tone dear hello hi we need additional information complete review provide following information first second third fourth fifth sixth seventh account id شكرا شكراً مرحبا مرحباً عزيزي العميل خدمة عملاء سوجو يرجى الرجاء نعتذر المشكلة الحالية التي تواجهك من في على عن الى إلى او أو مع هذا هذه لو اذا إذا بدي اريد أريد شو ليش العميل المستخدم مشكلة مشكله موضوع حالة حاله طلب رد تذكرة تذكره'.split(/\s+/));
 
   function paneMap(){
     try{ if(typeof paneContent !== 'undefined' && paneContent) return paneContent; }catch(e){}
@@ -20219,25 +20244,20 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
     return {};
   }
 
-  function htmlText(html){
-    var tmp = document.createElement('div');
-    tmp.innerHTML = String(html || '');
-    return (tmp.textContent || tmp.innerText || '').replace(/\u00a0/g, ' ').replace(/[ \t]+/g, ' ').trim();
+  function tokenList(value){
+    return norm(value).split(/\s+/).filter(function(t){ return t && t.length > 1 && !STOP.has(t); });
   }
 
-  function langText(contentMap){
-    var html = contentMap && (contentMap.en || contentMap.html || '');
-    var tmp = document.createElement('div');
-    tmp.innerHTML = String(html || '');
-    var dividers = tmp.querySelectorAll('.lang-divider');
-    var enText = '', arText = '';
-    if(dividers.length >= 1 && dividers[0].nextElementSibling) enText = (dividers[0].nextElementSibling.textContent || '').trim();
-    if(dividers.length >= 2 && dividers[1].nextElementSibling) arText = (dividers[1].nextElementSibling.textContent || '').trim();
-    if(!enText && !arText) enText = htmlText(html);
-    return { enText: enText, arText: arText };
+  function ngrams(tokens, min, max){
+    var out = [];
+    for(var n = min; n <= max; n++){
+      if(tokens.length < n) continue;
+      for(var i = 0; i <= tokens.length - n; i++) out.push(tokens.slice(i, i+n).join(' '));
+    }
+    return out;
   }
 
-  function directButtonMeta(paneId){
+  function metaFor(paneId){
     var title = '', category = '', section = '', library = '';
     try{
       var btn = document.querySelector('.nav-l000-btn[data-pane="' + CSS.escape(paneId) + '"]');
@@ -20251,119 +20271,7 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
       library = text(root, ':scope > .nav-lroot-btn span') || '';
     }catch(e){}
     if(!title) title = String(paneId || '').replace(/^sv-tickets-/, '').replace(/^sv-refined-/, '').replace(/^sc-/, '').replace(/-/g, ' ');
-    var path = [library, category, section].filter(Boolean).join(' › ');
-    return { title:title, category:category, section:section, library:library, path:path };
-  }
-
-  function cleanSentence(s){
-    return String(s || '')
-      .replace(/\s+/g, ' ')
-      .replace(/^[\-–—•*\d\s.)]+/, '')
-      .replace(/[\s:;،؛.؟?!]+$/, '')
-      .trim();
-  }
-
-  function splitSentences(text){
-    var raw = String(text || '')
-      .replace(/\r/g, '\n')
-      .replace(/([.؟?!])\s+/g, '$1\n')
-      .replace(/\n{2,}/g, '\n')
-      .split(/\n|[؛;]/g);
-    var seen = new Set();
-    var out = [];
-    raw.forEach(function(part){
-      var s = cleanSentence(part);
-      var n = norm(s);
-      if(n.length < 3 || n.length > 260) return;
-      // Remove generic greeting/footer lines from the lexicon so they do not beat the real topic.
-      if(/^(welcome to|thank you for contacting|sugo customer service team|مرحبا بك|مرحباً بك|شكرا لتواصلك|فريق خدمة عملاء)/i.test(s)) return;
-      if(seen.has(n)) return;
-      seen.add(n);
-      out.push({ raw:s, norm:n });
-    });
-    return out;
-  }
-
-  function tokenList(value){
-    return norm(value).split(/\s+/).filter(function(t){ return t && t.length > 1 && !STOP.has(t); });
-  }
-
-  var STOP = new Set('the is a an to of and or for in on with from please customer client issue problem case request reply ticket details profile professional tone dear hello hi we need additional information complete review provide following information first second third fourth fifth sixth seventh account id شكرا شكراً مرحبا مرحباً عزيزي العميل خدمة عملاء سوجو يرجى الرجاء نعتذر المشكلة الحالية التي تواجهك من في على عن الى إلى او أو مع هذا هذه لو اذا إذا بدي اريد أريد شو ليش العميل المستخدم مشكلة مشكله موضوع حالة حاله طلب رد تذكرة تذكره انشاء انشا فتح'.split(/\s+/));
-
-  function ngramsFromTokens(tokens, min, max){
-    var out = [];
-    for(var n = min; n <= max; n++){
-      if(tokens.length < n) continue;
-      for(var i = 0; i <= tokens.length - n; i++) out.push(tokens.slice(i, i+n).join(' '));
-    }
-    return out;
-  }
-
-  function buildEntry(paneId, contentMap){
-    var meta = directButtonMeta(paneId);
-    var lang = langText(contentMap);
-    var combined = [paneId, meta.title, meta.category, meta.section, meta.path, lang.enText, lang.arText].join('\n');
-    var sentences = splitSentences(combined);
-    var terms = new Set();
-    function addTerm(value){ var n = norm(value); if(n.length >= 3 && n.length <= 170) terms.add(n); }
-    [paneId.replace(/-/g,' '), meta.title, meta.category, meta.section, meta.path].forEach(addTerm);
-    sentences.slice(0, 180).forEach(function(s){
-      addTerm(s.raw);
-      var toks = tokenList(s.raw).slice(0, 16);
-      ngramsFromTokens(toks, 2, 5).forEach(addTerm);
-    });
-    var titleTokens = tokenList([paneId.replace(/-/g,' '), meta.title, meta.path].join(' '));
-    ngramsFromTokens(titleTokens, 1, 5).forEach(addTerm);
-    return {
-      id: paneId,
-      title: meta.title,
-      category: meta.category,
-      section: meta.section,
-      library: meta.library,
-      path: meta.path,
-      enText: lang.enText,
-      arText: lang.arText,
-      titleNorm: norm([paneId.replace(/-/g,' '), meta.title].join(' ')),
-      pathNorm: norm(meta.path),
-      allNorm: norm(combined),
-      sentences: sentences,
-      terms: Array.from(terms).slice(0, 260)
-    };
-  }
-
-  function buildLexicon(){
-    var map = paneMap();
-    var keys = Object.keys(map || {}).sort();
-    var signature = keys.length + ':' + keys.slice(0, 5).join('|') + ':' + keys.slice(-5).join('|');
-    if(cache && cache.signature === signature) return cache;
-    var entries = keys.map(function(id){ return buildEntry(id, map[id]); });
-    cache = { signature: signature, entries: entries, byId: {} };
-    entries.forEach(function(e){ cache.byId[e.id] = e; });
-    window.SUGO_CONTENT_SENTENCE_LEXICON = entries.map(function(e){
-      return { paneId:e.id, title:e.title, path:e.path, sentenceCount:e.sentences.length, termCount:e.terms.length };
-    });
-    return cache;
-  }
-
-  function hasPhrase(hay, phrase){
-    hay = ' ' + norm(hay) + ' ';
-    phrase = norm(phrase);
-    if(!phrase) return false;
-    return phrase.length <= 3 ? hay.indexOf(' ' + phrase + ' ') >= 0 : hay.indexOf(phrase) >= 0;
-  }
-
-  function queryAliases(q){
-    var aliases = new Set();
-    var n = norm(q);
-    aliases.add(n);
-    var replacements = [
-      [/\bوكاله\b/g, 'وكالة'], [/\bوكالة\b/g, 'وكاله'],
-      [/\bانشا\b/g, 'انشاء'], [/\bإنشاء\b/g, 'انشاء'],
-      [/\bفتح\b/g, 'انشاء'], [/\bopen\b/g, 'create'], [/\bapply\b/g, 'create'],
-      [/\bمضيفات\b/g, 'host'], [/\bمضيفه\b/g, 'host'], [/\bمذيعه\b/g, 'anchor']
-    ];
-    replacements.forEach(function(pair){ aliases.add(n.replace(pair[0], pair[1])); });
-    return Array.from(aliases).filter(Boolean);
+    return { title:title, category:category, section:section, library:library, path:[library, category, section].filter(Boolean).join(' › ') };
   }
 
   function directRoute(query){
@@ -20381,100 +20289,114 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
     return null;
   }
 
-  function scoreEntry(entry, query){
+  function queryAliases(q){
+    var out = new Set();
+    var n = norm(q);
+    if(n) out.add(n);
+    [
+      [/\bوكاله\b/g, 'وكالة'], [/\bوكالة\b/g, 'وكاله'],
+      [/\bانشا\b/g, 'انشاء'], [/\bإنشاء\b/g, 'انشاء'],
+      [/\bفتح\b/g, 'انشاء'], [/\bopen\b/g, 'create'], [/\bapply\b/g, 'create'],
+      [/\bمضيفات\b/g, 'host'], [/\bمضيفه\b/g, 'host'], [/\bمذيعه\b/g, 'anchor']
+    ].forEach(function(pair){ if(n) out.add(n.replace(pair[0], pair[1])); });
+    return Array.from(out).filter(Boolean);
+  }
+
+  function rawTextFor(id){
+    var map = paneMap();
+    var html = (map[id] && (map[id].en || map[id].html)) || '';
+    return String(html || '')
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/data-copy-text="[^"]*"/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;|&#160;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/\s+/g, ' ')
+      .slice(0, 24000); // cap per topic for CPU safety; full SOP is still used for final packet when selected
+  }
+
+  function scoreOne(id, query){
     var qn = norm(query);
     if(!qn) return null;
-    var aliases = queryAliases(query);
-    var qTokens = tokenList(query);
-    var qNgrams = ngramsFromTokens(qTokens, 2, Math.min(5, qTokens.length));
-    var score = 0;
-    var hits = [];
-
-    aliases.forEach(function(a){
+    var meta = metaFor(id);
+    var titleNorm = norm([id.replace(/-/g,' '), meta.title].join(' '));
+    var pathNorm = norm(meta.path);
+    var textNorm = norm(rawTextFor(id));
+    var combinedTitle = titleNorm + ' ' + pathNorm;
+    var tokens = tokenList(query);
+    var qgrams = ngrams(tokens, 2, Math.min(5, tokens.length));
+    var score = 0, hits = [];
+    queryAliases(query).forEach(function(a){
       if(!a) return;
-      if(entry.titleNorm === a){ score += 150; hits.push('exact-title'); }
-      else if(hasPhrase(entry.titleNorm, a)){ score += 95; hits.push(a); }
-      if(hasPhrase(entry.pathNorm, a)){ score += 45; hits.push('path:' + a); }
-      if(hasPhrase(entry.allNorm, a)){ score += 18; hits.push(a); }
+      if(titleNorm === a){ score += 150; hits.push('exact-title'); }
+      else if((' ' + titleNorm + ' ').indexOf(' ' + a + ' ') >= 0 || titleNorm.indexOf(a) >= 0){ score += 95; hits.push(a); }
+      if(pathNorm.indexOf(a) >= 0){ score += 45; hits.push('path:' + a); }
+      if(textNorm.indexOf(a) >= 0){ score += 20; hits.push(a); }
     });
-
     var tokenHits = 0;
-    qTokens.forEach(function(t){
-      if(hasPhrase(entry.titleNorm, t)){ score += 14; tokenHits++; hits.push(t); }
-      else if(hasPhrase(entry.pathNorm, t)){ score += 8; tokenHits++; hits.push(t); }
-      else if(hasPhrase(entry.allNorm, t)){ score += 1.8; tokenHits++; hits.push(t); }
+    tokens.forEach(function(t){
+      if(combinedTitle.indexOf(t) >= 0){ score += 15; tokenHits++; hits.push(t); }
+      else if(textNorm.indexOf(t) >= 0){ score += 3.5; tokenHits++; hits.push(t); }
     });
-    if(qTokens.length){
-      var coverage = tokenHits / qTokens.length;
-      if(coverage >= 1) score += 26;
+    if(tokens.length){
+      var coverage = tokenHits / tokens.length;
+      if(coverage >= 1) score += 28;
       else if(coverage >= 0.66) score += 14;
-      else if(qTokens.length >= 2 && coverage < 0.5) score -= 14;
+      else if(tokens.length >= 2 && coverage < 0.5) score -= 16;
     }
-
-    entry.terms.forEach(function(term){
-      if(!term) return;
-      if(term === qn){ score += 110; hits.push('sentence-exact'); }
-      else if(qn.length >= 5 && term.indexOf(qn) >= 0){ score += 46; hits.push('sentence-contains-query'); }
-      else if(term.length >= 6 && qn.indexOf(term) >= 0){ score += 18; hits.push('query-contains-term'); }
+    qgrams.forEach(function(g){
+      if(combinedTitle.indexOf(g) >= 0){ score += 20; hits.push(g); }
+      else if(textNorm.indexOf(g) >= 0){ score += 6; hits.push(g); }
     });
-    qNgrams.forEach(function(g){
-      if(entry.terms.indexOf(g) >= 0){ score += 22; hits.push(g); }
-      else if(hasPhrase(entry.titleNorm, g)){ score += 16; hits.push(g); }
-      else if(hasPhrase(entry.allNorm, g)){ score += 4; hits.push(g); }
-    });
-
-    var id = String(entry.id || '').toLowerCase();
-    if((/agency|وكاله|وكالة/.test(qn)) && !/(agency|وكاله|وكالة|host|anchor)/.test(entry.allNorm + ' ' + id)) score -= 30;
-    if(/(انشاء|انشا|فتح|create|open|apply)/.test(qn) && /^sv-tickets-/.test(id)) score += 9;
-    if(/^sv-tickets-/.test(id)) score += 4;
+    var lowerId = String(id || '').toLowerCase();
+    if(/(وكاله|وكالة|agency)/.test(qn) && !/(agency|host|anchor)/.test(lowerId + ' ' + combinedTitle + ' ' + textNorm)) score -= 35;
+    if(/(انشاء|انشا|فتح|create|open|apply)/.test(qn) && /^sv-tickets-/.test(lowerId)) score += 9;
+    if(/^sv-tickets-/.test(lowerId)) score += 4;
     score = Math.max(0, score);
     if(score <= 0) return null;
-    return { id:entry.id, entry:entry, score:Math.round(score*10)/10, hits:Array.from(new Set(hits)).slice(0, 12), primary:false };
+    return { id:id, score:Math.round(score*10)/10, hits:Array.from(new Set(hits)).slice(0, 10), primary:false, meta:meta };
   }
 
   function rankByLexicon(query, limit){
-    var lex = buildLexicon();
+    var map = paneMap();
+    var keys = Object.keys(map || {});
     var direct = directRoute(query);
-    var ranked = lex.entries.map(function(e){ return scoreEntry(e, query); }).filter(Boolean)
-      .sort(function(a,b){
-        if(b.score !== a.score) return b.score - a.score;
-        var at = /^sv-tickets-/.test(a.id), bt = /^sv-tickets-/.test(b.id);
-        if(at !== bt) return at ? -1 : 1;
-        return String(a.id).localeCompare(String(b.id));
-      });
-    if(direct && lex.byId[direct.id]){
+    var ranked = [];
+    for(var i = 0; i < keys.length; i++){
+      var item = scoreOne(keys[i], query);
+      if(item) ranked.push(item);
+    }
+    ranked.sort(function(a,b){
+      if(b.score !== a.score) return b.score - a.score;
+      var at = /^sv-tickets-/.test(a.id), bt = /^sv-tickets-/.test(b.id);
+      if(at !== bt) return at ? -1 : 1;
+      return String(a.id).localeCompare(String(b.id));
+    });
+    if(direct && map[direct.id]){
       var existing = ranked.find(function(r){ return r.id === direct.id; });
       if(existing){ existing.score = Math.max(existing.score, 999); existing.primary = true; existing.hits.unshift(direct.reason); }
-      else ranked.unshift({ id:direct.id, entry:lex.byId[direct.id], score:999, hits:[direct.reason], primary:true });
+      else ranked.unshift({ id:direct.id, score:999, hits:[direct.reason], primary:true, meta:metaFor(direct.id) });
       ranked = ranked.filter(function(item, idx, arr){ return arr.findIndex(function(x){ return x.id === item.id; }) === idx; });
     }
     return ranked.slice(0, limit || 12);
   }
 
-  function topicFromEntry(entry, score, hits, primary){
-    return {
-      id: entry.id,
-      title: entry.title,
-      label: entry.title || entry.id.replace(/-/g, ' '),
-      category: entry.category,
-      section: entry.section,
-      library: entry.library,
-      path: entry.path,
-      enText: entry.enText,
-      arText: entry.arText,
-      allText: entry.allNorm,
-      score: score,
-      hits: hits || [],
-      tags: [],
-      primary: !!primary,
-      selected: false,
-      confidence: primary || score >= 70 ? 'high' : score >= 28 ? 'medium' : 'low'
-    };
+  function extractTopicText(id){
+    var map = paneMap();
+    var html = (map[id] && (map[id].en || map[id].html)) || '';
+    var text = '';
+    try{
+      var tmp = document.createElement('div');
+      tmp.innerHTML = String(html || '');
+      text = (tmp.textContent || tmp.innerText || '').replace(/\u00a0/g, ' ').replace(/[ \t]+/g, ' ').trim();
+    }catch(e){ text = rawTextFor(id); }
+    return text;
   }
 
   function clip(text, limit){
     text = String(text || '');
-    limit = Number(limit || 2200);
+    limit = Number(limit || 5200);
     if(text.length <= limit) return text;
     var cut = text.slice(0, limit);
     var stop = Math.max(cut.lastIndexOf('\n\n'), cut.lastIndexOf('. '), cut.lastIndexOf('؟'), cut.lastIndexOf('!'));
@@ -20483,112 +20405,136 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
     return cut + ' …';
   }
 
-  function rebuildPacket(result, topics, maxCharsPerTopic){
-    maxCharsPerTopic = Math.max(Number(maxCharsPerTopic || 0), 2200);
+  function topicFromRank(r){
+    var meta = r.meta || metaFor(r.id);
+    var txt = extractTopicText(r.id);
+    return {
+      id:r.id,
+      title:meta.title,
+      label:meta.title || r.id.replace(/-/g, ' '),
+      category:meta.category,
+      section:meta.section,
+      library:meta.library,
+      path:meta.path,
+      enText:txt,
+      arText:'',
+      allText:norm(txt).slice(0, 9000),
+      score:r.score,
+      hits:r.hits || [],
+      tags:[],
+      primary:!!r.primary,
+      selected:false,
+      confidence:r.primary || r.score >= 70 ? 'high' : r.score >= 28 ? 'medium' : 'low'
+    };
+  }
+
+  function rebuildPacket(base, topics, maxCharsPerTopic){
+    base = base || {};
+    maxCharsPerTopic = Math.max(Number(maxCharsPerTopic || 0), 2600);
     var audit = topics.slice(0, 8).map(function(t, i){
-      return (i+1) + '. ' + t.id + ' | title: ' + (t.title || t.label || '') + ' | score: ' + (Math.round((t.score || 0)*10)/10) + ' | hits: ' + ((t.hits || []).slice(0,8).join(', ') || 'sentence-lexicon');
+      return (i+1) + '. ' + t.id + ' | title: ' + (t.title || t.label || '') + ' | score: ' + (Math.round((t.score || 0)*10)/10) + ' | hits: ' + ((t.hits || []).slice(0,8).join(', ') || 'content-lexicon');
     }).join('\n');
-    var routeLine = result && result.primaryRoute ? ('Primary route: ' + result.primaryRoute.name + '\nPrimary topic IDs: ' + ((result.primaryTopicIds || []).join(', '))) : 'Primary route: none';
-    result.text = routeLine + '\nSentence lexicon: enabled — extracted from every SOP content sentence. Use exact matched Ticket macro before broad articles.\nMatch audit:\n' + audit + '\n\n' + topics.map(function(t, i){
-      var priority = t.primary || i < 3;
-      var enLimit = priority ? Math.max(maxCharsPerTopic, 7600) : maxCharsPerTopic;
-      var arLimit = priority ? Math.max(Math.floor(maxCharsPerTopic * 0.92), 6800) : Math.floor(maxCharsPerTopic * 0.85);
+    var routeLine = topics[0] ? ('Primary route: ' + topics[0].id + '\nPrimary topic IDs: ' + topics.map(function(t){return t.id;}).slice(0,5).join(', ')) : 'Primary route: none';
+    base.text = routeLine + '\nContent lexicon: performance-safe on-demand scan. Use exact matched Ticket macro before broad articles.\nMatch audit:\n' + audit + '\n\n' + topics.map(function(t, i){
+      var limit = (t.primary || i < 2) ? Math.max(maxCharsPerTopic, 7200) : maxCharsPerTopic;
       return [
         '### Topic: ' + t.id,
         'Title: ' + (t.title || t.label || t.id),
         'Path: ' + (t.path || ''),
         'Match score: ' + Math.round((t.score || 0)*10)/10,
         t.primary ? 'Primary route match: yes' : 'Primary route match: no',
-        t.selected ? 'Selected by user: yes' : 'Selected by user: no',
-        'English SOP:', clip(t.enText || '', enLimit),
-        '', 'Arabic SOP:', clip(t.arText || '', arLimit)
+        'SOP:', clip(t.enText || '', limit)
       ].join('\n');
     }).join('\n\n');
-    result.topics = topics;
-    result.topicIds = topics.map(function(t){ return t.id; });
-    result.bestTopic = topics[0] || null;
+    base.topics = topics;
+    base.topicIds = topics.map(function(t){ return t.id; });
+    base.bestTopic = topics[0] || null;
     var bestScore = topics[0] ? Number(topics[0].score || 0) : 0;
-    result.confidence = bestScore >= 70 || (topics[0] && topics[0].primary) ? 'high' : bestScore >= 28 ? 'medium' : (result.confidence || 'low');
-    result.confidenceLabel = result.confidence === 'high' ? 'High' : result.confidence === 'medium' ? 'Medium' : 'Low';
-    result.confidenceScore = Math.max(Number(result.confidenceScore || 0), Math.round(bestScore*10)/10);
-    result.hasMeaningfulMatch = topics.length > 0;
-    result.sentenceLexiconEnabled = true;
-    return result;
+    base.confidence = bestScore >= 70 || (topics[0] && topics[0].primary) ? 'high' : bestScore >= 28 ? 'medium' : (base.confidence || 'low');
+    base.confidenceLabel = base.confidence === 'high' ? 'High' : base.confidence === 'medium' ? 'Medium' : 'Low';
+    base.confidenceScore = Math.max(Number(base.confidenceScore || 0), Math.round(bestScore*10)/10);
+    base.hasMeaningfulMatch = topics.length > 0;
+    base.contentLexiconV5 = true;
+    return base;
   }
 
   window.getRelevantKnowledgeBaseText = function(query, maxTopics, maxCharsPerTopic, preferredPaneId, options){
     options = options && typeof options === 'object' ? options : {};
-    maxTopics = Math.max(Number(maxTopics || 0), options.completeAnswer ? 12 : 8);
-    var base;
-    try{
-      base = typeof oldGetRelevant === 'function'
-        ? oldGetRelevant(query, maxTopics, maxCharsPerTopic, preferredPaneId, options)
-        : { topics: [], topicIds: [], confidence:'low', confidenceLabel:'Low', confidenceScore:0, hasMeaningfulMatch:false };
-    }catch(e){
-      base = { topics: [], topicIds: [], confidence:'low', confidenceLabel:'Low', confidenceScore:0, hasMeaningfulMatch:false };
+    maxTopics = Math.max(Number(maxTopics || 0), options.completeAnswer ? 10 : 7);
+    var ranked = rankByLexicon(query, Math.max(maxTopics, 10));
+    var direct = ranked[0] && ranked[0].primary;
+    var strong = ranked[0] && ranked[0].score >= 58;
+    var base = null;
+    // Do not call the old heavier search when the direct/content match is already strong.
+    // This keeps Create Ticket fast and prevents memory spikes.
+    if(!direct && !strong && typeof oldGetRelevant === 'function'){
+      try{ base = oldGetRelevant(query, maxTopics, maxCharsPerTopic, preferredPaneId, options); }catch(e){ base = null; }
     }
-
-    var lexRank = rankByLexicon(query, Math.max(maxTopics, 12));
-    if(!lexRank.length) return base;
-    var baseTopics = Array.isArray(base.topics) ? base.topics.slice(0, maxTopics) : [];
-    var lexTopics = lexRank.map(function(r){ return topicFromEntry(r.entry, r.score, r.hits, r.primary); });
-    var best = lexTopics[0];
-    var shouldForce = !!(best && (best.primary || best.score >= 58 || (options.outputType === 'ticket' && /^sv-tickets-/.test(best.id) && best.score >= 26) || !baseTopics.length));
-    var merged;
-    if(shouldForce){
-      merged = lexTopics.concat(baseTopics.filter(function(t){ return !lexTopics.some(function(x){ return x.id === t.id; }); }));
-    }else{
-      merged = baseTopics.concat(lexTopics.filter(function(t){ return !baseTopics.some(function(x){ return x.id === t.id; }); }));
+    if(!ranked.length){
+      return base || { topics:[], topicIds:[], confidence:'low', confidenceLabel:'Low', confidenceScore:0, hasMeaningfulMatch:false, text:'' };
     }
-    merged = merged.slice(0, maxTopics);
-    return rebuildPacket(base, merged, maxCharsPerTopic);
+    var baseTopics = base && Array.isArray(base.topics) ? base.topics.slice(0, maxTopics) : [];
+    var lexTopics = ranked.map(topicFromRank);
+    var merged = lexTopics.concat(baseTopics.filter(function(t){ return !lexTopics.some(function(x){ return x.id === t.id; }); })).slice(0, maxTopics);
+    return rebuildPacket(base || {}, merged, maxCharsPerTopic);
   };
   try{ getRelevantKnowledgeBaseText = window.getRelevantKnowledgeBaseText; }catch(e){}
 
-  // Also improve left-side search results using the same sentence lexicon.
-  var oldDoSearch = window.doSearch;
+  function applySearchResults(q){
+    var ranked = rankByLexicon(q, 70);
+    if(!ranked.length){ if(typeof oldDoSearch === 'function') return oldDoSearch(q); return; }
+    var ids = new Set(ranked.filter(function(r){ return r.primary || r.score >= 18; }).map(function(r){ return r.id; }));
+    if(!ids.size) ranked.slice(0, 20).forEach(function(r){ ids.add(r.id); });
+    var any = false;
+    document.querySelectorAll('.nav-l000-btn[data-pane]').forEach(function(btn){
+      var id = btn.getAttribute('data-pane');
+      var match = ids.has(id);
+      btn.classList.toggle('hidden-search', !match);
+      if(match) any = true;
+    });
+    document.querySelectorAll('.nav-l00').forEach(function(sec){
+      var vis = Array.prototype.some.call(sec.querySelectorAll('.nav-l000-btn[data-pane]'), function(b){ return !b.classList.contains('hidden-search'); });
+      sec.classList.toggle('hidden-search', !vis);
+      var child = sec.querySelector(':scope > .nav-l00-children'); if(vis && child) child.classList.add('open');
+    });
+    document.querySelectorAll('.nav-l0').forEach(function(cat){
+      var vis = Array.prototype.some.call(cat.querySelectorAll('.nav-l00'), function(s){ return !s.classList.contains('hidden-search'); });
+      cat.classList.toggle('hidden-search', !vis);
+      var child = cat.querySelector(':scope > .nav-l0-children'); if(vis && child) child.classList.add('open');
+    });
+    var nr = document.getElementById('noResults'); if(nr) nr.style.display = any ? 'none' : 'block';
+  }
+
   window.doSearch = function(query){
     var q = String(query || '').trim();
-    if(!q){ if(typeof oldDoSearch === 'function') return oldDoSearch.apply(this, arguments); return; }
-    try{
-      var ranked = rankByLexicon(q, 80);
-      if(ranked.length){
-        var ids = new Set(ranked.filter(function(r){ return r.score >= 18 || r.primary; }).map(function(r){ return r.id; }));
-        if(!ids.size) ids = new Set(ranked.slice(0, 20).map(function(r){ return r.id; }));
-        var any = false;
-        document.querySelectorAll('.nav-l000-btn[data-pane]').forEach(function(btn){
-          var id = btn.getAttribute('data-pane');
-          var match = ids.has(id);
-          btn.classList.toggle('hidden-search', !match);
-          if(match) any = true;
-        });
-        document.querySelectorAll('.nav-l00').forEach(function(sec){
-          var vis = Array.prototype.some.call(sec.querySelectorAll('.nav-l000-btn[data-pane]'), function(b){ return !b.classList.contains('hidden-search'); });
-          sec.classList.toggle('hidden-search', !vis);
-          var child = sec.querySelector(':scope > .nav-l00-children'); if(vis && child) child.classList.add('open');
-        });
-        document.querySelectorAll('.nav-l0').forEach(function(cat){
-          var vis = Array.prototype.some.call(cat.querySelectorAll('.nav-l00'), function(s){ return !s.classList.contains('hidden-search'); });
-          cat.classList.toggle('hidden-search', !vis);
-          var child = cat.querySelector(':scope > .nav-l0-children'); if(vis && child) child.classList.add('open');
-        });
-        var nr = document.getElementById('noResults'); if(nr) nr.style.display = any ? 'none' : 'block';
-        return;
-      }
-    }catch(e){}
-    if(typeof oldDoSearch === 'function') return oldDoSearch.apply(this, arguments);
+    if(!q || q.length < 2){
+      if(searchTimer) clearTimeout(searchTimer);
+      if(typeof oldDoSearch === 'function') return oldDoSearch.apply(this, arguments);
+      return;
+    }
+    if(searchTimer) clearTimeout(searchTimer);
+    searchTimer = setTimeout(function(){ applySearchResults(q); }, 160);
   };
   try{ doSearch = window.doSearch; }catch(e){}
 
-  function boot(){
-    try{ buildLexicon(); }catch(e){}
+  // Extra DOM/memory guard: if any old code leaves closed panes in the DOM, remove them.
+  function trimClosedPanes(){
+    try{
+      var active = window.SUGO_ACTIVE_PANE ? 'pane-' + window.SUGO_ACTIVE_PANE : '';
+      document.querySelectorAll('.content-pane[data-lazy="1"]').forEach(function(p){
+        if(!active || p.id !== active) p.remove();
+      });
+    }catch(e){}
   }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
-  window.addEventListener('load', function(){ setTimeout(function(){ cache = null; boot(); }, 80); });
-  window.SUGO_CONTENT_LEXICON_V4 = { version:VERSION, rebuild:function(){ cache = null; return buildLexicon(); }, rank:rankByLexicon, directRoute:directRoute };
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('.nav-l000-btn[data-pane]')) setTimeout(trimClosedPanes, 250);
+  }, true);
+
+  // No eager build here. The content is scanned only when the user searches or asks AI.
+  window.SUGO_CONTENT_LEXICON_V5 = { version:VERSION, rank:rankByLexicon, directRoute:directRoute, trimClosedPanes:trimClosedPanes };
 })();
 </script>
-<!-- ===== /SUGO Content Sentence Lexicon v4 ===== -->
+<!-- ===== /SUGO Content Lexicon v5 ===== -->
 
 </body>
 </html>
