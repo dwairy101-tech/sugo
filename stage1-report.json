@@ -1,0 +1,217 @@
+{
+  "source_index_bytes": 2871634,
+  "source_worker_bytes": 93510,
+  "output_index_bytes": 85786,
+  "output_css_bytes": 173913,
+  "output_js_bytes": 2612517,
+  "output_worker_bytes": 93510,
+  "style_blocks_total": 13,
+  "script_blocks_total": 21,
+  "stats": [
+    {
+      "kind": "style",
+      "id": "sugo-unified-css",
+      "action": "critical_css_kept_rest_external",
+      "chars": 151635,
+      "external_chars": 149056
+    },
+    {
+      "kind": "script",
+      "id": "sugo-critical-js",
+      "action": "kept_inline_critical",
+      "chars": 498
+    },
+    {
+      "kind": "style",
+      "id": "sugo-vision-upload-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 3274
+    },
+    {
+      "kind": "style",
+      "id": "sugo-create-ticket-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 333
+    },
+    {
+      "kind": "style",
+      "id": "sugo-compact-action-buttons-final-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 2644
+    },
+    {
+      "kind": "style",
+      "id": "sugo-action-row-user-final-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 1978
+    },
+    {
+      "kind": "style",
+      "id": "sugo-ticket-emphasis-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 439
+    },
+    {
+      "kind": "style",
+      "id": "sugo-ai-answer-audit-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 2441
+    },
+    {
+      "kind": "style",
+      "id": "sugo-smart-ticket-builder-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 3474
+    },
+    {
+      "kind": "style",
+      "id": "sugo-hide-redundant-ticket-meta-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 900
+    },
+    {
+      "kind": "script",
+      "id": "sugo-runtime-js",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 1059380
+    },
+    {
+      "kind": "style",
+      "id": "sugo-startup-closed-menus-hotfix-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 459
+    },
+    {
+      "kind": "script",
+      "id": "sugo-startup-closed-menus-hotfix-js",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 787692
+    },
+    {
+      "kind": "script",
+      "id": "sugo-favorites-recent-js",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 8110
+    },
+    {
+      "kind": "script",
+      "id": "sugo-ai-ticket-favorites-and-quick-access-js",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 11252
+    },
+    {
+      "kind": "script",
+      "id": "sugo-search-performance-hotfix",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 1004
+    },
+    {
+      "kind": "script",
+      "id": "sugo-precision-search-v4",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 28858
+    },
+    {
+      "kind": "script",
+      "id": "sugo-typing-lag-hotfix-v5",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 15902
+    },
+    {
+      "kind": "script",
+      "id": "sugo-favorites-remove-guard-v21",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 7692
+    },
+    {
+      "kind": "script",
+      "id": "sugo-favorites-open-hotfix-v2",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 6165
+    },
+    {
+      "kind": "script",
+      "id": "sugo-recent-clear-favorites-persistence-hotfix-v1",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 6715
+    },
+    {
+      "kind": "script",
+      "id": "sugo-sv-video-merge-20260626",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 69541
+    },
+    {
+      "kind": "script",
+      "id": "sugo-speed-complete-answer-upgrade-v6",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 19476
+    },
+    {
+      "kind": "script",
+      "id": "sugo-stable-options-search-final-fix",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 2211
+    },
+    {
+      "kind": "script",
+      "id": "sugo-loading-failsafe",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 471
+    },
+    {
+      "kind": "style",
+      "id": "sugo-direct-edit-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 1540
+    },
+    {
+      "kind": "script",
+      "id": "sugo-direct-section-edit-js",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 12331
+    },
+    {
+      "kind": "script",
+      "id": "sugo-topic-dropdown-hard-open-fix-v3",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 7085
+    },
+    {
+      "kind": "style",
+      "id": "sugo-tiny-plus-existing-menus-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 5471
+    },
+    {
+      "kind": "script",
+      "id": "sugo-tiny-plus-existing-menus-js",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 47496
+    },
+    {
+      "kind": "script",
+      "id": "sugo-robust-content-language-dropdown-fix-js",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 8988
+    },
+    {
+      "kind": "script",
+      "id": "sugo-remove-redundant-ticket-meta-js",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 959
+    },
+    {
+      "kind": "style",
+      "id": "sugo-visible-favorite-button-css",
+      "action": "moved_to_sugo_app_css",
+      "chars": 985
+    },
+    {
+      "kind": "script",
+      "id": "sugo-visible-favorite-button-js",
+      "action": "moved_to_deferred_sugo_app_js",
+      "chars": 10508
+    }
+  ]
+}
