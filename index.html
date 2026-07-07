@@ -17739,5 +17739,212 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
 </script>
 <!-- ===== /SUGO Visible Favorite Button Hotfix ===== -->
 
+
+<!-- ===== SUGO Visible Current Topic Content Editor Hotfix ===== -->
+<style id="sugo-current-topic-content-editor-css">
+  .sugo-admin-current-topic-toolbar{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:8px!important;
+    margin:0 0 12px!important;
+    padding:0!important;
+    direction:ltr!important;
+    font-family:'Cairo','Plus Jakarta Sans',system-ui,sans-serif!important;
+  }
+  .sugo-admin-current-topic-edit-btn,
+  .sugo-fr-cardbar .sugo-admin-current-topic-edit-btn{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:6px!important;
+    min-height:34px!important;
+    padding:8px 13px!important;
+    border-radius:999px!important;
+    border:1px solid rgba(153,27,27,.38)!important;
+    background:linear-gradient(135deg,#991b1b,#111111)!important;
+    color:#ffffff!important;
+    font-family:'Cairo','Plus Jakarta Sans',system-ui,sans-serif!important;
+    font-size:.78rem!important;
+    line-height:1!important;
+    font-weight:950!important;
+    cursor:pointer!important;
+    box-shadow:0 10px 24px rgba(153,27,27,.20)!important;
+    white-space:nowrap!important;
+  }
+  .sugo-admin-current-topic-edit-btn:hover{
+    filter:brightness(1.08)!important;
+    transform:translateY(-1px)!important;
+  }
+  .sugo-admin-current-topic-edit-btn::before{
+    content:'✎';
+    font-size:.86rem;
+    font-weight:950;
+  }
+  .sugo-fr-cardbar .sugo-admin-current-topic-edit-btn{
+    margin-inline-start:8px!important;
+  }
+  @media(max-width:768px){
+    .sugo-admin-current-topic-toolbar{justify-content:flex-start!important;flex-wrap:wrap!important;}
+    .sugo-admin-current-topic-edit-btn{width:100%!important;}
+    .sugo-fr-cardbar .sugo-admin-current-topic-edit-btn{width:100%!important;margin-inline-start:0!important;margin-top:8px!important;}
+  }
+</style>
+<script id="sugo-current-topic-content-editor-js">
+(function(){
+  'use strict';
+  if(window.__SUGO_CURRENT_TOPIC_CONTENT_EDITOR__) return;
+  window.__SUGO_CURRENT_TOPIC_CONTENT_EDITOR__ = true;
+
+  function byId(id){ return document.getElementById(id); }
+  function cssEscape(value){
+    try{ return CSS && CSS.escape ? CSS.escape(String(value || '')) : String(value || '').replace(/[^a-zA-Z0-9_-]/g,'\\$&'); }
+    catch(e){ return String(value || '').replace(/[^a-zA-Z0-9_-]/g,'\\$&'); }
+  }
+  function activePane(){ return document.querySelector('.content-pane.active'); }
+  function activePaneId(){
+    var pane = activePane();
+    if(pane && pane.id) return pane.id.replace(/^pane-/, '');
+    return window.SUGO_ACTIVE_PANE || '';
+  }
+  function topicButtonForPane(paneId){
+    if(!paneId) return null;
+    return document.querySelector('.nav-l000-btn[data-pane="' + cssEscape(paneId) + '"]');
+  }
+  function hasEditableTopic(paneId){
+    if(!paneId) return false;
+    if(topicButtonForPane(paneId)) return true;
+    try{ return !!(window.paneContent && window.paneContent[paneId]); }catch(e){ return false; }
+  }
+  function ensureAdminPassword(){
+    if(window.__SUGO_ADMIN_PASSWORD) return true;
+    var password = prompt('Admin password');
+    if(!password) return false;
+    window.__SUGO_ADMIN_PASSWORD = password;
+    document.body.classList.add('sugo-admin-menu-on');
+    return true;
+  }
+  function toast(message){
+    var old = byId('sugoCurrentTopicEditToast');
+    if(!old){
+      old = document.createElement('div');
+      old.id = 'sugoCurrentTopicEditToast';
+      old.className = 'sugo-direct-toast';
+      document.body.appendChild(old);
+    }
+    old.textContent = message;
+    old.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ old.classList.remove('show'); }, 3200);
+  }
+  function openCurrentTopicEditor(paneId){
+    paneId = paneId || activePaneId();
+    if(!paneId){ toast('افتح التوبك أولًا ثم اضغط تعديل.'); return; }
+    if(!ensureAdminPassword()) return;
+
+    function run(){
+      if(typeof window.SUGO_TINY_PLUS_EDIT_TOPIC === 'function'){
+        try{
+          var opened = window.SUGO_TINY_PLUS_EDIT_TOPIC(paneId);
+          if(opened !== false) return;
+        }catch(err){ console.warn('SUGO current topic editor failed', err); }
+      }
+      toast('لم أستطع فتح محرر التوبك. تأكد أن التوبك موجود بالقائمة ثم جرّب مرة ثانية.');
+    }
+
+    if(typeof window.SUGO_TINY_PLUS_EDIT_TOPIC !== 'function') setTimeout(run, 350);
+    else run();
+  }
+  function makeButton(paneId){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sugo-admin-current-topic-edit-btn';
+    btn.setAttribute('data-sugo-current-topic-edit', paneId);
+    btn.textContent = 'Edit Current Topic';
+    btn.title = 'Edit the currently opened topic content';
+    return btn;
+  }
+  function ensureTopToolbar(pane, paneId){
+    var toolbar = pane.querySelector(':scope > .sugo-admin-current-topic-toolbar');
+    if(!toolbar){
+      toolbar = document.createElement('div');
+      toolbar.className = 'sugo-admin-current-topic-toolbar';
+      var closeBtn = pane.querySelector(':scope > .close-pane-btn');
+      if(closeBtn && closeBtn.nextSibling) pane.insertBefore(toolbar, closeBtn.nextSibling);
+      else pane.insertBefore(toolbar, pane.firstChild);
+    }
+    var btn = toolbar.querySelector('[data-sugo-current-topic-edit]');
+    if(!btn){
+      btn = makeButton(paneId);
+      toolbar.appendChild(btn);
+    }else{
+      btn.setAttribute('data-sugo-current-topic-edit', paneId);
+    }
+  }
+  function ensureCardButton(pane, paneId){
+    var cardbar = pane.querySelector('.doc-card > .sugo-fr-cardbar');
+    if(!cardbar) return;
+    var btn = cardbar.querySelector('[data-sugo-current-topic-edit]');
+    if(!btn){
+      btn = makeButton(paneId);
+      cardbar.appendChild(btn);
+    }else{
+      btn.setAttribute('data-sugo-current-topic-edit', paneId);
+    }
+  }
+  function sync(){
+    var pane = activePane();
+    var paneId = activePaneId();
+    if(!pane || !hasEditableTopic(paneId)) return;
+    ensureTopToolbar(pane, paneId);
+    ensureCardButton(pane, paneId);
+  }
+
+  document.addEventListener('click', function(event){
+    var btn = event.target && event.target.closest && event.target.closest('[data-sugo-current-topic-edit]');
+    if(!btn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    openCurrentTopicEditor(btn.getAttribute('data-sugo-current-topic-edit') || activePaneId());
+  }, true);
+
+  var originalShowPane = window.showPane;
+  if(typeof originalShowPane === 'function' && !originalShowPane.__sugoCurrentTopicEditorWrapped){
+    var wrapped = function(){
+      var result = originalShowPane.apply(this, arguments);
+      setTimeout(sync, 0);
+      setTimeout(sync, 120);
+      setTimeout(sync, 450);
+      return result;
+    };
+    wrapped.__sugoCurrentTopicEditorWrapped = true;
+    window.showPane = wrapped;
+    try{ showPane = window.showPane; }catch(e){}
+  }
+
+  document.addEventListener('click', function(event){
+    if(event.target && event.target.closest && event.target.closest('.nav-l000-btn,[data-sugo-fr-open]')){
+      setTimeout(sync, 80);
+      setTimeout(sync, 220);
+    }
+  }, true);
+  document.addEventListener('change', function(event){
+    if(event.target && event.target.id === 'sugoCascadeTopic'){
+      setTimeout(sync, 100);
+      setTimeout(sync, 320);
+    }
+  }, true);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(sync, 150); });
+  else setTimeout(sync, 150);
+  window.addEventListener('load', function(){ setTimeout(sync, 250); setTimeout(sync, 900); });
+  try{ new MutationObserver(function(){ setTimeout(sync, 90); }).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:['class']}); }catch(e){}
+  setInterval(sync, 1200);
+
+  window.SUGOCurrentTopicContentEditor = { sync: sync, open: openCurrentTopicEditor };
+})();
+</script>
+<!-- ===== /SUGO Visible Current Topic Content Editor Hotfix ===== -->
+
 </body>
 </html>
