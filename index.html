@@ -19307,6 +19307,87 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
   function byId(id){ return document.getElementById(id); }
   function currentSearchText(){ return (byId('searchInput') && byId('searchInput').value || '').trim(); }
 
+  // SUGO FIX 2026-07-07 v2 — Create Ticket accuracy
+  // Quick prompt text must never become part of the SOP search query.
+  // The matcher should search the real customer case/evidence only, then force the best Ticket macro when confidence is strong.
+  var SUGO_TICKET_CONTROL_LINES = [
+    'write a ready-to-send customer support reply based on this case.',
+    'write a polite missing-information request and list exactly what the user must provide.',
+    'create an internal escalation summary with evidence required and recommended next team/action.',
+    'rewrite the customer reply to be shorter, safer, and more professional.',
+    'ready reply',
+    'missing info',
+    'escalation note',
+    'polish reply',
+    'create ticket workspace request.',
+    'selected ticket type:',
+    'selected tone:',
+    'customer/case details:'
+  ];
+
+  function normalizeTicketLine(value){
+    return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  function cleanTicketCaseText(value){
+    var lines = String(value || '').replace(/\r/g, '').split('\n');
+    var kept = [];
+    lines.forEach(function(line){
+      var clean = line.trim();
+      if(!clean) return;
+      var n = normalizeTicketLine(clean);
+      var isControl = SUGO_TICKET_CONTROL_LINES.some(function(control){
+        control = normalizeTicketLine(control);
+        return n === control || n.indexOf(control) === 0;
+      });
+      if(!isControl) kept.push(clean);
+    });
+    return kept.join('\n').trim();
+  }
+
+  function buildTicketLookupQuery(raw){
+    var parts = [];
+    var cleanRaw = cleanTicketCaseText(raw);
+    var evidence = cleanTicketCaseText(byId('sugoTicketEvidence') && byId('sugoTicketEvidence').value || '');
+    if(cleanRaw) parts.push(cleanRaw);
+    if(evidence) parts.push(evidence);
+    return parts.join('\n').trim();
+  }
+
+  function findStrongTicketPaneId(lookupQuery){
+    var out = { paneId:null, title:'', confidence:'low', score:0 };
+    if(!lookupQuery || typeof window.getRelevantKnowledgeBaseText !== 'function') return out;
+    try{
+      var kb = window.getRelevantKnowledgeBaseText(lookupQuery, 10, 1800, null, {
+        outputType:'ticket',
+        preferTicketTopics:true,
+        smartTicket:true,
+        compactPrompt:true,
+        completeAnswer:true
+      });
+      var topics = (kb && kb.topics) || [];
+      function isTicketTopic(t){ return t && /^sv-tickets-/.test(String(t.id || '')); }
+      var primaryTicket = topics.find(function(t){ return isTicketTopic(t) && t.primary; });
+      var strongTicket = primaryTicket || topics.find(function(t){
+        var score = Number(t.score || 0);
+        return isTicketTopic(t) && (score >= 28 || t.selected || kb.confidence === 'high');
+      });
+      if(strongTicket){
+        out.paneId = strongTicket.id;
+        out.title = strongTicket.title || strongTicket.label || strongTicket.id;
+        out.confidence = kb.confidence || 'medium';
+        out.score = Math.round(Number(strongTicket.score || kb.confidenceScore || 0) * 10) / 10;
+      }
+    }catch(e){}
+    return out;
+  }
+
+  function setTicketType(value){
+    if(!value) return;
+    ticketState.type = value;
+    syncButtons();
+  }
+
   function setHiddenSelect(id, value){
     var el = byId(id);
     if(!el) return;
@@ -19433,42 +19514,48 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
 
   function buildTicketQuery(raw){
     var parts = [];
-    parts.push('Create Ticket workspace request.');
-    parts.push('Selected ticket type: ' + ticketState.type + '.');
-    parts.push('Selected tone: ' + ticketState.tone + '.');
-    parts.push('Customer/case details:\n' + raw);
+    var cleanRaw = cleanTicketCaseText(raw);
     var userId = (byId('sugoTicketUserId') && byId('sugoTicketUserId').value || '').trim();
     var orderId = (byId('sugoTicketOrderId') && byId('sugoTicketOrderId').value || '').trim();
-    var evidence = (byId('sugoTicketEvidence') && byId('sugoTicketEvidence').value || '').trim();
+    var evidence = cleanTicketCaseText(byId('sugoTicketEvidence') && byId('sugoTicketEvidence').value || '');
+    if(cleanRaw) parts.push('Customer/case details:\n' + cleanRaw);
     if(userId) parts.push('User ID / UID: ' + userId);
-    if(orderId) parts.push('Order / Room / Agency ID: ' + orderId);
+    if(orderId) parts.push('Related ID / Order / Room / Agency ID: ' + orderId);
     if(evidence) parts.push('Evidence / internal notes:\n' + evidence);
-    return parts.join('\n\n');
+    parts.push('Ticket request profile: ' + ticketState.type + ' · ' + ticketState.tone + ' tone.');
+    return parts.filter(Boolean).join('\n\n').trim();
   }
 
   function submitWorkspace(){
     var panel = byId('sugoTicketWorkspace');
     var input = byId('sugoTicketInput');
-    var raw = (input && input.value || currentSearchText()).trim();
+    var rawSource = (input && input.value || currentSearchText()).trim();
+    var lookupQuery = buildTicketLookupQuery(rawSource) || cleanTicketCaseText(rawSource) || currentSearchText();
     var hasImage = false;
     try{ hasImage = (typeof sugoAiAttachedImage !== 'undefined' && !!sugoAiAttachedImage); }catch(e){}
-    if(!raw && !hasImage){
+    if(!lookupQuery && !hasImage){
       if(panel){ panel.classList.add('sugo-shake'); setTimeout(function(){ panel.classList.remove('sugo-shake'); }, 520); }
       if(input) input.focus();
       return false;
     }
-    var finalQuery = raw ? buildTicketQuery(raw) : 'Create a ready-to-send customer support ticket based on the attached image.';
+    var finalQuery = lookupQuery ? buildTicketQuery(rawSource || lookupQuery) : 'Create a ready-to-send customer support ticket based on the attached image.';
+    var forced = findStrongTicketPaneId(lookupQuery);
     var search = byId('searchInput');
-    if(search) search.value = raw || finalQuery;
+    if(search) search.value = lookupQuery || finalQuery;
     applyTicketStateToLegacyControls();
     hideWorkspaceOnly();
     if(typeof window.askAI === 'function'){
+      var forcedInstruction = forced.paneId
+        ? ('\nExact Ticket SOP selected by local matcher: ' + forced.paneId + ' — ' + forced.title + '. Use this Ticket macro as the controlling source. Do not replace it with a broader optimized/overview article unless the case details clearly contradict it.')
+        : '\nNo exact Ticket macro was strong enough. Use the strongest SOP match cautiously and ask for missing details if needed.';
       window.askAI(finalQuery, false, false, {
         forceOutputType: 'ticket',
         forceResponseMode: ticketState.response,
         smartTicket: true,
-        kbQuery: raw,
-        askToolInstruction: ticketInstruction()
+        kbQuery: lookupQuery,
+        exactPaneId: forced.paneId || null,
+        allowActivePaneBias: false,
+        askToolInstruction: ticketInstruction() + forcedInstruction
       });
     }
     return false;
@@ -19496,13 +19583,18 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
     var chip = e.target.closest('[data-sugo-ticket-chip]');
     if(chip){
       e.preventDefault();
-      var text = chip.getAttribute('data-sugo-ticket-chip') || '';
-      var input = byId('sugoTicketInput');
-      if(input){
-        var current = input.value.trim();
-        input.value = current ? current + '\n' + text : text;
-        input.focus();
+      var text = normalizeTicketLine(chip.getAttribute('data-sugo-ticket-chip') || '');
+      if(text.indexOf('missing-information') >= 0 || text.indexOf('missing information') >= 0){
+        setTicketType('missing_info');
+      }else if(text.indexOf('escalation') >= 0){
+        setTicketType('internal_escalation');
+      }else if(text.indexOf('policy') >= 0){
+        setTicketType('policy_sensitive');
+      }else{
+        setTicketType('customer_reply');
       }
+      var input = byId('sugoTicketInput');
+      if(input) input.focus();
     }
   }, true);
 
