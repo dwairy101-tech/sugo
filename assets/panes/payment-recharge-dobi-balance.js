@@ -1,0 +1,9 @@
+/* Lazy-loaded SUGO pane: payment-recharge-dobi-balance */
+(function(){
+  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: payment-recharge-dobi-balance'); return; }
+  setPane("payment-recharge-dobi-balance", createDualContent(
+  "Welcome to the SUGO family!\nWe sincerely apologize for the issue you are experiencing.\n\nDobi Coins are a special currency used in the Game Center. To check your balance and transaction history, follow these steps:\n\n• Go to the Game Center from the app's home screen or from the ME page if available.\n• Your Dobi Coin balance will be displayed on the main Game Center page.\n• To view your transaction history, tap the \"Record\" button in the top right corner. You will see a list of all Dobi Coin earnings and spendings.\n\nDobi Coins are separate from regular coins and diamonds. They are used for specific games and events.\n\nEnjoy playing in the Game Center!\n\nBest regards,\nSugo Support Team\n\n• If you received a system notification showing that you have received Dobi Coins but are unsure where to check them,  or you want to check your Dobi coin balance and record, please follow the steps below:\n• Check your Dobi Coin balance on the page.\n• Tap the “Record” button in the top right corner to view your Dobi Coin transaction history.",
+  "مرحبًا،\n\nعملات Dobi هي عملة خاصة تستخدم في مركز الألعاب. للتحقق من رصيدك وتاريخ معاملاتك، اتبع هذه الخطوات:\n\n• انتقل إلى مركز الألعاب من الشاشة الرئيسية للتطبيق أو من صفحة \"أنا\" إذا كانت متاحة.\n• سيتم عرض رصيد عملات Dobi الخاص بك على صفحة مركز الألعاب الرئيسية.\n• لعرض تاريخ معاملاتك، اضغط على زر \"سجل\" في الزاوية العلوية اليمنى. سترى قائمة بجميع أرباح وإنفاق عملات Dobi.\n\nعملات Dobi منفصلة عن العملات والماس العاديين. يتم استخدامها لألعاب وفعاليات محددة.\n\nاستمتع باللعب في مركز الألعاب!\n\nمع أطيب التحيات،\nفريق دعم Sugo"
+));;
+  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
+})();

@@ -1,0 +1,6 @@
+/* Lazy-loaded SUGO pane: sv-clean-games-add-remove */
+(function(){
+  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-clean-games-add-remove'); return; }
+  setPane("sv-clean-games-add-remove", createSupportMacroContent("Add / Remove Games Request", [{"label": "Use Case", "text": "Use when the customer asks to add or remove games from the account."}, {"label": "Ticket", "text": "Welcome to the SUGO family!\nWe are very happy and honored to have you with us.\nHow can we assist you today?\n\nYour request to [add/remove] games has been submitted.\n\nThe request will be reviewed and processed as soon as possible.\n\nThank you for contacting SUGO. We are always happy to serve you. We wish you a wonderful day!\n\nSUGO Customer Service Team"}], "طلب إضافة أو إزالة الألعاب", [{"label": "الاستخدام", "text": "يستخدم عندما يطلب العميل إضافة أو إزالة الألعاب من الحساب."}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nيسعدنا ويشرفنا جداً تواجدك معنا.\nكيف يمكننا مساعدتك اليوم؟\n\nتم تقديم طلب [إضافة/إزالة] الألعاب.\n\nسيتم مراجعة الطلب والعمل عليه في أقرب وقت ممكن.\n\nشكراً لتواصلك مع سوجو، يسعدنا دائماً خدمتك. نتمنى لك يوماً رائعاً!\n\nفريق خدمة عملاء سوجو"}]));
+  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
+})();

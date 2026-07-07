@@ -1,0 +1,37 @@
+/* Remove redundant ticket metadata panels requested by user.
+   Keep the actual generated ticket and the existing main Copy button only. */
+#aiTicketBuilderPanel,
+#sugoTicketSide,
+#aiAuditPanel,
+#aiSources,
+.ai-ticket-builder-panel,
+.ai-ticket-builder-litebar,
+.ai-ticket-builder-actions,
+.ai-ticket-builder-grid,
+.ai-ticket-builder-checklist,
+.ai-ticket-builder-note,
+.sugo-ticket-side,
+.ai-audit-panel,
+.ai-v5-meta,
+.ai-sources,
+.ai-sources.has-items{
+  display:none!important;
+  visibility:hidden!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  overflow:hidden!important;
+}
+.sugo-answer-workspace{
+  display:block!important;
+  grid-template-columns:1fr!important;
+  gap:0!important;
+}
+.sugo-ticket-main,
+.sugo-answer-workspace > main{
+  width:100%!important;
+  max-width:100%!important;
+}

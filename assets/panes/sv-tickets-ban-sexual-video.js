@@ -1,0 +1,6 @@
+/* Lazy-loaded SUGO pane: sv-tickets-ban-sexual-video */
+(function(){
+  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-tickets-ban-sexual-video'); return; }
+  setPane("sv-tickets-ban-sexual-video", createSupportMacroContent("Ban Due to Sexual Video", [{"label": "Answer", "text": "The ban reason is the presence of a video containing sexual implications."}, {"label": "Ticket", "text": "Welcome to Sugo,\n\nThe ban reason is the presence of a video containing sexual implications.\n\nWe once again sincerely apologize for the inconvenience we have caused, and we truly thank you for your patience and understanding. We wish you a happy and successful day!\n\nSUGO Customer Service Team"}], "الحظر بسبب فيديو ذي إيحاءات جنسية", [{"label": "الإجابة", "text": "سبب الحظر هو وجود فيديو يحتوي على إيحاءات جنسية."}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nنعتذر جداً على المشكلة التي تواجهك\n\nسبب الحظر هو وجود فيديو يحتوي على إيحاءات جنسية.\n\nنكرر اعتذارنا الخالص عن الإزعاج الذي تسببنا به، ونشكركم جزيل الشكر على صبركم وسعة صدركم. نتمنى لكم يوماً سعيداً وموفقاً!\n\nفريق خدمة عملاء سوجو"}]));
+  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
+})();

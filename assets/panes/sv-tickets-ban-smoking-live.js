@@ -1,0 +1,6 @@
+/* Lazy-loaded SUGO pane: sv-tickets-ban-smoking-live */
+(function(){
+  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-tickets-ban-smoking-live'); return; }
+  setPane("sv-tickets-ban-smoking-live", createSupportMacroContent("Ban Due to Smoking in Live", [{"label": "Answer", "text": "The ban reason is smoking during a live video, which violates the app rules."}, {"label": "Ticket", "text": "Welcome to Sugo,\n\nThe ban reason is smoking during a live video, which violates the app rules.\n\nWe once again sincerely apologize for the inconvenience we have caused, and we truly thank you for your patience and understanding. We wish you a happy and successful day!\n\nSUGO Customer Service Team"}], "الحظر بسبب التدخين أثناء البث المباشر", [{"label": "الإجابة", "text": "سبب الحظر هو التدخين أثناء البث المباشر، وهذا يُعد مخالفة لقواعد التطبيق."}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nنعتذر جداً على المشكلة التي تواجهك\n\nسبب الحظر هو التدخين أثناء البث المباشر، وهذا يُعد مخالفة لقواعد التطبيق.\n\nنكرر اعتذارنا الخالص عن الإزعاج الذي تسببنا به، ونشكركم جزيل الشكر على صبركم وسعة صدركم. نتمنى لكم يوماً سعيداً وموفقاً!\n\nفريق خدمة عملاء سوجو"}]));
+  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
+})();

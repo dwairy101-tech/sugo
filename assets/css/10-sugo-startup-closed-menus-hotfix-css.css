@@ -1,0 +1,11 @@
+/* Force the left navigation tree to start collapsed on every fresh open. */
+#sidebarNav.sugo-startup-closed .nav-lroot-children,
+#sidebarNav.sugo-startup-closed .nav-l0-children,
+#sidebarNav.sugo-startup-closed .nav-l00-children{
+  display:none!important;
+}
+#sidebarNav.sugo-startup-closed .nav-lroot-chev.open svg,
+#sidebarNav.sugo-startup-closed .nav-l0-chev.open svg,
+#sidebarNav.sugo-startup-closed .nav-l00-chev.open svg{
+  transform:none!important;
+}

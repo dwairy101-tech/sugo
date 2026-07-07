@@ -1,1115 +1,974 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>SUGO</title>
-<style id="sugo-opening-critical-css">
-/* ===== id="sugo-opening-critical-css" ===== */
-
-/* Critical opening splash: loaded in <head> so the effect appears before the page UI. */
-html.sugo-booting, html.sugo-booting body{
-  background:#050505!important;
-}
-html.sugo-booting body{
-  overflow:hidden!important;
-}
-.sugo-opening-splash{
-  position:fixed!important;
-  inset:0!important;
-  z-index:999999!important;
-  display:grid!important;
-  place-items:center!important;
-  background:radial-gradient(circle at 28% 10%,rgba(153,27,27,.32),transparent 34%),linear-gradient(145deg,#050505,#111113 54%,#1d0808)!important;
-  opacity:1!important;
-  visibility:visible!important;
-  transition:opacity .42s ease,visibility .42s ease!important;
-}
-.sugo-opening-splash.sugo-hide{
-  opacity:0!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
-}
-.sugo-opening-card{
-  width:min(86vw,360px)!important;
-  padding:28px 24px!important;
-  border-radius:26px!important;
-  text-align:center!important;
-  color:#fff!important;
-  background:rgba(255,255,255,.055)!important;
-  border:1px solid rgba(255,255,255,.12)!important;
-  box-shadow:0 28px 90px rgba(0,0,0,.42)!important;
-  backdrop-filter:blur(10px)!important;
-  overflow:hidden!important;
-  position:relative!important;
-}
-.sugo-opening-card:before{
-  content:'';
-  position:absolute;
-  inset:-70px;
-  background:conic-gradient(from 0deg,transparent,rgba(153,27,27,.65),transparent 35%);
-  animation:sugoOpeningSpin 1.35s linear infinite;
-}
-.sugo-opening-card>*{position:relative;z-index:1}
-.sugo-opening-logo{
-  width:72px;height:72px;margin:0 auto 13px;border-radius:22px;
-  display:grid;place-items:center;
-  background:linear-gradient(135deg,#991b1b,#111);
-  font-family:'Cairo','Plus Jakarta Sans',system-ui,sans-serif;
-  font-size:2rem;font-weight:900;
-  box-shadow:0 18px 45px rgba(153,27,27,.35);
-}
-.sugo-opening-title{font-family:'Cairo','Plus Jakarta Sans',system-ui,sans-serif;font-weight:900;font-size:1.38rem;letter-spacing:.04em}
-.sugo-opening-subtitle{margin-top:3px;color:#d4d4d8;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.sugo-opening-bar{height:5px;margin:18px auto 0;border-radius:999px;background:rgba(255,255,255,.13);overflow:hidden}
-.sugo-opening-bar span{display:block;height:100%;width:44%;border-radius:inherit;background:linear-gradient(90deg,#fff,#ef4444);animation:sugoOpeningLoad 1.05s ease-in-out infinite}
-@keyframes sugoOpeningSpin{to{transform:rotate(360deg)}}
-@keyframes sugoOpeningLoad{0%{transform:translateX(-125%)}100%{transform:translateX(235%)}}
-</style>
-<link id="sugo-app-css" rel="stylesheet" href="./assets/sugo-app.css">
-
-<script id="sugo-critical-js">
-// ===== id="sugo-opening-critical-js" =====
-
-/* Mark booting before the body is painted, then release only after splash hides. */
-document.documentElement.classList.add('sugo-booting');
-
-// ===== id="sugo-options-default-closed-head" =====
-
-/* Ensure OPTIONS is closed on every fresh file open, regardless of a previous browser session. */
-try { localStorage.removeItem('sugo_options_open'); localStorage.removeItem('sugo_last_pane'); localStorage.removeItem('sugo_nav_state_v2'); } catch (e) {}
-</script>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</head>
+<link href="assets/css/01-sugo-unified-css.css" rel="stylesheet"/>
+<script src="assets/js/01-sugo-critical-js.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&amp;family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&amp;display=swap" rel="stylesheet"/>
+<link href="assets/css/02-sugo-vision-upload-css.css" rel="stylesheet"/>
+<link href="assets/css/03-sugo-create-ticket-css.css" rel="stylesheet"/>
+<link href="assets/css/04-sugo-compact-action-buttons-final-css.css" rel="stylesheet"/>
+<link href="assets/css/05-sugo-action-row-user-final-css.css" rel="stylesheet"/>
+<link href="assets/css/06-sugo-ticket-emphasis-css.css" rel="stylesheet"/>
+<link href="assets/css/07-sugo-ai-answer-audit-css.css" rel="stylesheet"/>
+<link href="assets/css/08-sugo-smart-ticket-builder-css.css" rel="stylesheet"/>
+<link href="assets/css/09-sugo-hide-redundant-ticket-meta-css.css" rel="stylesheet"/>
+<meta content="split-lazy-panes-v1" name="sugo-split-version"/></head>
 <body class="sugo-final-polished">
-
-<div id="sugoOpeningSplash" class="sugo-opening-splash" aria-hidden="true">
-  <div class="sugo-opening-card">
-    <div class="sugo-opening-logo">S</div>
-    <div class="sugo-opening-title">SUGO SOP</div>
-    <div class="sugo-opening-subtitle">Loading console</div>
-    <div class="sugo-opening-bar"><span></span></div>
-  </div>
+<div aria-hidden="true" class="sugo-opening-splash" id="sugoOpeningSplash">
+<div class="sugo-opening-card">
+<div class="sugo-opening-logo">S</div>
+<div class="sugo-opening-title">SUGO SOP</div>
+<div class="sugo-opening-subtitle">Loading console</div>
+<div class="sugo-opening-bar"><span></span></div>
 </div>
-
+</div>
 <div class="hamburger-btn" id="hamburgerBtn">☰</div>
 <div class="overlay" id="overlay"></div>
 <div class="app">
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <h1>SUGO SOP</h1>
-      <p>Knowledge Lounge · MENA</p>
-    </div>
-    <div class="search-row">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <textarea id="searchInput" rows="1" placeholder="Search Arabic / English keywords..." oninput="sugoFastSearchInput(this);" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();askAI(this.value);}"></textarea>
-      </div>
-      <button class="ask-ai-btn" id="askAIBtn" onclick="askAI(document.getElementById('searchInput').value)" title="Ask AI">✦ Ask AI</button>
-      <button class="ask-ai-btn create-ticket-btn" id="createTicketBtn" type="button" onclick="createSmartTicket(document.getElementById('searchInput').value)" title="Create a smart ready-to-send customer ticket">Create Ticket</button>
-      <div class="sugo-vision-uploader" id="sugoVisionUploader">
-        <input id="sugoVisionInput" type="file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleSugoVisionImage(this.files && this.files[0]); this.value='';">
-        <button class="sugo-vision-upload-btn" id="sugoVisionUploadBtn" type="button" onclick="sugoTriggerVisionUpload()">Upload image</button>
-        <div class="sugo-vision-status" id="sugoVisionStatus"></div>
-        <div class="sugo-vision-preview" id="sugoVisionPreview" aria-live="polite"></div>
-      </div>
-
-      <button class="options-toggle-btn" id="optionsToggleBtn" type="button" onclick="toggleSugoOptions(event)" aria-expanded="false" title="Options" aria-label="Options">⚙<small id="optionsSummary">EN · Answer · Brief</small></button>
-      <div class="control-deck sugo-dropdown-options" aria-label="AI response controls">
-        <div class="control-block sugo-option-card" data-control="language">
-          <label class="control-caption" id="languageControlCaption" for="languageSelect">Language</label>
-          <div class="sugo-select-wrap">
-            <select id="languageSelect" class="language-select sugo-dropdown-select" title="Language">
-              <option value="english">English</option>
-              <option value="arabic">Arabic</option>
-            </select>
-          </div>
-        </div>
-        <div class="control-block sugo-option-card" data-control="output">
-          <label class="control-caption" id="outputControlCaption" for="outputTypeSelect">Output</label>
-          <div class="sugo-select-wrap">
-            <select id="outputTypeSelect" class="output-type-select sugo-dropdown-select" title="Output type">
-              <option value="answer">Answer</option>
-              <option value="ticket">Ticket</option>
-            </select>
-          </div>
-        </div>
-        <div class="control-block sugo-option-card" data-control="sop-mode">
-          <label class="control-caption" id="sopModeControlCaption" for="sopModeSelect">Knowledge Mode</label>
-          <div class="sugo-select-wrap">
-            <select id="sopModeSelect" class="sugo-dropdown-select" title="Knowledge mode">
-              <option value="hybrid">Hybrid</option>
-              <option value="sop_only">SOP Only</option>
-            </select>
-          </div>
-        </div>
-        <div class="response-mode-row sugo-option-card" data-control="response-mode">
-          <label class="response-mode-label control-caption" id="rmodeLabelText" for="responseModeSelect">Response</label>
-          <div class="sugo-select-wrap">
-            <select id="responseModeSelect" class="sugo-dropdown-select" title="Response style">
-              <option value="brief">⚡ Brief</option>
-              <option value="detailed">📋 Detailed</option>
-              <option value="step">🧭 Step</option>
-            </select>
-          </div>
-        </div>
-        <div class="control-block sugo-option-card sugo-preset-card" data-control="preset">
-          <label class="control-caption" id="presetControlCaption" for="presetSelect">Preset</label>
-          <div class="sugo-select-wrap">
-            <select id="presetSelect" class="sugo-dropdown-select" title="Ready preset">
-              <option value="custom">Custom</option>
-              <option value="fast_support">Fast Support Answer</option>
-              <option value="detailed_sop">Detailed SOP Answer</option>
-              <option value="step_troubleshoot">Step-by-step Troubleshooting</option>
-              <option value="formal_ticket">Formal Ticket Reply</option>
-              <option value="arabic_ticket">Arabic Customer Ticket</option>
-              <option value="english_agent">English Agent Reply</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="v51-best-match-panel" id="v51BestMatchPanel" aria-live="polite"></div>
-
-    <div class="sugo-fr-panel sugo-fr-panel-compact sugo-fr-button-panel" id="sugoFavRecentPanel" aria-live="polite">
-      <div class="sugo-fr-tabs" role="tablist" aria-label="Quick Access buttons">
-        <button class="sugo-fr-tab active" type="button" data-sugo-fr-tab="favorites" role="tab" aria-selected="true" aria-expanded="false">
-          <span class="sugo-fr-tab-text">Favorites</span>
-          <span class="sugo-fr-count" id="sugoFavCount">0</span>
-        </button>
-        <button class="sugo-fr-tab" type="button" data-sugo-fr-tab="recent" role="tab" aria-selected="false" aria-expanded="false">
-          <span class="sugo-fr-tab-text">Recent</span>
-          <span class="sugo-fr-count" id="sugoRecentCount">0</span>
-        </button>
-      </div>
-      <div class="sugo-fr-drawer" id="sugoQuickAccessDrawer">
-        <div class="sugo-fr-section active" data-sugo-fr-section="favorites" role="tabpanel">
-          <div class="sugo-fr-list sugo-fr-scroll" id="sugoFavoritesList"><div class="sugo-fr-empty">No favorites yet.</div></div>
-        </div>
-        <div class="sugo-fr-section" data-sugo-fr-section="recent" role="tabpanel">
-          <div class="sugo-fr-section-head">
-            <span>Recently opened</span>
-            <button class="sugo-fr-clear" id="sugoClearRecentBtn" type="button" title="Clear recently used">Clear</button>
-          </div>
-          <div class="sugo-fr-list sugo-fr-scroll" id="sugoRecentList"><div class="sugo-fr-empty">No recently used yet.</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="ai-recent-row" id="aiRecentRow"></div>
-
-    <div class="sugo-library-switch" id="sugoLibrarySwitch">
-      <div class="sugo-library-head">
-        <label class="sugo-library-label" for="sugoLibrarySelect">Menu</label>
-        <button id="sugoCascadeReset" class="sugo-cascade-reset-btn sugo-cascade-reset-inline" type="button" title="Reset menu" aria-label="Reset menu">↺ Reset</button>
-      </div>
-      <div class="sugo-select-wrap">
-        <select id="sugoLibrarySelect" class="sugo-dropdown-select" title="Menu">
-          <option value="">Choose menu</option>
-          <option value="kb">SUGO Knowledge Base</option>
-          <option value="sv">SUGO SV</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="sidebar-nav sugo-initial-closed" id="sidebarNav">
-      <div class="no-results" id="noResults">No results found.</div>
-      <!-- BEGIN PROFESSIONAL CLEAN NAV HIERARCHY -->
-      <div class="nav-lroot">
-        <button class="nav-lroot-btn" id="rootKB">
-          <div class="nav-lroot-star">★</div>
-          <span>SUGO Knowledgebase — MENA</span>
-          <div class="nav-lroot-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div>
-        </button>
-        <div class="nav-lroot-children" id="rootKBChildren">
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="operations-command-and-references"><div class="nav-l0-dot"></div><span>Operations Command &amp; References</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="command-center-and-triage"><div class="nav-l00-indicator"></div><span>Command Center &amp; Triage</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="senior-cs-v51-command-center">Command Center</button>
-              <button class="nav-l000-btn" data-pane="senior-cs-escalation-directory">Escalation Directory</button>
-              <button class="nav-l000-btn" data-pane="senior-cs-missing-info-checklists">Missing Info Checklists</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="backend-systems-and-reference-links"><div class="nav-l00-indicator"></div><span>Backend Systems &amp; Reference Links</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="senior-cs-backend-links-reference">Backend Links Reference</button>
-              <button class="nav-l000-btn" data-pane="senior-cs-backend-system">Backend System</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="agency-operations-reference"><div class="nav-l00-indicator"></div><span>Agency Operations Reference</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="senior-cs-agency-activation">Agency Activation</button>
-              <button class="nav-l000-btn" data-pane="senior-cs-agency-management">Agency Management</button>
-              <button class="nav-l000-btn" data-pane="senior-cs-sub-agency">Sub-Agency</button>
-              <button class="nav-l000-btn" data-pane="senior-cs-activities">Activities</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="commission-tasks-and-ratings"><div class="nav-l00-indicator"></div><span>Commission, Tasks &amp; Ratings</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="senior-cs-commission-targets">Commission &amp; Targets</button>
-              <button class="nav-l000-btn" data-pane="senior-cs-agency-tasks">Agency Tasks</button>
-              <button class="nav-l000-btn" data-pane="senior-cs-rating-groups">Agency Rating &amp; Groups</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="account-access-and-identity"><div class="nav-l0-dot"></div><span>Account, Access &amp; Identity</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00 v52-optimized-nav">
-              <button class="nav-l00-btn" data-l00="optimized-account-overview"><div class="nav-l00-indicator"></div><span>Optimized Account Overview</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="account-support-optimized">Account Support Optimized</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="registration-and-account-limits"><div class="nav-l00-indicator"></div><span>Registration &amp; Account Limits</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="account-register-signup">Account Sign-Up Guide</button>
-              <button class="nav-l000-btn" data-pane="account-register-limits">Account Registration Limits</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="login-password-and-device-access"><div class="nav-l00-indicator"></div><span>Login, Password &amp; Device Access</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="account-login-login">Account Login</button>
-              <button class="nav-l000-btn" data-pane="account-login-issues">Login Issues and Troubleshooting</button>
-              <button class="nav-l000-btn" data-pane="account-login-recovery">Password Recovery</button>
-              <button class="nav-l000-btn" data-pane="account-login-phone">Linked Phone Number No Longer in Use</button>
-              <button class="nav-l000-btn" data-pane="account-login-multidevice">Multi-Device Access</button>
-              <button class="nav-l000-btn" data-pane="account-login-methods">Available Login Methods</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="security-sms-and-phone-binding"><div class="nav-l00-indicator"></div><span>Security, SMS &amp; Phone Binding</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="account-security-sms">SMS Verification Not Received</button>
-              <button class="nav-l000-btn" data-pane="account-security-reset">Password Reset Guide</button>
-              <button class="nav-l000-btn" data-pane="account-security-link">Link Phone Number</button>
-              <button class="nav-l000-btn" data-pane="account-security-recovery">Account Security and Recovery</button>
-              <button class="nav-l000-btn" data-pane="account-security-stolen">Stolen / Compromised Account</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="profile-location-and-privacy"><div class="nav-l00-indicator"></div><span>Profile, Location &amp; Privacy</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="account-profile-picture">Profile Picture Management</button>
-              <button class="nav-l000-btn" data-pane="account-profile-nickname">Nickname Management</button>
-              <button class="nav-l000-btn" data-pane="account-profile-gender">Account Gender Change</button>
-              <button class="nav-l000-btn" data-pane="account-profile-location">Account Location and Country Settings</button>
-              <button class="nav-l000-btn" data-pane="account-profile-distance">Distance Visibility Settings</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="ban-appeal-and-account-deletion"><div class="nav-l00-indicator"></div><span>Ban, Appeal &amp; Account Deletion</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="account-ban-reasons">Account Ban Reasons</button>
-              <button class="nav-l000-btn" data-pane="account-ban-unban">Account Unban and Appeal Process</button>
-              <button class="nav-l000-btn" data-pane="account-ban-self-request">Account Self-Ban Request</button>
-              <button class="nav-l000-btn" data-pane="account-ban-deletion">Account Deletion Guide</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="recharge-payment-and-privileges"><div class="nav-l0-dot"></div><span>Recharge, Payment &amp; Privileges</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00 v52-optimized-nav">
-              <button class="nav-l00-btn" data-l00="optimized-payment-overview"><div class="nav-l00-indicator"></div><span>Optimized Payment Overview</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="payment-support-optimized">Payment Support Optimized</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="recharge-flow-channels-and-missing-coins"><div class="nav-l00-indicator"></div><span>Recharge Flow, Channels &amp; Missing Coins</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="payment-recharge-process">Recharge Process</button>
-              <button class="nav-l000-btn" data-pane="payment-recharge-coin-sellers">Recharge via Coin Sellers</button>
-              <button class="nav-l000-btn" data-pane="payment-recharge-link-availability">Recharge Link Availability</button>
-              <button class="nav-l000-btn" data-pane="payment-recharge-remove-payment">Removing Saved Payment Details</button>
-              <button class="nav-l000-btn" data-pane="recharge-failure-menu">Recharge Failure Issues</button>
-              <button class="nav-l000-btn" data-pane="payment-recharge-missing-coins">Missing Coins After Recharge</button>
-              <button class="nav-l000-btn" data-pane="payment-recharge-coin-history">Coin History Check</button>
-              <button class="nav-l000-btn" data-pane="payment-recharge-currency-adjustment">Impact of Currency Adjustment on Account Balances and Levels</button>
-              <button class="nav-l000-btn" data-pane="payment-recharge-dobi-balance">Checking Dobi Coin Balance</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="diamonds-exchange-and-withdrawal-options"><div class="nav-l00-indicator"></div><span>Diamonds, Exchange &amp; Withdrawal Options</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="payment-diamonds-acquisition">Diamonds Acquisition</button>
-              <button class="nav-l000-btn" data-pane="payment-diamonds-exchanging">Exchanging Diamonds for Coins</button>
-              <button class="nav-l000-btn" data-pane="payment-diamonds-missing-exchange">Missing Diamond Exchange Option</button>
-              <button class="nav-l000-btn" data-pane="payment-diamonds-withdrawal">Diamond Withdrawal Process</button>
-              <button class="nav-l000-btn" data-pane="payment-diamonds-withdraw-button">Withdraw Button Not Visible</button>
-              <button class="nav-l000-btn" data-pane="payment-diamonds-missing-quick">Missing Quick Withdrawal Option</button>
-              <button class="nav-l000-btn" data-pane="payment-diamonds-remove-options">Removing Withdrawal or Exchange Options</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="vip-privileges-and-cards"><div class="nav-l00-indicator"></div><span>VIP Privileges &amp; Cards</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="payment-vip-overview">VIP Overview</button>
-              <button class="nav-l000-btn" data-pane="payment-vip-experience-card">Using VIP Experience Card</button>
-              <button class="nav-l000-btn" data-pane="payment-vip-card-effect-svip">VIP Experience Card Effect on SVIP</button>
-              <button class="nav-l000-btn" data-pane="payment-vip-unexpected-deduction">Unexpected VIP Points Deduction</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="svip-levels-points-and-elite-club"><div class="nav-l00-indicator"></div><span>SVIP Levels, Points &amp; Elite Club</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="payment-svip-privileges">SVIP Privileges</button>
-              <button class="nav-l000-btn" data-pane="payment-svip-becoming">Becoming an SVIP</button>
-              <button class="nav-l000-btn" data-pane="payment-svip-degradation">SVIP Level Degradation</button>
-              <button class="nav-l000-btn" data-pane="payment-svip-points">Acquiring and Using SVIP Points</button>
-              <button class="nav-l000-btn" data-pane="payment-svip-level-requirements">SVIP Level Requirements</button>
-              <button class="nav-l000-btn" data-pane="payment-svip-unexpected-deduction">Unexpected SVIP Points Deduction</button>
-              <button class="nav-l000-btn" data-pane="payment-svip-dynamic-nickname">Obtaining Dynamic Nickname</button>
-              <button class="nav-l000-btn" data-pane="payment-svip-unique-id">Acquiring Unique ID</button>
-              <button class="nav-l000-btn" data-pane="payment-svip-elite-club">Joining the Elite Club</button>
-              <button class="nav-l000-btn" data-pane="payment-svip-offline-recharge">Offline Recharge and VIP/SVIP/Elite Status</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="aristocracy-invisibility-and-incognito"><div class="nav-l00-indicator"></div><span>Aristocracy, Invisibility &amp; Incognito</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="payment-aristocracy-overview">Aristocracy Overview and Acquisition</button>
-              <button class="nav-l000-btn" data-pane="payment-aristocracy-invisibility">Obtaining Invisibility and Incognito</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="decoration-frames-and-entry-effects"><div class="nav-l00-indicator"></div><span>Decoration, Frames &amp; Entry Effects</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="payment-decoration-acquiring">Acquiring Frames, Fantasy Cars or Entrance Vehicles</button>
-              <button class="nav-l000-btn" data-pane="payment-decoration-equipping">Equipping or Changing Frames and Vehicles</button>
-              <button class="nav-l000-btn" data-pane="payment-decoration-entry-effect">Entry Effect Not Visible After Equipping</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="social-moments-and-community"><div class="nav-l0-dot"></div><span>Social, Moments &amp; Community</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00 v52-optimized-nav">
-              <button class="nav-l00-btn" data-l00="optimized-function-overview"><div class="nav-l00-indicator"></div><span>Optimized Function Overview</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-support-optimized">Function Support Optimized</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="user-search-ids-and-discovery"><div class="nav-l00-indicator"></div><span>User Search, IDs &amp; Discovery</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-social-searching-friends">Searching for Real-Life Friends</button>
-              <button class="nav-l000-btn" data-pane="function-social-user-not-found">User Not Found by ID</button>
-              <button class="nav-l000-btn" data-pane="function-social-finding-account-id">Finding Account ID</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="messaging-chat-costs-and-chat-tools"><div class="nav-l00-indicator"></div><span>Messaging, Chat Costs &amp; Chat Tools</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-social-coins-deducted-messages">Coins Deducted for Messages</button>
-              <button class="nav-l000-btn" data-pane="function-social-varying-coin-costs">Varying Coin Costs for Chat Messages</button>
-              <button class="nav-l000-btn" data-pane="function-social-chatting-free">Chatting for Free</button>
-              <button class="nav-l000-btn" data-pane="function-social-unable-send-messages">Unable to Send Messages</button>
-              <button class="nav-l000-btn" data-pane="function-social-chat-background">Chat Background Settings</button>
-              <button class="nav-l000-btn" data-pane="function-social-delete-chat-history">Deleting Chat History</button>
-              <button class="nav-l000-btn" data-pane="function-social-translation-not-available">Message Translation Not Available</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="following-blocking-and-reporting"><div class="nav-l00-indicator"></div><span>Following, Blocking &amp; Reporting</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-social-following-users">Following Other Users</button>
-              <button class="nav-l000-btn" data-pane="function-social-cannot-follow-more">Cannot Follow More Users</button>
-              <button class="nav-l000-btn" data-pane="function-social-unfollowing-users">Unfollowing Users</button>
-              <button class="nav-l000-btn" data-pane="function-social-blocking-users">Blocking Users</button>
-              <button class="nav-l000-btn" data-pane="function-social-blacklist-unblock">Accessing Blacklist and Unblocking</button>
-              <button class="nav-l000-btn" data-pane="function-social-reporting">Reporting Behavior or Content</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="chat-points-diamonds-and-gifts"><div class="nav-l00-indicator"></div><span>Chat Points, Diamonds &amp; Gifts</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-social-chat-points-overview">Chat Points Overview and Mechanics</button>
-              <button class="nav-l000-btn" data-pane="function-social-chat-points-importance">Importance of Chat Points</button>
-              <button class="nav-l000-btn" data-pane="function-social-chat-points-decrease">Chat Points Decrease Despite Chat Star Status</button>
-              <button class="nav-l000-btn" data-pane="function-social-no-diamonds-replying">No Diamonds for Replying to Male Users</button>
-              <button class="nav-l000-btn" data-pane="function-social-transfer-gifts">Transferring Gifts to User Backpack</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="moments-and-comments"><div class="nav-l00-indicator"></div><span>Moments &amp; Comments</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-moments-posting-failure">Moment Posting Failure</button>
-              <button class="nav-l000-btn" data-pane="function-moments-unable-comment">Unable to Comment on Moments</button>
-              <button class="nav-l000-btn" data-pane="function-moments-profile-shows-zero">Profile Shows 0 Moments Despite Posts</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="relationships-and-guardianship"><div class="nav-l00-indicator"></div><span>Relationships &amp; Guardianship</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-relationships-missing-call-voice">Missing Call and Voice Message Options</button>
-              <button class="nav-l000-btn" data-pane="function-relationships-creating">Creating Relationships with Users</button>
-              <button class="nav-l000-btn" data-pane="function-relationships-not-showing">Relationship Not Showing on Mini Card</button>
-              <button class="nav-l000-btn" data-pane="function-relationships-ending">Ending a Relationship</button>
-              <button class="nav-l000-btn" data-pane="function-relationships-guarding-others">Guarding Other Users</button>
-              <button class="nav-l000-btn" data-pane="function-relationships-guardian-points">Guardian Points Explanation and Management</button>
-              <button class="nav-l000-btn" data-pane="function-relationships-hiding-guardianship">Hiding Guardianship</button>
-              <button class="nav-l000-btn" data-pane="function-relationships-ending-guardianship">Ending Guardianship</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="family-features-and-tasks"><div class="nav-l00-indicator"></div><span>Family Features &amp; Tasks</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-family-actions-after-joining">Actions After Joining a Family</button>
-              <button class="nav-l000-btn" data-pane="function-family-joining">Joining a Family</button>
-              <button class="nav-l000-btn" data-pane="function-family-leaving">Leaving a Family</button>
-              <button class="nav-l000-btn" data-pane="function-family-hiding-info">Hiding Family Information</button>
-              <button class="nav-l000-btn" data-pane="function-family-creating">Creating a Family</button>
-              <button class="nav-l000-btn" data-pane="function-family-missing-tasks">Missing Family or Daily Tasks</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="rooms-hosts-and-agency-operations"><div class="nav-l0-dot"></div><span>Rooms, Hosts &amp; Agency Operations</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="room-creation-settings-and-room-tags"><div class="nav-l00-indicator"></div><span>Room Creation, Settings &amp; Room Tags</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-room-creating-personal">Creating Personal Room</button>
-              <button class="nav-l000-btn" data-pane="function-room-live-requirements">Live/Video Room Opening Requirements</button>
-              <button class="nav-l000-btn" data-pane="function-room-incorrect-password">Incorrect Room Password Error Resolution</button>
-              <button class="nav-l000-btn" data-pane="function-room-settings-adjustment">Room Settings Adjustment</button>
-              <button class="nav-l000-btn" data-pane="function-room-gif-cover">Setting GIF as Room Cover</button>
-              <button class="nav-l000-btn" data-pane="function-room-adjust-mode">Adjusting Room Mode</button>
-              <button class="nav-l000-btn" data-pane="function-room-obtaining-tags">Obtaining Room Tags (Bronze/Silver/Gold)</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="room-live-sound-and-gift-issues"><div class="nav-l00-indicator"></div><span>Room Live, Sound &amp; Gift Issues</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-room-gift-effects-not-visible">Gift Effects Not Visible</button>
-              <button class="nav-l000-btn" data-pane="function-room-unable-follow-live">Unable to Follow Live Room</button>
-              <button class="nav-l000-btn" data-pane="function-room-mic-on-not-heard">Microphone On But Not Heard</button>
-              <button class="nav-l000-btn" data-pane="function-room-no-sound">No Sound in Rooms</button>
-              <button class="nav-l000-btn" data-pane="function-host-single-video-mode">Enabling Single Video Mode Live</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="host-greetings-and-message-pricing"><div class="nav-l00-indicator"></div><span>Host Greetings &amp; Message Pricing</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-host-quick-greetings">Setting Quick Greetings for Matching</button>
-              <button class="nav-l000-btn" data-pane="function-host-greeting-issues">Issues with Sending Greeting Messages</button>
-              <button class="nav-l000-btn" data-pane="function-host-message-price">Setting Message Price</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="host-verification-and-anchor-review"><div class="nav-l00-indicator"></div><span>Host Verification &amp; Anchor Review</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-host-gender-verification-failure">Gender/Profile Verification Failure</button>
-              <button class="nav-l000-btn" data-pane="function-host-repeated-verification">Repeated Verification Requests</button>
-              <button class="nav-l000-btn" data-pane="function-host-anchor-application-rejected">Anchor Application Rejected</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="agency-entry-creation-and-transfer"><div class="nav-l00-indicator"></div><span>Agency Entry, Creation &amp; Transfer</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-host-becoming-host-agency">Becoming a Host or Joining Agency</button>
-              <button class="nav-l000-btn" data-pane="function-host-agency-conditions-error">Agency Join Conditions Not Met Error</button>
-              <button class="nav-l000-btn" data-pane="function-host-creating-agency">Creating Personal Agency</button>
-              <button class="nav-l000-btn" data-pane="function-host-transfer-new-agency">Transferring to New Agency</button>
-              <button class="nav-l000-btn" data-pane="function-host-blocked-multiple-accounts">Agency Join Blocked Due to Multiple Accounts</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="host-withdrawal-options"><div class="nav-l00-indicator"></div><span>Host Withdrawal Options</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-host-withdrawal-success-no-payment">Successful Withdrawal But No Payment Received</button>
-              <button class="nav-l000-btn" data-pane="function-host-missing-withdrawal-option">Missing Withdrawal Option</button>
-              <button class="nav-l000-btn" data-pane="function-host-missing-quick-withdrawal">Missing Quick Withdrawal Option</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="games-events-and-clash-of-thrones"><div class="nav-l0-dot"></div><span>Games, Events &amp; Clash of Thrones</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="tasks-and-reward-tracking"><div class="nav-l00-indicator"></div><span>Tasks &amp; Reward Tracking</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-tasks-getting-free-coins">Getting Free Coins</button>
-              <button class="nav-l000-btn" data-pane="function-tasks-daily-no-rewards">Daily Tasks Completed But No Rewards</button>
-              <button class="nav-l000-btn" data-pane="function-tasks-monthly-diamond-target">Monthly Diamond Target Not Rewarded</button>
-              <button class="nav-l000-btn" data-pane="function-tasks-room-details">Room Tasks Details</button>
-              <button class="nav-l000-btn" data-pane="function-tasks-weekly-room-availability">Weekly Room Task Availability</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="games-events-and-compensation"><div class="nav-l00-indicator"></div><span>Games, Events &amp; Compensation</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-games-no-reward">Event Participation Without Reward</button>
-              <button class="nav-l000-btn" data-pane="function-games-crashing">App/Room/Game Crashing or Feature Issues</button>
-              <button class="nav-l000-btn" data-pane="function-games-car-tycoon">Playing Car Tycoon Game</button>
-              <button class="nav-l000-btn" data-pane="function-games-win-no-reward">Game Win Without Reward</button>
-              <button class="nav-l000-btn" data-pane="function-games-manipulation-concerns">Game Results Manipulation Concerns</button>
-              <button class="nav-l000-btn" data-pane="function-games-compensation-policy">Game Compensation Policy</button>
-              <button class="nav-l000-btn" data-pane="function-games-whitelist-blacklist-request">Game Whitelist / Blacklist Request</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="clash-of-thrones-basics-and-progression"><div class="nav-l00-indicator"></div><span>Clash of Thrones — Basics &amp; Progression</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-cot-overview">Clash of Thrones Game Overview</button>
-              <button class="nav-l000-btn" data-pane="function-cot-improving-combat-power">Improving Combat Power</button>
-              <button class="nav-l000-btn" data-pane="function-cot-treasure-keys">Obtaining Treasure Chest Keys</button>
-              <button class="nav-l000-btn" data-pane="function-cot-ladder-ranking">Ladder Ranking System</button>
-              <button class="nav-l000-btn" data-pane="function-cot-upgrading-castle">Upgrading Castle</button>
-              <button class="nav-l000-btn" data-pane="function-cot-automatic-chest">Automatic Treasure Chest Opening</button>
-              <button class="nav-l000-btn" data-pane="function-cot-starlight">Starlight Usage and Acquisition</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="clash-of-thrones-alliance-and-guardian-beast"><div class="nav-l00-indicator"></div><span>Clash of Thrones — Alliance &amp; Guardian Beast</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="function-cot-alliances-overview">Alliances Overview and Joining/Creating</button>
-              <button class="nav-l000-btn" data-pane="function-cot-unable-join-alliance">Unable to Join Alliance</button>
-              <button class="nav-l000-btn" data-pane="function-cot-joining-alliance-group">Joining Alliance Group</button>
-              <button class="nav-l000-btn" data-pane="function-cot-leaving-alliance">Leaving Alliance</button>
-              <button class="nav-l000-btn" data-pane="function-cot-guardian-beast">Guardian Beast Explanation</button>
-              <button class="nav-l000-btn" data-pane="function-cot-guardian-tickets">Obtaining Guardian Beast Summoning Tickets</button>
-              <button class="nav-l000-btn" data-pane="function-cot-upgrading-city-defense">Upgrading City Defense</button>
-              <button class="nav-l000-btn" data-pane="function-cot-in-game-chat">In-Game Chat in Clash of Thrones</button>
-              <button class="nav-l000-btn" data-pane="function-cot-season-reset">Clash of Thrones New Season Reset</button>
-              </div>
-            </div>
-            <div class="nav-l00 v52-optimized-nav">
-              <button class="nav-l00-btn" data-l00="game-level-overview"><div class="nav-l00-indicator"></div><span>Game Level Overview</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="game-level-support-optimized">Game Level Optimized</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="game-level-requirements"><div class="nav-l00-indicator"></div><span>Game Level Requirements</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="game-greedy-cat">Greedy Cat</button>
-              <button class="nav-l000-btn" data-pane="game-rocket-crash">Rocket Crash</button>
-              <button class="nav-l000-btn" data-pane="game-multi-fishing">Multi Fishing</button>
-              <button class="nav-l000-btn" data-pane="game-texas-cowboy">Texas Cowboy</button>
-              <button class="nav-l000-btn" data-pane="game-center">Game Center</button>
-              <button class="nav-l000-btn" data-pane="game-lion-tiger">Lion or Tiger</button>
-              <button class="nav-l000-btn" data-pane="game-yummy">Yummy</button>
-              <button class="nav-l000-btn" data-pane="game-greedy-dice">Greedy Dice</button>
-              <button class="nav-l000-btn" data-pane="game-roulette">Roulette</button>
-              <button class="nav-l000-btn" data-pane="game-slot-game">Slot Game</button>
-              <button class="nav-l000-btn" data-pane="game-lucky-match">Lucky Match</button>
-              <button class="nav-l000-btn" data-pane="game-ludo">Ludo – Play with Coins</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="game-restrictions-and-blacklist"><div class="nav-l00-indicator"></div><span>Game Restrictions &amp; Blacklist</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="game-android-restrictions">Android Game Restrictions</button>
-              <button class="nav-l000-btn" data-pane="game-permanent-restriction">Permanent Game Restriction</button>
-              <button class="nav-l000-btn" data-pane="game-blacklist">Game Blacklist</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="withdrawal-transfer-and-exchange"><div class="nav-l0-dot"></div><span>Withdrawal, Transfer &amp; Exchange</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00 v52-optimized-nav">
-              <button class="nav-l00-btn" data-l00="optimized-withdrawal-exchange-overview"><div class="nav-l00-indicator"></div><span>Optimized Withdrawal / Exchange Overview</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="withdrawal-exchange-support-optimized">Withdrawal &amp; Exchange Optimized</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="withdrawal-eligibility-and-channels"><div class="nav-l00-indicator"></div><span>Withdrawal Eligibility &amp; Channels</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="level-withdrawal-threshold-option">Eligibility for Withdrawal Option</button>
-              <button class="nav-l000-btn" data-pane="level-withdrawal-no-option">No Withdrawal Option Available</button>
-              <button class="nav-l000-btn" data-pane="level-withdrawal-threshold-management">Eligibility for Withdrawal Through Management</button>
-              <button class="nav-l000-btn" data-pane="level-withdrawal-entrance-no-quick">Withdrawal Entrance Available but No Quick Withdrawal Option</button>
-              <button class="nav-l000-btn" data-pane="level-withdrawal-quick-channel-not-support">Quick Withdrawal Available but Specific Channel Not Supported</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="withdrawal-option-management-and-cancellation"><div class="nav-l00-indicator"></div><span>Withdrawal Option Management &amp; Cancellation</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="level-withdrawal-remove-option">Remove Withdrawal / Exchange Option</button>
-              <button class="nav-l000-btn" data-pane="level-withdrawal-add-option">Add Withdrawal / Exchange Option</button>
-              <button class="nav-l000-btn" data-pane="level-withdrawal-cancel-pending">Cancel a Pending Withdrawal Request</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="diamond-transfer-and-coin-exchange"><div class="nav-l00-indicator"></div><span>Diamond Transfer &amp; Coin Exchange</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="level-transfer-threshold-option">Eligibility for Diamond Transfer Option</button>
-              <button class="nav-l000-btn" data-pane="level-exchange-threshold-option">Eligibility for Exchange Option</button>
-              <button class="nav-l000-btn" data-pane="level-exchange-cannot-search-id">Unable to Search Another User&#x27;s ID for Coin Exchange</button>
-              </div>
-            </div>
-            </div>
-          </div>
-        </div>
-      </div>
-            <div class="nav-lroot">
-        <button class="nav-lroot-btn" id="rootSVTickets">
-          <div class="nav-lroot-star">★</div>
-          <span>SUGO SV — Organized Support Macros</span>
-          <div class="nav-lroot-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div>
-        </button>
-        <div class="nav-lroot-children" id="rootSVTicketsChildren">
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="sv-better-general-support-intake"><div class="nav-l0-dot"></div><span>General Support &amp; Intake</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-general-support-intake-greetings-first-response"><div class="nav-l00-indicator"></div><span>Greetings &amp; First Response</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-customer-service-greeting">Customer Service Greeting</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-welcome-how-can-we-help">Welcome / How Can We Help</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-general-support-intake-account-id-missing-info"><div class="nav-l00-indicator"></div><span>Account ID &amp; Missing Info</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-request-customer-id">Request Customer ID</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-request-id-and-issue-video">Request ID + Issue Video</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-contact-from-same-account">Ask to Contact From Same Account</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-general-support-intake-follow-up-conversation-handling"><div class="nav-l00-indicator"></div><span>Follow-up &amp; Conversation Handling</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-request-submitted-follow-up">Request Submitted / Follow-Up</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-duplicate-conversation">Duplicate Conversation</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="sv-better-account-access-verification"><div class="nav-l0-dot"></div><span>Account Access &amp; Verification</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-account-access-verification-ownership-verification"><div class="nav-l00-indicator"></div><span>Ownership Verification</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-account-ownership-verification">Account Ownership Verification</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-account-access-verification-phone-binding-password"><div class="nav-l00-indicator"></div><span>Phone Binding &amp; Password</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-phone-binding-request-submitted">Phone Binding Request Submitted</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-password-reset-request-submitted">Password Reset Request Submitted</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-account-access-verification-identity-review-verification"><div class="nav-l00-indicator"></div><span>Identity Review &amp; Verification</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-unban-identity-video">Identity Video Required</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-unban-review-male-using-female-account-video-sent">Review Sent: Male Using Female Account</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-unban-review-underage-verification-video-sent">Review Sent: Underage Verification</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-verification-rejected">Verification Rejected</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="sv-better-reports-abuse-evidence"><div class="nav-l0-dot"></div><span>Reports, Abuse &amp; Evidence</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-reports-abuse-evidence-abuse-reports"><div class="nav-l00-indicator"></div><span>Abuse Reports</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-report-abuse-case">Report Abuse Case</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-report-abuse-evidence">Report Abuse Evidence</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-report-insulting-management">Report Insulting Management</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-reports-abuse-evidence-technical-issue-evidence"><div class="nav-l00-indicator"></div><span>Technical Issue Evidence</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-report-issue-case">Report Technical Issue</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-reports-abuse-evidence-moments-content-cleanup"><div class="nav-l00-indicator"></div><span>Moments &amp; Content Cleanup</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-moments-watermark-removal">Moments / Watermark Removal</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="sv-better-ban-restriction-management"><div class="nav-l0-dot"></div><span>Ban &amp; Restriction Management</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-general-ban-handling"><div class="nav-l00-indicator"></div><span>General Ban Handling</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-reason-placeholder">Ban Reason Placeholder</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-request-unban-apology">Request Unban / Apology</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-medium-risk-requirements">Medium Risk Requirements</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-high-risk-restriction">High-Risk Restriction</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-identity-age-account-misuse"><div class="nav-l00-indicator"></div><span>Identity / Age / Account Misuse</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-male-using-female-account">Ban: Male Using Female Account</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-underage-suspicion">Ban: Underage Suspicion</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-vpn-region-violation">Ban: VPN / Region Violation</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-external-contact-phone-number">Ban: External Contact / Phone Number</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-external-contact-telegram">Ban: External Contact / Telegram</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-sexual-policy-violations"><div class="nav-l00-indicator"></div><span>Sexual Policy Violations</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-commerce">Ban: Sexual Commerce</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-content-in-messages">Ban: Sexual Content in Messages</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-messages">Ban: Sexual Messages</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-picture">Ban: Sexual Picture</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-video">Ban: Sexual Video</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-moments">Ban: Sexual Moments</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-offer">Ban: Sexual Offer</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-safety-prohibited-content"><div class="nav-l00-indicator"></div><span>Safety &amp; Prohibited Content</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-smoking-during-live">Ban: Smoking During Live</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-smoking-image">Ban: Smoking Image</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-drug-use-during-live">Ban: Drug Use During Live</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-drug-use-image">Ban: Drug Use Image</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-weapon-during-live">Ban: Weapon During Live</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-weapon-image">Ban: Weapon Image</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-insulting-another-user">Ban: Insulting Another User</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-promotion-impersonation"><div class="nav-l00-indicator"></div><span>Promotion &amp; Impersonation</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-promoting-other-platforms">Ban: Promoting Other Platforms</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-pretending-to-be-management">Ban: Pretending to Be Management</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-ban-pretending-to-be-a-coin-seller">Ban: Pretending to Be Coin Seller</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="sv-better-recharge-coins-vip"><div class="nav-l0-dot"></div><span>Recharge, Coins &amp; VIP</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-recharge-coins-vip-recharge-guides"><div class="nav-l00-indicator"></div><span>Recharge Guides</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-general-guide">Recharge General Guide</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-methods">Recharge Methods</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-steps">Recharge Steps</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-link">Recharge Link</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-through-visa">Recharge Through Visa</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-first-recharge-requirement">First Recharge Requirement</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-recharge-coins-vip-payment-problems-evidence"><div class="nav-l00-indicator"></div><span>Payment Problems &amp; Evidence</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-failed-alternatives">Recharge Failed / Alternatives</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-request-recharge-invoice">Request Recharge Invoice</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-coins-not-received">Coins Not Received</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-recharge-coins-vip-country-recharge-agencies"><div class="nav-l00-indicator"></div><span>Country Recharge Agencies</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-egypt">Recharge Agency - Egypt</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-iraq">Recharge Agency - Iraq</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-saudi-arabia">Recharge Agency - Saudi Arabia</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-syria">Recharge Agency - Syria</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-uae">Recharge Agency - UAE</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-recharge-coins-vip-vip-elite-club"><div class="nav-l00-indicator"></div><span>VIP &amp; Elite Club</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-elite-club-conditions">Elite Club Conditions</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="sv-better-withdrawal-salary"><div class="nav-l0-dot"></div><span>Withdrawal &amp; Salary</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-withdrawal-salary-withdrawal-status-delays"><div class="nav-l00-indicator"></div><span>Withdrawal Status &amp; Delays</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-withdrawal-waiting-period">Withdrawal Waiting Period</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-withdrawal-successful-but-not-received">Successful but Not Received</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-request-withdrawal-screenshot">Request Withdrawal Screenshot</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-withdrawal-salary-withdrawal-methods-conditions"><div class="nav-l00-indicator"></div><span>Withdrawal Methods &amp; Conditions</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-fast-withdrawal-conditions">Fast Withdrawal Conditions</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-withdrawal-through-management">Withdrawal Through Management</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-withdrawal-salary-withdrawal-requests-options"><div class="nav-l00-indicator"></div><span>Withdrawal Requests &amp; Options</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-cancel-withdrawal-request">Cancel Withdrawal Request</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-add-remove-withdrawal-option">Add / Remove Withdrawal Option</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="sv-better-agency-host-operations"><div class="nav-l0-dot"></div><span>Agency &amp; Host Operations</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-agency-host-operations-host-agency-creation"><div class="nav-l00-indicator"></div><span>Host Agency Creation</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-create-host-agency">Create Host Agency</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-apply-to-open-host-agency">Apply to Open Host Agency</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-agency-host-operations-agency-transfer-sub-agency"><div class="nav-l00-indicator"></div><span>Agency Transfer &amp; Sub-Agency</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-change-agency-for-anchor">Change Agency for Anchor</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-agency-transfer-request">Agency Transfer Request</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-create-sub-agency">Create Sub-Agency</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-change-sub-agency-to-main-agency">Change Sub-Agency to Main Agency</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-agency-host-operations-agency-management-requirements"><div class="nav-l00-indicator"></div><span>Agency Management Requirements</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-agency-admin-whatsapp-group-requirements">Admin WhatsApp Group Requirements</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-create-recharge-agency">Create Recharge Agency</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="sv-better-games-matching-tasks"><div class="nav-l0-dot"></div><span>Games, Matching &amp; Tasks</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-games-matching-tasks-games-access-rules"><div class="nav-l00-indicator"></div><span>Games Access Rules</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-games-access-conditions">Games Access Conditions</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-game-access-information">Game Access Information</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-game-access-information-alternative">Game Access Information - Alternative</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-games-matching-tasks-add-remove-games"><div class="nav-l00-indicator"></div><span>Add / Remove Games</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-add-game-request">Add Game Request</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-add-games-request">Add Games Request</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-remove-game-request">Remove Game Request</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-remove-games-request">Remove Games Request</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-games-matching-tasks-matching-issues"><div class="nav-l00-indicator"></div><span>Matching Issues</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-matching-issue-1">Matching Issue 1</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-matching-issue-2">Matching Issue 2</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-matching-issue-3">Matching Issue 3</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-games-matching-tasks-tasks"><div class="nav-l00-indicator"></div><span>Tasks</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-daily-and-family-tasks">Daily and Family Tasks</button>
-              </div>
-            </div>
-            </div>
-          </div>
-          <div class="nav-l0">
-            <button class="nav-l0-btn" data-l0="sv-better-app-settings-country-location"><div class="nav-l0-dot"></div><span>App Settings, Country &amp; Location</span><div class="nav-l0-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-            <div class="nav-l0-children">
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-app-settings-country-location-app-crash-technical-logs"><div class="nav-l00-indicator"></div><span>App Crash &amp; Technical Logs</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-app-crash-refresh-steps">App Crash / Refresh Steps</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-app-crash-upload-log">App Crash / Upload Log</button>
-              </div>
-            </div>
-            <div class="nav-l00">
-              <button class="nav-l00-btn" data-l00="sv-better-app-settings-country-location-country-location-settings"><div class="nav-l00-indicator"></div><span>Country &amp; Location Settings</span><div class="nav-l00-chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></div></button>
-              <div class="nav-l00-children">
-              <button class="nav-l000-btn" data-pane="sv-refined-change-country">Change Country</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-change-country-follow-up">Change Country Follow-Up</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-close-location-hide-distance">Close Location / Hide Distance</button>
-              <button class="nav-l000-btn" data-pane="sv-refined-location-disappeared">Location Disappeared</button>
-              </div>
-            </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- END PROFESSIONAL CLEAN NAV HIERARCHY -->
-    </div>
-  </div>
-  <div class="content" id="contentArea">
-    <div class="sugo-breadcrumb" id="sugoBreadcrumb" aria-live="polite"></div>
-    <div class="content-welcome" id="welcomeMsg">
-      <div class="big-icon">✦</div>
-      <h2>SUGO Knowledge Base</h2>
-      <p>Select a topic from the sidebar to begin</p>
-    </div>
-    <div class="ai-answer-pane" id="aiAnswerPane">
-      <button class="close-pane-btn" onclick="closeAIPane();">✕</button>
-      <div class="ai-answer-card">
-        <div class="ai-answer-header">
-          <span class="ai-badge" id="aiBadgeLabel">✦ AI Console</span>
-          <span class="ai-query" id="aiAnswerQuery"></span>
-          <button class="ai-copy-btn sugo-ai-stop-btn" id="aiStopBtn" type="button" onclick="window.SugoApp && SugoApp.ai && SugoApp.ai.stop()" hidden title="Stop AI response">⏹ Stop</button>
-          <button class="ai-copy-btn" id="aiCopyBtn" onclick="copyAIAnswer(this)" title="Copy answer">📋 Copy</button>
-        </div>
-        <div class="sugo-answer-workspace" id="sugoAnswerWorkspace">
-          <div class="sugo-answer-main">
-            <div class="ai-answer-body" id="aiAnswerBody"></div>
-            <div class="ai-ticket-builder-panel" id="aiTicketBuilderPanel" hidden></div>
-          </div>
-          <aside class="sugo-ticket-side" id="sugoTicketSide" aria-label="Ticket review summary">
-            <div class="ai-audit-panel" id="aiAuditPanel" hidden></div>
-          </aside>
-        </div>
-        <div class="ai-sources" id="aiSources"></div>
-        <div class="ai-followup-row" id="aiFollowupRow"></div>
-      </div>
-    </div>
-  </div>
+<div class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<h1>SUGO SOP</h1>
+<p>Knowledge Lounge · MENA</p>
 </div>
-
-<script id="sugo-app-js" src="./assets/sugo-app.js" defer></script>
-
-
+<div class="search-row">
+<div class="search-wrap">
+<span class="search-icon">🔍</span>
+<textarea id="searchInput" oninput="sugoFastSearchInput(this);" onkeydown="if(event.key==='Enter' &amp;&amp; !event.shiftKey){event.preventDefault();askAI(this.value);}" placeholder="Search Arabic / English keywords..." rows="1"></textarea>
+</div>
+<button class="ask-ai-btn" id="askAIBtn" onclick="askAI(document.getElementById('searchInput').value)" title="Ask AI">✦ Ask AI</button>
+<button class="ask-ai-btn create-ticket-btn" id="createTicketBtn" onclick="createSmartTicket(document.getElementById('searchInput').value)" title="Create a smart ready-to-send customer ticket" type="button">Create Ticket</button>
+<div class="sugo-vision-uploader" id="sugoVisionUploader">
+<input accept="image/png,image/jpeg,image/webp" id="sugoVisionInput" onchange="handleSugoVisionImage(this.files &amp;&amp; this.files[0]); this.value='';" style="display:none" type="file"/>
+<button class="sugo-vision-upload-btn" id="sugoVisionUploadBtn" onclick="sugoTriggerVisionUpload()" type="button">Upload image</button>
+<div class="sugo-vision-status" id="sugoVisionStatus"></div>
+<div aria-live="polite" class="sugo-vision-preview" id="sugoVisionPreview"></div>
+</div>
+<button aria-expanded="false" aria-label="Options" class="options-toggle-btn" id="optionsToggleBtn" onclick="toggleSugoOptions(event)" title="Options" type="button">⚙<small id="optionsSummary">EN · Answer · Brief</small></button>
+<div aria-label="AI response controls" class="control-deck sugo-dropdown-options">
+<div class="control-block sugo-option-card" data-control="language">
+<label class="control-caption" for="languageSelect" id="languageControlCaption">Language</label>
+<div class="sugo-select-wrap">
+<select class="language-select sugo-dropdown-select" id="languageSelect" title="Language">
+<option value="english">English</option>
+<option value="arabic">Arabic</option>
+</select>
+</div>
+</div>
+<div class="control-block sugo-option-card" data-control="output">
+<label class="control-caption" for="outputTypeSelect" id="outputControlCaption">Output</label>
+<div class="sugo-select-wrap">
+<select class="output-type-select sugo-dropdown-select" id="outputTypeSelect" title="Output type">
+<option value="answer">Answer</option>
+<option value="ticket">Ticket</option>
+</select>
+</div>
+</div>
+<div class="control-block sugo-option-card" data-control="sop-mode">
+<label class="control-caption" for="sopModeSelect" id="sopModeControlCaption">Knowledge Mode</label>
+<div class="sugo-select-wrap">
+<select class="sugo-dropdown-select" id="sopModeSelect" title="Knowledge mode">
+<option value="hybrid">Hybrid</option>
+<option value="sop_only">SOP Only</option>
+</select>
+</div>
+</div>
+<div class="response-mode-row sugo-option-card" data-control="response-mode">
+<label class="response-mode-label control-caption" for="responseModeSelect" id="rmodeLabelText">Response</label>
+<div class="sugo-select-wrap">
+<select class="sugo-dropdown-select" id="responseModeSelect" title="Response style">
+<option value="brief">⚡ Brief</option>
+<option value="detailed">📋 Detailed</option>
+<option value="step">🧭 Step</option>
+</select>
+</div>
+</div>
+<div class="control-block sugo-option-card sugo-preset-card" data-control="preset">
+<label class="control-caption" for="presetSelect" id="presetControlCaption">Preset</label>
+<div class="sugo-select-wrap">
+<select class="sugo-dropdown-select" id="presetSelect" title="Ready preset">
+<option value="custom">Custom</option>
+<option value="fast_support">Fast Support Answer</option>
+<option value="detailed_sop">Detailed SOP Answer</option>
+<option value="step_troubleshoot">Step-by-step Troubleshooting</option>
+<option value="formal_ticket">Formal Ticket Reply</option>
+<option value="arabic_ticket">Arabic Customer Ticket</option>
+<option value="english_agent">English Agent Reply</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<div aria-live="polite" class="v51-best-match-panel" id="v51BestMatchPanel"></div>
+<div aria-live="polite" class="sugo-fr-panel sugo-fr-panel-compact sugo-fr-button-panel" id="sugoFavRecentPanel">
+<div aria-label="Quick Access buttons" class="sugo-fr-tabs" role="tablist">
+<button aria-expanded="false" aria-selected="true" class="sugo-fr-tab active" data-sugo-fr-tab="favorites" role="tab" type="button">
+<span class="sugo-fr-tab-text">Favorites</span>
+<span class="sugo-fr-count" id="sugoFavCount">0</span>
+</button>
+<button aria-expanded="false" aria-selected="false" class="sugo-fr-tab" data-sugo-fr-tab="recent" role="tab" type="button">
+<span class="sugo-fr-tab-text">Recent</span>
+<span class="sugo-fr-count" id="sugoRecentCount">0</span>
+</button>
+</div>
+<div class="sugo-fr-drawer" id="sugoQuickAccessDrawer">
+<div class="sugo-fr-section active" data-sugo-fr-section="favorites" role="tabpanel">
+<div class="sugo-fr-list sugo-fr-scroll" id="sugoFavoritesList"><div class="sugo-fr-empty">No favorites yet.</div></div>
+</div>
+<div class="sugo-fr-section" data-sugo-fr-section="recent" role="tabpanel">
+<div class="sugo-fr-section-head">
+<span>Recently opened</span>
+<button class="sugo-fr-clear" id="sugoClearRecentBtn" title="Clear recently used" type="button">Clear</button>
+</div>
+<div class="sugo-fr-list sugo-fr-scroll" id="sugoRecentList"><div class="sugo-fr-empty">No recently used yet.</div></div>
+</div>
+</div>
+</div>
+<div class="ai-recent-row" id="aiRecentRow"></div>
+<div class="sugo-library-switch" id="sugoLibrarySwitch">
+<div class="sugo-library-head">
+<label class="sugo-library-label" for="sugoLibrarySelect">Menu</label>
+<button aria-label="Reset menu" class="sugo-cascade-reset-btn sugo-cascade-reset-inline" id="sugoCascadeReset" title="Reset menu" type="button">↺ Reset</button>
+</div>
+<div class="sugo-select-wrap">
+<select class="sugo-dropdown-select" id="sugoLibrarySelect" title="Menu">
+<option value="">Choose menu</option>
+<option value="kb">SUGO Knowledge Base</option>
+<option value="sv">SUGO SV</option>
+</select>
+</div>
+</div>
+<div class="sidebar-nav sugo-initial-closed" id="sidebarNav">
+<div class="no-results" id="noResults">No results found.</div>
+<!-- BEGIN PROFESSIONAL CLEAN NAV HIERARCHY -->
+<div class="nav-lroot">
+<button class="nav-lroot-btn" id="rootKB">
+<div class="nav-lroot-star">★</div>
+<span>SUGO Knowledgebase — MENA</span>
+<div class="nav-lroot-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div>
+</button>
+<div class="nav-lroot-children" id="rootKBChildren">
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="operations-command-and-references"><div class="nav-l0-dot"></div><span>Operations Command &amp; References</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="command-center-and-triage"><div class="nav-l00-indicator"></div><span>Command Center &amp; Triage</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="senior-cs-v51-command-center">Command Center</button>
+<button class="nav-l000-btn" data-pane="senior-cs-escalation-directory">Escalation Directory</button>
+<button class="nav-l000-btn" data-pane="senior-cs-missing-info-checklists">Missing Info Checklists</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="backend-systems-and-reference-links"><div class="nav-l00-indicator"></div><span>Backend Systems &amp; Reference Links</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="senior-cs-backend-links-reference">Backend Links Reference</button>
+<button class="nav-l000-btn" data-pane="senior-cs-backend-system">Backend System</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="agency-operations-reference"><div class="nav-l00-indicator"></div><span>Agency Operations Reference</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="senior-cs-agency-activation">Agency Activation</button>
+<button class="nav-l000-btn" data-pane="senior-cs-agency-management">Agency Management</button>
+<button class="nav-l000-btn" data-pane="senior-cs-sub-agency">Sub-Agency</button>
+<button class="nav-l000-btn" data-pane="senior-cs-activities">Activities</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="commission-tasks-and-ratings"><div class="nav-l00-indicator"></div><span>Commission, Tasks &amp; Ratings</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="senior-cs-commission-targets">Commission &amp; Targets</button>
+<button class="nav-l000-btn" data-pane="senior-cs-agency-tasks">Agency Tasks</button>
+<button class="nav-l000-btn" data-pane="senior-cs-rating-groups">Agency Rating &amp; Groups</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="account-access-and-identity"><div class="nav-l0-dot"></div><span>Account, Access &amp; Identity</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00 v52-optimized-nav">
+<button class="nav-l00-btn" data-l00="optimized-account-overview"><div class="nav-l00-indicator"></div><span>Optimized Account Overview</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="account-support-optimized">Account Support Optimized</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="registration-and-account-limits"><div class="nav-l00-indicator"></div><span>Registration &amp; Account Limits</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="account-register-signup">Account Sign-Up Guide</button>
+<button class="nav-l000-btn" data-pane="account-register-limits">Account Registration Limits</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="login-password-and-device-access"><div class="nav-l00-indicator"></div><span>Login, Password &amp; Device Access</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="account-login-login">Account Login</button>
+<button class="nav-l000-btn" data-pane="account-login-issues">Login Issues and Troubleshooting</button>
+<button class="nav-l000-btn" data-pane="account-login-recovery">Password Recovery</button>
+<button class="nav-l000-btn" data-pane="account-login-phone">Linked Phone Number No Longer in Use</button>
+<button class="nav-l000-btn" data-pane="account-login-multidevice">Multi-Device Access</button>
+<button class="nav-l000-btn" data-pane="account-login-methods">Available Login Methods</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="security-sms-and-phone-binding"><div class="nav-l00-indicator"></div><span>Security, SMS &amp; Phone Binding</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="account-security-sms">SMS Verification Not Received</button>
+<button class="nav-l000-btn" data-pane="account-security-reset">Password Reset Guide</button>
+<button class="nav-l000-btn" data-pane="account-security-link">Link Phone Number</button>
+<button class="nav-l000-btn" data-pane="account-security-recovery">Account Security and Recovery</button>
+<button class="nav-l000-btn" data-pane="account-security-stolen">Stolen / Compromised Account</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="profile-location-and-privacy"><div class="nav-l00-indicator"></div><span>Profile, Location &amp; Privacy</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="account-profile-picture">Profile Picture Management</button>
+<button class="nav-l000-btn" data-pane="account-profile-nickname">Nickname Management</button>
+<button class="nav-l000-btn" data-pane="account-profile-gender">Account Gender Change</button>
+<button class="nav-l000-btn" data-pane="account-profile-location">Account Location and Country Settings</button>
+<button class="nav-l000-btn" data-pane="account-profile-distance">Distance Visibility Settings</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="ban-appeal-and-account-deletion"><div class="nav-l00-indicator"></div><span>Ban, Appeal &amp; Account Deletion</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="account-ban-reasons">Account Ban Reasons</button>
+<button class="nav-l000-btn" data-pane="account-ban-unban">Account Unban and Appeal Process</button>
+<button class="nav-l000-btn" data-pane="account-ban-self-request">Account Self-Ban Request</button>
+<button class="nav-l000-btn" data-pane="account-ban-deletion">Account Deletion Guide</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="recharge-payment-and-privileges"><div class="nav-l0-dot"></div><span>Recharge, Payment &amp; Privileges</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00 v52-optimized-nav">
+<button class="nav-l00-btn" data-l00="optimized-payment-overview"><div class="nav-l00-indicator"></div><span>Optimized Payment Overview</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="payment-support-optimized">Payment Support Optimized</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="recharge-flow-channels-and-missing-coins"><div class="nav-l00-indicator"></div><span>Recharge Flow, Channels &amp; Missing Coins</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="payment-recharge-process">Recharge Process</button>
+<button class="nav-l000-btn" data-pane="payment-recharge-coin-sellers">Recharge via Coin Sellers</button>
+<button class="nav-l000-btn" data-pane="payment-recharge-link-availability">Recharge Link Availability</button>
+<button class="nav-l000-btn" data-pane="payment-recharge-remove-payment">Removing Saved Payment Details</button>
+<button class="nav-l000-btn" data-pane="recharge-failure-menu">Recharge Failure Issues</button>
+<button class="nav-l000-btn" data-pane="payment-recharge-missing-coins">Missing Coins After Recharge</button>
+<button class="nav-l000-btn" data-pane="payment-recharge-coin-history">Coin History Check</button>
+<button class="nav-l000-btn" data-pane="payment-recharge-currency-adjustment">Impact of Currency Adjustment on Account Balances and Levels</button>
+<button class="nav-l000-btn" data-pane="payment-recharge-dobi-balance">Checking Dobi Coin Balance</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="diamonds-exchange-and-withdrawal-options"><div class="nav-l00-indicator"></div><span>Diamonds, Exchange &amp; Withdrawal Options</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="payment-diamonds-acquisition">Diamonds Acquisition</button>
+<button class="nav-l000-btn" data-pane="payment-diamonds-exchanging">Exchanging Diamonds for Coins</button>
+<button class="nav-l000-btn" data-pane="payment-diamonds-missing-exchange">Missing Diamond Exchange Option</button>
+<button class="nav-l000-btn" data-pane="payment-diamonds-withdrawal">Diamond Withdrawal Process</button>
+<button class="nav-l000-btn" data-pane="payment-diamonds-withdraw-button">Withdraw Button Not Visible</button>
+<button class="nav-l000-btn" data-pane="payment-diamonds-missing-quick">Missing Quick Withdrawal Option</button>
+<button class="nav-l000-btn" data-pane="payment-diamonds-remove-options">Removing Withdrawal or Exchange Options</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="vip-privileges-and-cards"><div class="nav-l00-indicator"></div><span>VIP Privileges &amp; Cards</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="payment-vip-overview">VIP Overview</button>
+<button class="nav-l000-btn" data-pane="payment-vip-experience-card">Using VIP Experience Card</button>
+<button class="nav-l000-btn" data-pane="payment-vip-card-effect-svip">VIP Experience Card Effect on SVIP</button>
+<button class="nav-l000-btn" data-pane="payment-vip-unexpected-deduction">Unexpected VIP Points Deduction</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="svip-levels-points-and-elite-club"><div class="nav-l00-indicator"></div><span>SVIP Levels, Points &amp; Elite Club</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="payment-svip-privileges">SVIP Privileges</button>
+<button class="nav-l000-btn" data-pane="payment-svip-becoming">Becoming an SVIP</button>
+<button class="nav-l000-btn" data-pane="payment-svip-degradation">SVIP Level Degradation</button>
+<button class="nav-l000-btn" data-pane="payment-svip-points">Acquiring and Using SVIP Points</button>
+<button class="nav-l000-btn" data-pane="payment-svip-level-requirements">SVIP Level Requirements</button>
+<button class="nav-l000-btn" data-pane="payment-svip-unexpected-deduction">Unexpected SVIP Points Deduction</button>
+<button class="nav-l000-btn" data-pane="payment-svip-dynamic-nickname">Obtaining Dynamic Nickname</button>
+<button class="nav-l000-btn" data-pane="payment-svip-unique-id">Acquiring Unique ID</button>
+<button class="nav-l000-btn" data-pane="payment-svip-elite-club">Joining the Elite Club</button>
+<button class="nav-l000-btn" data-pane="payment-svip-offline-recharge">Offline Recharge and VIP/SVIP/Elite Status</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="aristocracy-invisibility-and-incognito"><div class="nav-l00-indicator"></div><span>Aristocracy, Invisibility &amp; Incognito</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="payment-aristocracy-overview">Aristocracy Overview and Acquisition</button>
+<button class="nav-l000-btn" data-pane="payment-aristocracy-invisibility">Obtaining Invisibility and Incognito</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="decoration-frames-and-entry-effects"><div class="nav-l00-indicator"></div><span>Decoration, Frames &amp; Entry Effects</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="payment-decoration-acquiring">Acquiring Frames, Fantasy Cars or Entrance Vehicles</button>
+<button class="nav-l000-btn" data-pane="payment-decoration-equipping">Equipping or Changing Frames and Vehicles</button>
+<button class="nav-l000-btn" data-pane="payment-decoration-entry-effect">Entry Effect Not Visible After Equipping</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="social-moments-and-community"><div class="nav-l0-dot"></div><span>Social, Moments &amp; Community</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00 v52-optimized-nav">
+<button class="nav-l00-btn" data-l00="optimized-function-overview"><div class="nav-l00-indicator"></div><span>Optimized Function Overview</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-support-optimized">Function Support Optimized</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="user-search-ids-and-discovery"><div class="nav-l00-indicator"></div><span>User Search, IDs &amp; Discovery</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-social-searching-friends">Searching for Real-Life Friends</button>
+<button class="nav-l000-btn" data-pane="function-social-user-not-found">User Not Found by ID</button>
+<button class="nav-l000-btn" data-pane="function-social-finding-account-id">Finding Account ID</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="messaging-chat-costs-and-chat-tools"><div class="nav-l00-indicator"></div><span>Messaging, Chat Costs &amp; Chat Tools</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-social-coins-deducted-messages">Coins Deducted for Messages</button>
+<button class="nav-l000-btn" data-pane="function-social-varying-coin-costs">Varying Coin Costs for Chat Messages</button>
+<button class="nav-l000-btn" data-pane="function-social-chatting-free">Chatting for Free</button>
+<button class="nav-l000-btn" data-pane="function-social-unable-send-messages">Unable to Send Messages</button>
+<button class="nav-l000-btn" data-pane="function-social-chat-background">Chat Background Settings</button>
+<button class="nav-l000-btn" data-pane="function-social-delete-chat-history">Deleting Chat History</button>
+<button class="nav-l000-btn" data-pane="function-social-translation-not-available">Message Translation Not Available</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="following-blocking-and-reporting"><div class="nav-l00-indicator"></div><span>Following, Blocking &amp; Reporting</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-social-following-users">Following Other Users</button>
+<button class="nav-l000-btn" data-pane="function-social-cannot-follow-more">Cannot Follow More Users</button>
+<button class="nav-l000-btn" data-pane="function-social-unfollowing-users">Unfollowing Users</button>
+<button class="nav-l000-btn" data-pane="function-social-blocking-users">Blocking Users</button>
+<button class="nav-l000-btn" data-pane="function-social-blacklist-unblock">Accessing Blacklist and Unblocking</button>
+<button class="nav-l000-btn" data-pane="function-social-reporting">Reporting Behavior or Content</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="chat-points-diamonds-and-gifts"><div class="nav-l00-indicator"></div><span>Chat Points, Diamonds &amp; Gifts</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-social-chat-points-overview">Chat Points Overview and Mechanics</button>
+<button class="nav-l000-btn" data-pane="function-social-chat-points-importance">Importance of Chat Points</button>
+<button class="nav-l000-btn" data-pane="function-social-chat-points-decrease">Chat Points Decrease Despite Chat Star Status</button>
+<button class="nav-l000-btn" data-pane="function-social-no-diamonds-replying">No Diamonds for Replying to Male Users</button>
+<button class="nav-l000-btn" data-pane="function-social-transfer-gifts">Transferring Gifts to User Backpack</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="moments-and-comments"><div class="nav-l00-indicator"></div><span>Moments &amp; Comments</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-moments-posting-failure">Moment Posting Failure</button>
+<button class="nav-l000-btn" data-pane="function-moments-unable-comment">Unable to Comment on Moments</button>
+<button class="nav-l000-btn" data-pane="function-moments-profile-shows-zero">Profile Shows 0 Moments Despite Posts</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="relationships-and-guardianship"><div class="nav-l00-indicator"></div><span>Relationships &amp; Guardianship</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-relationships-missing-call-voice">Missing Call and Voice Message Options</button>
+<button class="nav-l000-btn" data-pane="function-relationships-creating">Creating Relationships with Users</button>
+<button class="nav-l000-btn" data-pane="function-relationships-not-showing">Relationship Not Showing on Mini Card</button>
+<button class="nav-l000-btn" data-pane="function-relationships-ending">Ending a Relationship</button>
+<button class="nav-l000-btn" data-pane="function-relationships-guarding-others">Guarding Other Users</button>
+<button class="nav-l000-btn" data-pane="function-relationships-guardian-points">Guardian Points Explanation and Management</button>
+<button class="nav-l000-btn" data-pane="function-relationships-hiding-guardianship">Hiding Guardianship</button>
+<button class="nav-l000-btn" data-pane="function-relationships-ending-guardianship">Ending Guardianship</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="family-features-and-tasks"><div class="nav-l00-indicator"></div><span>Family Features &amp; Tasks</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-family-actions-after-joining">Actions After Joining a Family</button>
+<button class="nav-l000-btn" data-pane="function-family-joining">Joining a Family</button>
+<button class="nav-l000-btn" data-pane="function-family-leaving">Leaving a Family</button>
+<button class="nav-l000-btn" data-pane="function-family-hiding-info">Hiding Family Information</button>
+<button class="nav-l000-btn" data-pane="function-family-creating">Creating a Family</button>
+<button class="nav-l000-btn" data-pane="function-family-missing-tasks">Missing Family or Daily Tasks</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="rooms-hosts-and-agency-operations"><div class="nav-l0-dot"></div><span>Rooms, Hosts &amp; Agency Operations</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="room-creation-settings-and-room-tags"><div class="nav-l00-indicator"></div><span>Room Creation, Settings &amp; Room Tags</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-room-creating-personal">Creating Personal Room</button>
+<button class="nav-l000-btn" data-pane="function-room-live-requirements">Live/Video Room Opening Requirements</button>
+<button class="nav-l000-btn" data-pane="function-room-incorrect-password">Incorrect Room Password Error Resolution</button>
+<button class="nav-l000-btn" data-pane="function-room-settings-adjustment">Room Settings Adjustment</button>
+<button class="nav-l000-btn" data-pane="function-room-gif-cover">Setting GIF as Room Cover</button>
+<button class="nav-l000-btn" data-pane="function-room-adjust-mode">Adjusting Room Mode</button>
+<button class="nav-l000-btn" data-pane="function-room-obtaining-tags">Obtaining Room Tags (Bronze/Silver/Gold)</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="room-live-sound-and-gift-issues"><div class="nav-l00-indicator"></div><span>Room Live, Sound &amp; Gift Issues</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-room-gift-effects-not-visible">Gift Effects Not Visible</button>
+<button class="nav-l000-btn" data-pane="function-room-unable-follow-live">Unable to Follow Live Room</button>
+<button class="nav-l000-btn" data-pane="function-room-mic-on-not-heard">Microphone On But Not Heard</button>
+<button class="nav-l000-btn" data-pane="function-room-no-sound">No Sound in Rooms</button>
+<button class="nav-l000-btn" data-pane="function-host-single-video-mode">Enabling Single Video Mode Live</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="host-greetings-and-message-pricing"><div class="nav-l00-indicator"></div><span>Host Greetings &amp; Message Pricing</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-host-quick-greetings">Setting Quick Greetings for Matching</button>
+<button class="nav-l000-btn" data-pane="function-host-greeting-issues">Issues with Sending Greeting Messages</button>
+<button class="nav-l000-btn" data-pane="function-host-message-price">Setting Message Price</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="host-verification-and-anchor-review"><div class="nav-l00-indicator"></div><span>Host Verification &amp; Anchor Review</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-host-gender-verification-failure">Gender/Profile Verification Failure</button>
+<button class="nav-l000-btn" data-pane="function-host-repeated-verification">Repeated Verification Requests</button>
+<button class="nav-l000-btn" data-pane="function-host-anchor-application-rejected">Anchor Application Rejected</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="agency-entry-creation-and-transfer"><div class="nav-l00-indicator"></div><span>Agency Entry, Creation &amp; Transfer</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-host-becoming-host-agency">Becoming a Host or Joining Agency</button>
+<button class="nav-l000-btn" data-pane="function-host-agency-conditions-error">Agency Join Conditions Not Met Error</button>
+<button class="nav-l000-btn" data-pane="function-host-creating-agency">Creating Personal Agency</button>
+<button class="nav-l000-btn" data-pane="function-host-transfer-new-agency">Transferring to New Agency</button>
+<button class="nav-l000-btn" data-pane="function-host-blocked-multiple-accounts">Agency Join Blocked Due to Multiple Accounts</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="host-withdrawal-options"><div class="nav-l00-indicator"></div><span>Host Withdrawal Options</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-host-withdrawal-success-no-payment">Successful Withdrawal But No Payment Received</button>
+<button class="nav-l000-btn" data-pane="function-host-missing-withdrawal-option">Missing Withdrawal Option</button>
+<button class="nav-l000-btn" data-pane="function-host-missing-quick-withdrawal">Missing Quick Withdrawal Option</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="games-events-and-clash-of-thrones"><div class="nav-l0-dot"></div><span>Games, Events &amp; Clash of Thrones</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="tasks-and-reward-tracking"><div class="nav-l00-indicator"></div><span>Tasks &amp; Reward Tracking</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-tasks-getting-free-coins">Getting Free Coins</button>
+<button class="nav-l000-btn" data-pane="function-tasks-daily-no-rewards">Daily Tasks Completed But No Rewards</button>
+<button class="nav-l000-btn" data-pane="function-tasks-monthly-diamond-target">Monthly Diamond Target Not Rewarded</button>
+<button class="nav-l000-btn" data-pane="function-tasks-room-details">Room Tasks Details</button>
+<button class="nav-l000-btn" data-pane="function-tasks-weekly-room-availability">Weekly Room Task Availability</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="games-events-and-compensation"><div class="nav-l00-indicator"></div><span>Games, Events &amp; Compensation</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-games-no-reward">Event Participation Without Reward</button>
+<button class="nav-l000-btn" data-pane="function-games-crashing">App/Room/Game Crashing or Feature Issues</button>
+<button class="nav-l000-btn" data-pane="function-games-car-tycoon">Playing Car Tycoon Game</button>
+<button class="nav-l000-btn" data-pane="function-games-win-no-reward">Game Win Without Reward</button>
+<button class="nav-l000-btn" data-pane="function-games-manipulation-concerns">Game Results Manipulation Concerns</button>
+<button class="nav-l000-btn" data-pane="function-games-compensation-policy">Game Compensation Policy</button>
+<button class="nav-l000-btn" data-pane="function-games-whitelist-blacklist-request">Game Whitelist / Blacklist Request</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="clash-of-thrones-basics-and-progression"><div class="nav-l00-indicator"></div><span>Clash of Thrones — Basics &amp; Progression</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-cot-overview">Clash of Thrones Game Overview</button>
+<button class="nav-l000-btn" data-pane="function-cot-improving-combat-power">Improving Combat Power</button>
+<button class="nav-l000-btn" data-pane="function-cot-treasure-keys">Obtaining Treasure Chest Keys</button>
+<button class="nav-l000-btn" data-pane="function-cot-ladder-ranking">Ladder Ranking System</button>
+<button class="nav-l000-btn" data-pane="function-cot-upgrading-castle">Upgrading Castle</button>
+<button class="nav-l000-btn" data-pane="function-cot-automatic-chest">Automatic Treasure Chest Opening</button>
+<button class="nav-l000-btn" data-pane="function-cot-starlight">Starlight Usage and Acquisition</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="clash-of-thrones-alliance-and-guardian-beast"><div class="nav-l00-indicator"></div><span>Clash of Thrones — Alliance &amp; Guardian Beast</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="function-cot-alliances-overview">Alliances Overview and Joining/Creating</button>
+<button class="nav-l000-btn" data-pane="function-cot-unable-join-alliance">Unable to Join Alliance</button>
+<button class="nav-l000-btn" data-pane="function-cot-joining-alliance-group">Joining Alliance Group</button>
+<button class="nav-l000-btn" data-pane="function-cot-leaving-alliance">Leaving Alliance</button>
+<button class="nav-l000-btn" data-pane="function-cot-guardian-beast">Guardian Beast Explanation</button>
+<button class="nav-l000-btn" data-pane="function-cot-guardian-tickets">Obtaining Guardian Beast Summoning Tickets</button>
+<button class="nav-l000-btn" data-pane="function-cot-upgrading-city-defense">Upgrading City Defense</button>
+<button class="nav-l000-btn" data-pane="function-cot-in-game-chat">In-Game Chat in Clash of Thrones</button>
+<button class="nav-l000-btn" data-pane="function-cot-season-reset">Clash of Thrones New Season Reset</button>
+</div>
+</div>
+<div class="nav-l00 v52-optimized-nav">
+<button class="nav-l00-btn" data-l00="game-level-overview"><div class="nav-l00-indicator"></div><span>Game Level Overview</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="game-level-support-optimized">Game Level Optimized</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="game-level-requirements"><div class="nav-l00-indicator"></div><span>Game Level Requirements</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="game-greedy-cat">Greedy Cat</button>
+<button class="nav-l000-btn" data-pane="game-rocket-crash">Rocket Crash</button>
+<button class="nav-l000-btn" data-pane="game-multi-fishing">Multi Fishing</button>
+<button class="nav-l000-btn" data-pane="game-texas-cowboy">Texas Cowboy</button>
+<button class="nav-l000-btn" data-pane="game-center">Game Center</button>
+<button class="nav-l000-btn" data-pane="game-lion-tiger">Lion or Tiger</button>
+<button class="nav-l000-btn" data-pane="game-yummy">Yummy</button>
+<button class="nav-l000-btn" data-pane="game-greedy-dice">Greedy Dice</button>
+<button class="nav-l000-btn" data-pane="game-roulette">Roulette</button>
+<button class="nav-l000-btn" data-pane="game-slot-game">Slot Game</button>
+<button class="nav-l000-btn" data-pane="game-lucky-match">Lucky Match</button>
+<button class="nav-l000-btn" data-pane="game-ludo">Ludo – Play with Coins</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="game-restrictions-and-blacklist"><div class="nav-l00-indicator"></div><span>Game Restrictions &amp; Blacklist</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="game-android-restrictions">Android Game Restrictions</button>
+<button class="nav-l000-btn" data-pane="game-permanent-restriction">Permanent Game Restriction</button>
+<button class="nav-l000-btn" data-pane="game-blacklist">Game Blacklist</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="withdrawal-transfer-and-exchange"><div class="nav-l0-dot"></div><span>Withdrawal, Transfer &amp; Exchange</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00 v52-optimized-nav">
+<button class="nav-l00-btn" data-l00="optimized-withdrawal-exchange-overview"><div class="nav-l00-indicator"></div><span>Optimized Withdrawal / Exchange Overview</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="withdrawal-exchange-support-optimized">Withdrawal &amp; Exchange Optimized</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="withdrawal-eligibility-and-channels"><div class="nav-l00-indicator"></div><span>Withdrawal Eligibility &amp; Channels</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="level-withdrawal-threshold-option">Eligibility for Withdrawal Option</button>
+<button class="nav-l000-btn" data-pane="level-withdrawal-no-option">No Withdrawal Option Available</button>
+<button class="nav-l000-btn" data-pane="level-withdrawal-threshold-management">Eligibility for Withdrawal Through Management</button>
+<button class="nav-l000-btn" data-pane="level-withdrawal-entrance-no-quick">Withdrawal Entrance Available but No Quick Withdrawal Option</button>
+<button class="nav-l000-btn" data-pane="level-withdrawal-quick-channel-not-support">Quick Withdrawal Available but Specific Channel Not Supported</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="withdrawal-option-management-and-cancellation"><div class="nav-l00-indicator"></div><span>Withdrawal Option Management &amp; Cancellation</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="level-withdrawal-remove-option">Remove Withdrawal / Exchange Option</button>
+<button class="nav-l000-btn" data-pane="level-withdrawal-add-option">Add Withdrawal / Exchange Option</button>
+<button class="nav-l000-btn" data-pane="level-withdrawal-cancel-pending">Cancel a Pending Withdrawal Request</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="diamond-transfer-and-coin-exchange"><div class="nav-l00-indicator"></div><span>Diamond Transfer &amp; Coin Exchange</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="level-transfer-threshold-option">Eligibility for Diamond Transfer Option</button>
+<button class="nav-l000-btn" data-pane="level-exchange-threshold-option">Eligibility for Exchange Option</button>
+<button class="nav-l000-btn" data-pane="level-exchange-cannot-search-id">Unable to Search Another User's ID for Coin Exchange</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-lroot">
+<button class="nav-lroot-btn" id="rootSVTickets">
+<div class="nav-lroot-star">★</div>
+<span>SUGO SV — Organized Support Macros</span>
+<div class="nav-lroot-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div>
+</button>
+<div class="nav-lroot-children" id="rootSVTicketsChildren">
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="sv-better-general-support-intake"><div class="nav-l0-dot"></div><span>General Support &amp; Intake</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-general-support-intake-greetings-first-response"><div class="nav-l00-indicator"></div><span>Greetings &amp; First Response</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-customer-service-greeting">Customer Service Greeting</button>
+<button class="nav-l000-btn" data-pane="sv-refined-welcome-how-can-we-help">Welcome / How Can We Help</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-general-support-intake-account-id-missing-info"><div class="nav-l00-indicator"></div><span>Account ID &amp; Missing Info</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-request-customer-id">Request Customer ID</button>
+<button class="nav-l000-btn" data-pane="sv-refined-request-id-and-issue-video">Request ID + Issue Video</button>
+<button class="nav-l000-btn" data-pane="sv-refined-contact-from-same-account">Ask to Contact From Same Account</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-general-support-intake-follow-up-conversation-handling"><div class="nav-l00-indicator"></div><span>Follow-up &amp; Conversation Handling</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-request-submitted-follow-up">Request Submitted / Follow-Up</button>
+<button class="nav-l000-btn" data-pane="sv-refined-duplicate-conversation">Duplicate Conversation</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="sv-better-account-access-verification"><div class="nav-l0-dot"></div><span>Account Access &amp; Verification</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-account-access-verification-ownership-verification"><div class="nav-l00-indicator"></div><span>Ownership Verification</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-account-ownership-verification">Account Ownership Verification</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-account-access-verification-phone-binding-password"><div class="nav-l00-indicator"></div><span>Phone Binding &amp; Password</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-phone-binding-request-submitted">Phone Binding Request Submitted</button>
+<button class="nav-l000-btn" data-pane="sv-refined-password-reset-request-submitted">Password Reset Request Submitted</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-account-access-verification-identity-review-verification"><div class="nav-l00-indicator"></div><span>Identity Review &amp; Verification</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-unban-identity-video">Identity Video Required</button>
+<button class="nav-l000-btn" data-pane="sv-refined-unban-review-male-using-female-account-video-sent">Review Sent: Male Using Female Account</button>
+<button class="nav-l000-btn" data-pane="sv-refined-unban-review-underage-verification-video-sent">Review Sent: Underage Verification</button>
+<button class="nav-l000-btn" data-pane="sv-refined-verification-rejected">Verification Rejected</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="sv-better-reports-abuse-evidence"><div class="nav-l0-dot"></div><span>Reports, Abuse &amp; Evidence</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-reports-abuse-evidence-abuse-reports"><div class="nav-l00-indicator"></div><span>Abuse Reports</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-report-abuse-case">Report Abuse Case</button>
+<button class="nav-l000-btn" data-pane="sv-refined-report-abuse-evidence">Report Abuse Evidence</button>
+<button class="nav-l000-btn" data-pane="sv-refined-report-insulting-management">Report Insulting Management</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-reports-abuse-evidence-technical-issue-evidence"><div class="nav-l00-indicator"></div><span>Technical Issue Evidence</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-report-issue-case">Report Technical Issue</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-reports-abuse-evidence-moments-content-cleanup"><div class="nav-l00-indicator"></div><span>Moments &amp; Content Cleanup</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-moments-watermark-removal">Moments / Watermark Removal</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="sv-better-ban-restriction-management"><div class="nav-l0-dot"></div><span>Ban &amp; Restriction Management</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-general-ban-handling"><div class="nav-l00-indicator"></div><span>General Ban Handling</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-ban-reason-placeholder">Ban Reason Placeholder</button>
+<button class="nav-l000-btn" data-pane="sv-refined-request-unban-apology">Request Unban / Apology</button>
+<button class="nav-l000-btn" data-pane="sv-refined-medium-risk-requirements">Medium Risk Requirements</button>
+<button class="nav-l000-btn" data-pane="sv-refined-high-risk-restriction">High-Risk Restriction</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-identity-age-account-misuse"><div class="nav-l00-indicator"></div><span>Identity / Age / Account Misuse</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-ban-male-using-female-account">Ban: Male Using Female Account</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-underage-suspicion">Ban: Underage Suspicion</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-vpn-region-violation">Ban: VPN / Region Violation</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-external-contact-phone-number">Ban: External Contact / Phone Number</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-external-contact-telegram">Ban: External Contact / Telegram</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-sexual-policy-violations"><div class="nav-l00-indicator"></div><span>Sexual Policy Violations</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-commerce">Ban: Sexual Commerce</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-content-in-messages">Ban: Sexual Content in Messages</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-messages">Ban: Sexual Messages</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-picture">Ban: Sexual Picture</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-video">Ban: Sexual Video</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-moments">Ban: Sexual Moments</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-sexual-offer">Ban: Sexual Offer</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-safety-prohibited-content"><div class="nav-l00-indicator"></div><span>Safety &amp; Prohibited Content</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-ban-smoking-during-live">Ban: Smoking During Live</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-smoking-image">Ban: Smoking Image</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-drug-use-during-live">Ban: Drug Use During Live</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-drug-use-image">Ban: Drug Use Image</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-weapon-during-live">Ban: Weapon During Live</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-weapon-image">Ban: Weapon Image</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-insulting-another-user">Ban: Insulting Another User</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-ban-restriction-management-promotion-impersonation"><div class="nav-l00-indicator"></div><span>Promotion &amp; Impersonation</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-ban-promoting-other-platforms">Ban: Promoting Other Platforms</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-pretending-to-be-management">Ban: Pretending to Be Management</button>
+<button class="nav-l000-btn" data-pane="sv-refined-ban-pretending-to-be-a-coin-seller">Ban: Pretending to Be Coin Seller</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="sv-better-recharge-coins-vip"><div class="nav-l0-dot"></div><span>Recharge, Coins &amp; VIP</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-recharge-coins-vip-recharge-guides"><div class="nav-l00-indicator"></div><span>Recharge Guides</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-general-guide">Recharge General Guide</button>
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-methods">Recharge Methods</button>
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-steps">Recharge Steps</button>
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-link">Recharge Link</button>
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-through-visa">Recharge Through Visa</button>
+<button class="nav-l000-btn" data-pane="sv-refined-first-recharge-requirement">First Recharge Requirement</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-recharge-coins-vip-payment-problems-evidence"><div class="nav-l00-indicator"></div><span>Payment Problems &amp; Evidence</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-failed-alternatives">Recharge Failed / Alternatives</button>
+<button class="nav-l000-btn" data-pane="sv-refined-request-recharge-invoice">Request Recharge Invoice</button>
+<button class="nav-l000-btn" data-pane="sv-refined-coins-not-received">Coins Not Received</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-recharge-coins-vip-country-recharge-agencies"><div class="nav-l00-indicator"></div><span>Country Recharge Agencies</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-egypt">Recharge Agency - Egypt</button>
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-iraq">Recharge Agency - Iraq</button>
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-saudi-arabia">Recharge Agency - Saudi Arabia</button>
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-syria">Recharge Agency - Syria</button>
+<button class="nav-l000-btn" data-pane="sv-refined-recharge-through-agency-uae">Recharge Agency - UAE</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-recharge-coins-vip-vip-elite-club"><div class="nav-l00-indicator"></div><span>VIP &amp; Elite Club</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-elite-club-conditions">Elite Club Conditions</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="sv-better-withdrawal-salary"><div class="nav-l0-dot"></div><span>Withdrawal &amp; Salary</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-withdrawal-salary-withdrawal-status-delays"><div class="nav-l00-indicator"></div><span>Withdrawal Status &amp; Delays</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-withdrawal-waiting-period">Withdrawal Waiting Period</button>
+<button class="nav-l000-btn" data-pane="sv-refined-withdrawal-successful-but-not-received">Successful but Not Received</button>
+<button class="nav-l000-btn" data-pane="sv-refined-request-withdrawal-screenshot">Request Withdrawal Screenshot</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-withdrawal-salary-withdrawal-methods-conditions"><div class="nav-l00-indicator"></div><span>Withdrawal Methods &amp; Conditions</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-fast-withdrawal-conditions">Fast Withdrawal Conditions</button>
+<button class="nav-l000-btn" data-pane="sv-refined-withdrawal-through-management">Withdrawal Through Management</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-withdrawal-salary-withdrawal-requests-options"><div class="nav-l00-indicator"></div><span>Withdrawal Requests &amp; Options</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-cancel-withdrawal-request">Cancel Withdrawal Request</button>
+<button class="nav-l000-btn" data-pane="sv-refined-add-remove-withdrawal-option">Add / Remove Withdrawal Option</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="sv-better-agency-host-operations"><div class="nav-l0-dot"></div><span>Agency &amp; Host Operations</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-agency-host-operations-host-agency-creation"><div class="nav-l00-indicator"></div><span>Host Agency Creation</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-create-host-agency">Create Host Agency</button>
+<button class="nav-l000-btn" data-pane="sv-refined-apply-to-open-host-agency">Apply to Open Host Agency</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-agency-host-operations-agency-transfer-sub-agency"><div class="nav-l00-indicator"></div><span>Agency Transfer &amp; Sub-Agency</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-change-agency-for-anchor">Change Agency for Anchor</button>
+<button class="nav-l000-btn" data-pane="sv-refined-agency-transfer-request">Agency Transfer Request</button>
+<button class="nav-l000-btn" data-pane="sv-refined-create-sub-agency">Create Sub-Agency</button>
+<button class="nav-l000-btn" data-pane="sv-refined-change-sub-agency-to-main-agency">Change Sub-Agency to Main Agency</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-agency-host-operations-agency-management-requirements"><div class="nav-l00-indicator"></div><span>Agency Management Requirements</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-agency-admin-whatsapp-group-requirements">Admin WhatsApp Group Requirements</button>
+<button class="nav-l000-btn" data-pane="sv-refined-create-recharge-agency">Create Recharge Agency</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="sv-better-games-matching-tasks"><div class="nav-l0-dot"></div><span>Games, Matching &amp; Tasks</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-games-matching-tasks-games-access-rules"><div class="nav-l00-indicator"></div><span>Games Access Rules</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-games-access-conditions">Games Access Conditions</button>
+<button class="nav-l000-btn" data-pane="sv-refined-game-access-information">Game Access Information</button>
+<button class="nav-l000-btn" data-pane="sv-refined-game-access-information-alternative">Game Access Information - Alternative</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-games-matching-tasks-add-remove-games"><div class="nav-l00-indicator"></div><span>Add / Remove Games</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-add-game-request">Add Game Request</button>
+<button class="nav-l000-btn" data-pane="sv-refined-add-games-request">Add Games Request</button>
+<button class="nav-l000-btn" data-pane="sv-refined-remove-game-request">Remove Game Request</button>
+<button class="nav-l000-btn" data-pane="sv-refined-remove-games-request">Remove Games Request</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-games-matching-tasks-matching-issues"><div class="nav-l00-indicator"></div><span>Matching Issues</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-matching-issue-1">Matching Issue 1</button>
+<button class="nav-l000-btn" data-pane="sv-refined-matching-issue-2">Matching Issue 2</button>
+<button class="nav-l000-btn" data-pane="sv-refined-matching-issue-3">Matching Issue 3</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-games-matching-tasks-tasks"><div class="nav-l00-indicator"></div><span>Tasks</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-daily-and-family-tasks">Daily and Family Tasks</button>
+</div>
+</div>
+</div>
+</div>
+<div class="nav-l0">
+<button class="nav-l0-btn" data-l0="sv-better-app-settings-country-location"><div class="nav-l0-dot"></div><span>App Settings, Country &amp; Location</span><div class="nav-l0-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l0-children">
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-app-settings-country-location-app-crash-technical-logs"><div class="nav-l00-indicator"></div><span>App Crash &amp; Technical Logs</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-app-crash-refresh-steps">App Crash / Refresh Steps</button>
+<button class="nav-l000-btn" data-pane="sv-refined-app-crash-upload-log">App Crash / Upload Log</button>
+</div>
+</div>
+<div class="nav-l00">
+<button class="nav-l00-btn" data-l00="sv-better-app-settings-country-location-country-location-settings"><div class="nav-l00-indicator"></div><span>Country &amp; Location Settings</span><div class="nav-l00-chev"><svg viewbox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg></div></button>
+<div class="nav-l00-children">
+<button class="nav-l000-btn" data-pane="sv-refined-change-country">Change Country</button>
+<button class="nav-l000-btn" data-pane="sv-refined-change-country-follow-up">Change Country Follow-Up</button>
+<button class="nav-l000-btn" data-pane="sv-refined-close-location-hide-distance">Close Location / Hide Distance</button>
+<button class="nav-l000-btn" data-pane="sv-refined-location-disappeared">Location Disappeared</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- END PROFESSIONAL CLEAN NAV HIERARCHY -->
+</div>
+</div>
+<div class="content" id="contentArea">
+<div aria-live="polite" class="sugo-breadcrumb" id="sugoBreadcrumb"></div>
+<div class="content-welcome" id="welcomeMsg">
+<div class="big-icon">✦</div>
+<h2>SUGO Knowledge Base</h2>
+<p>Select a topic from the sidebar to begin</p>
+</div>
+<div class="ai-answer-pane" id="aiAnswerPane">
+<button class="close-pane-btn" onclick="closeAIPane();">✕</button>
+<div class="ai-answer-card">
+<div class="ai-answer-header">
+<span class="ai-badge" id="aiBadgeLabel">✦ AI Console</span>
+<span class="ai-query" id="aiAnswerQuery"></span>
+<button class="ai-copy-btn sugo-ai-stop-btn" hidden="" id="aiStopBtn" onclick="window.SugoApp &amp;&amp; SugoApp.ai &amp;&amp; SugoApp.ai.stop()" title="Stop AI response" type="button">⏹ Stop</button>
+<button class="ai-copy-btn" id="aiCopyBtn" onclick="copyAIAnswer(this)" title="Copy answer">📋 Copy</button>
+</div>
+<div class="sugo-answer-workspace" id="sugoAnswerWorkspace">
+<div class="sugo-answer-main">
+<div class="ai-answer-body" id="aiAnswerBody"></div>
+<div class="ai-ticket-builder-panel" hidden="" id="aiTicketBuilderPanel"></div>
+</div>
+<aside aria-label="Ticket review summary" class="sugo-ticket-side" id="sugoTicketSide">
+<div class="ai-audit-panel" hidden="" id="aiAuditPanel"></div>
+</aside>
+</div>
+<div class="ai-sources" id="aiSources"></div>
+<div class="ai-followup-row" id="aiFollowupRow"></div>
+</div>
+</div>
+</div>
+</div>
+<script defer="" src="assets/js/02-sugo-runtime-js.js"></script>
 <div style="position:fixed; bottom:10px; right:14px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:500; letter-spacing:0.04em; color:#9ca3af; opacity:0.9; z-index:9999; pointer-events:none; background:#fff; border:1px solid #e5e7eb; padding:4px 14px; border-radius:20px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">Created By Dwairy</div>
-
-
 <!-- SUGO MINIMAL DROPDOWN FILTERS START -->
-
-
 <!-- SUGO MINIMAL DROPDOWN FILTERS END -->
-
-
 <!-- SUGO GLOBAL DIRECTION ALL CONTENT FIX START -->
-
-
 <!-- SUGO GLOBAL DIRECTION ALL CONTENT FIX END -->
-
-
 <!-- SUGO exact-original minimal fixes: closed menus, two-column options, English option labels, opening splash -->
-
-
 <!-- SUGO STARTUP CLOSED MENUS HOTFIX -->
-
-
+<link href="assets/css/10-sugo-startup-closed-menus-hotfix-css.css" rel="stylesheet"/>
+<script defer="" src="assets/js/03-sugo-startup-closed-menus-hotfix-js.js"></script>
 <!-- /SUGO STARTUP CLOSED MENUS HOTFIX -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<script defer="" src="assets/js/04-sugo-favorites-recent-js.js"></script>
+<script defer="" src="assets/js/05-sugo-ai-ticket-favorites-and-quick-access-js.js"></script>
+<script defer="" src="assets/js/06-sugo-search-performance-hotfix.js"></script>
+<script defer="" src="assets/js/07-sugo-precision-search-v4.js"></script>
+<script defer="" src="assets/js/08-sugo-typing-lag-hotfix-v5.js"></script>
 <!-- SUGO Favorites Open Hotfix - added by ChatGPT 2026-06-25 -->
 <!-- SUGO FAVORITES REMOVE GUARD v2.1 — must run before open hotfix -->
-
-
-
-
-
+<script defer="" src="assets/js/09-sugo-favorites-remove-guard-v21.js"></script>
+<script defer="" src="assets/js/10-sugo-favorites-open-hotfix-v2.js"></script>
 <!-- SUGO Recent Clear Favorites Persistence Hotfix - added by ChatGPT 2026-06-25 -->
-
-
-
-
-
-
+<script defer="" src="assets/js/11-sugo-recent-clear-favorites-persistence-hotfix-v1.js"></script>
+<script defer="" src="assets/js/12-sugo-sv-video-merge-20260626.js"></script>
 <!-- SUGO Speed + Complete Answer Upgrade v6.0 — added by ChatGPT -->
-
-
-
+<script defer="" src="assets/js/13-sugo-speed-complete-answer-upgrade-v6.js"></script>
 <!-- SUGO STABLE OPTIONS + SEARCH FIX: prevents delayed reset from closing UI after click/typing -->
-
-
-
+<script defer="" src="assets/js/14-sugo-stable-options-search-final-fix.js"></script>
 <!-- ===== SUGO SAFE ADMIN EXTENSIONS - FINAL ===== -->
-
+<script defer="" src="assets/js/15-sugo-loading-failsafe.js"></script>
 <!-- ===== SUGO Direct Section Edit + Navigation Fix ===== -->
-
-
+<link href="assets/css/11-sugo-direct-edit-css.css" rel="stylesheet"/>
+<script defer="" src="assets/js/16-sugo-direct-section-edit-js.js"></script>
 <!-- ===== /SUGO Direct Section Edit + Navigation Fix ===== -->
-
 <!-- ===== SUGO Topic Dropdown Hard Open Fix ===== -->
-
+<script defer="" src="assets/js/17-sugo-topic-dropdown-hard-open-fix-v3.js"></script>
 <!-- ===== /SUGO Topic Dropdown Hard Open Fix ===== -->
-
 <!-- ===== SUGO Tiny Plus Existing Menus v3 - stable integrated ===== -->
-
-
+<link href="assets/css/12-sugo-tiny-plus-existing-menus-css.css" rel="stylesheet"/>
+<script defer="" src="assets/js/18-sugo-tiny-plus-existing-menus-js.js"></script>
 <!-- ===== /SUGO SAFE ADMIN EXTENSIONS - FINAL ===== -->
-
-
 <!-- ===== SUGO ROBUST CONTENT/LANGUAGE DROPDOWN FIX ===== -->
-
+<script defer="" src="assets/js/19-sugo-robust-content-language-dropdown-fix-js.js"></script>
 <!-- ===== /SUGO ROBUST CONTENT/LANGUAGE DROPDOWN FIX ===== -->
-
-
-
-
-
-
+<script defer="" src="assets/js/20-sugo-remove-redundant-ticket-meta-js.js"></script>
 <!-- ===== SUGO Visible Favorite Button Hotfix - added by ChatGPT 2026-06-29 ===== -->
-
-
+<link href="assets/css/13-sugo-visible-favorite-button-css.css" rel="stylesheet"/>
+<script defer="" src="assets/js/21-sugo-visible-favorite-button-js.js"></script>
 <!-- ===== /SUGO Visible Favorite Button Hotfix ===== -->
-
-</body>
+<script defer="" src="assets/data/pane-manifest.js"></script><script defer="" src="assets/data/topic-index.js"></script><script defer="" src="assets/js/99-sugo-pane-lazy-loader.js"></script></body>
 </html>

@@ -1,0 +1,6 @@
+/* Lazy-loaded SUGO pane: sv-refined-welcome-how-can-we-help */
+(function(){
+  if (typeof setPane !== 'function') { console.error('SUGO setPane is not ready for pane: sv-refined-welcome-how-can-we-help'); return; }
+  setPane("sv-refined-welcome-how-can-we-help", createSupportMacroContent("Welcome / How Can We Help", [{"label": "Answer", "text": "We apologize for the issue you are experiencing.\n\nThis is SUGO Customer Service.\nHow can I help you today?"}, {"label": "Ticket", "text": "Welcome to the SUGO family!\nWe sincerely apologize for the issue you are experiencing.\n\nThis is SUGO Customer Service.\nHow can I help you today?\n\nWe once again sincerely apologize for the inconvenience we have caused, and we truly thank you for your patience and understanding. We wish you a happy and successful day!\n\nSUGO Customer Service Team"}], "ترحيب وطلب توضيح المساعدة", [{"label": "الإجابة", "text": "كيف يمكننا مساعدتك؟"}, {"label": "التذكرة", "text": "مرحباً بك في عائلة سوجو!\nيسعدنا ويشرفنا جداً تواجدك معنا.\nكيف يمكننا مساعدتك اليوم؟\n\nكيف يمكننا مساعدتك؟\n\nشكراً لتواصلك مع سوجو، يسعدنا دائماً خدمتك. نتمنى لك يوماً رائعاً!\n\nفريق خدمة عملاء سوجو"}]));
+  try { if (typeof sugoTopicsCache !== 'undefined') sugoTopicsCache = null; } catch(e) {}
+})();
