@@ -1,16 +1,8 @@
-# SUGO split light version
-
-This version splits the original large index.html into smaller static files:
-
-- index.html
-- assets/css/sugo.css
-- assets/js/*.js
-
-Upload the whole folder contents to GitHub Pages/repo, keeping the assets folder next to index.html.
-Do not upload index.html alone without the assets folder.
-
-Original file size: 2,991,606 bytes
-Split index.html size: 94,725 bytes
-CSS bundle size: 202,518 bytes
-JS files: 29 files
-
+GitHub upload instructions:
+1) Unzip this package.
+2) In GitHub open the repository main files page, not Edit index.html.
+3) Click Add file > Upload files.
+4) Upload ALL files from this folder to the repo root: index.html, sugo.css, and all sugo-*.js files.
+5) Commit changes.
+Do not upload the ZIP itself.
+All big scripts were split into small root-level files to make GitHub web upload easier.
