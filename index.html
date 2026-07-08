@@ -9750,7 +9750,10 @@ function getAllTopics() {
       arText = dividers[1].nextElementSibling.textContent.trim();
     }
     if (!enText && !arText) enText = tmp.textContent.trim();
-    topics.push({ id, enText, arText, allText: `${enText}\n${arText}`.toLowerCase() });
+    // v6 performance: cap cached topic text so accidental getAllTopics() calls do not keep megabytes of duplicated text in RAM.
+    enText = String(enText || '').slice(0, 4000);
+    arText = String(arText || '').slice(0, 4000);
+    topics.push({ id, enText, arText, allText: `${enText}\n${arText}`.toLowerCase().slice(0, 9000) });
   }
   sugoTopicsCache = topics;
   return sugoTopicsCache;
@@ -12179,7 +12182,10 @@ showOnlyWelcome();
   function boot(){ scan(document); setTimeout(function(){ scan(document); }, 80); setTimeout(function(){ scan(document); }, 300); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   try{
-    new MutationObserver(function(records){ records.forEach(function(record){ if(record.target) scan(record.target); }); }).observe(document.body, {childList:true, subtree:true});
+    var sugoFilterRoot = document.getElementById('contentArea');
+    if(sugoFilterRoot) new MutationObserver(function(records){
+      records.forEach(function(record){ if(record.target && record.target.querySelector) scan(record.target); });
+    }).observe(sugoFilterRoot, {childList:true, subtree:false});
   }catch(e){}
   window.SUGO_minimalDropdownFilters = { refresh:function(){ scan(document); } };
 })();
@@ -12839,8 +12845,9 @@ showOnlyWelcome();
   }
 
   function applyAllDirections(){
-    // Full pass is intentionally kept for initial load / manual refresh only.
-    applyDirectionsTo(['#aiAnswerBody','#aiAnswerQuery','.content','.sidebar']);
+    // v6 performance: never scan the full SOP content/sidebar.
+    // SOP cards already carry explicit RTL/LTR wrappers; full scans caused heavy RAM/CPU on topic open.
+    applyDirectionsTo(['#aiAnswerBody','#aiAnswerQuery']);
   }
 
   function applyDynamicDirections(){
@@ -12886,7 +12893,7 @@ showOnlyWelcome();
       if(shouldRefresh) scheduleApply();
     });
 
-    ['#aiAnswerBody','#aiAnswerQuery','.content'].forEach(function(sel){
+    ['#aiAnswerBody','#aiAnswerQuery'].forEach(function(sel){
       document.querySelectorAll(sel).forEach(function(el){
         observer.observe(el, {childList:true, subtree:true, characterData:true});
       });
@@ -12896,8 +12903,7 @@ showOnlyWelcome();
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
   setTimeout(init, 200);
-  setTimeout(applyAllDirections, 700);
-  setTimeout(applyAllDirections, 1500);
+  // v6 performance: removed delayed full-page direction scans.
 
   window.SUGO_applyAllDirections = applyAllDirections;
   if(window.SUGO_finalDirectionCopyFix){
@@ -13670,9 +13676,9 @@ showOnlyWelcome();
   App.state = App.state || { booted:false, aiBusy:false };
   App.performance = App.performance || {
     deferHeavyIdleWork: function(){
-      const warmTopics = function(){ try{ getAllTopics(); }catch(e){} };
-      if('requestIdleCallback' in window) requestIdleCallback(warmTopics, { timeout: 2500 });
-      else setTimeout(warmTopics, 700);
+      // v6 performance: do not pre-parse all SOP topics into memory on idle.
+      // Topic text is scanned only when Search/AI actually needs it.
+      return;
     }
   };
   App.ai = App.ai || {
@@ -15199,6 +15205,9 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
     Object.keys(paneContent).forEach(function(id){
       var meta = getButtonMeta(id);
       var lang = extractLangText(paneContent[id]);
+      // v6 performance: cap cached topic text; full HTML stays in paneContent and on-demand lexicon can still read selected topics.
+      lang.enText = String(lang.enText || '').slice(0, 4000);
+      lang.arText = String(lang.arText || '').slice(0, 4000);
       var combined = [id, meta.title, meta.category, meta.section, meta.path, lang.enText, lang.arText].join('\n');
       var titleNorm = norm([id.replace(/-/g,' '), meta.title].join(' '));
       var pathNorm = norm([meta.library, meta.category, meta.section].join(' '));
@@ -17118,9 +17127,8 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
       var t=e.target && e.target.closest && e.target.closest('.nav-l000-btn');
       if(t){ var id=t.getAttribute('data-pane'); setTimeout(function(){ injectEdit(id); }, 80); }
     }, true);
-    var obs=new MutationObserver(function(){ var id=activePaneId(); if(id) setTimeout(function(){ injectEdit(id); }, 80); });
-    obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-    setInterval(function(){ wrapShowPane(); var id=activePaneId(); if(id) injectEdit(id); }, 1200);
+    // v6 performance: no full-body MutationObserver / interval.
+    // showPane and direct click handlers inject the edit toolbar when needed.
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
@@ -18638,9 +18646,8 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
   } else {
     clearRedundantTicketMeta();
   }
-  try {
-    new MutationObserver(clearRedundantTicketMeta).observe(document.documentElement, { childList:true, subtree:true });
-  } catch (e) {}
+  // v6 performance: do not watch the full document for every topic DOM insertion.
+  // The metadata panels are cleared once and the renderers above are disabled.
 })();
 </script>
 
@@ -18869,8 +18876,8 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
       setTimeout(syncActiveFavorite, 220);
     }
   }, true);
-  try{ new MutationObserver(function(){ setTimeout(syncActiveFavorite, 60); }).observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] }); }catch(e){}
-  setInterval(syncActiveFavorite, 1200);
+  // v6 performance: no full-body MutationObserver / interval for favorites.
+  // showPane and nav click hooks already sync the active topic.
 
   window.SUGOVisibleFavoriteButton = { sync: syncActiveFavorite, toggle: toggleFavorite, set: setFavorite, isFavorite: isFavorite };
 })();
@@ -19076,8 +19083,8 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(sync, 150); });
   else setTimeout(sync, 150);
   window.addEventListener('load', function(){ setTimeout(sync, 250); setTimeout(sync, 900); });
-  try{ new MutationObserver(function(){ setTimeout(sync, 90); }).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:['class']}); }catch(e){}
-  setInterval(sync, 1200);
+  // v6 performance: no full-body MutationObserver / interval for current-topic editor.
+  // showPane and nav click hooks already sync the edit button.
 
   window.SUGOCurrentTopicContentEditor = { sync: sync, open: openCurrentTopicEditor };
 })();
@@ -20535,6 +20542,33 @@ setPane("sv-refined-location-disappeared", createSupportMacroContent("Location D
 })();
 </script>
 <!-- ===== /SUGO Content Lexicon v5 ===== -->
+
+
+<script>
+(function(){
+  'use strict';
+  if(window.__SUGO_TOPIC_OPEN_PERF_GUARD_V6__) return;
+  window.__SUGO_TOPIC_OPEN_PERF_GUARD_V6__ = true;
+  var original = window.showPane;
+  if(typeof original === 'function' && !original.__sugoPerfMeasuredV6){
+    window.showPane = function(paneId, save){
+      var t0 = (performance && performance.now) ? performance.now() : Date.now();
+      var result = original.apply(this, arguments);
+      try{
+        var active = 'pane-' + String(paneId || '');
+        setTimeout(function(){
+          document.querySelectorAll('.content-pane[data-lazy="1"]').forEach(function(p){ if(p.id !== active) p.remove(); });
+          var dt = ((performance && performance.now) ? performance.now() : Date.now()) - t0;
+          if(window.SUGO_DEBUG_PERF) console.log('[SUGO topic open]', paneId, Math.round(dt) + 'ms', 'panes:', document.querySelectorAll('.content-pane').length);
+        }, 0);
+      }catch(e){}
+      return result;
+    };
+    window.showPane.__sugoPerfMeasuredV6 = true;
+    try{ showPane = window.showPane; }catch(e){}
+  }
+})();
+</script>
 
 </body>
 </html>
