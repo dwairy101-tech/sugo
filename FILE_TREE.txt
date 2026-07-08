@@ -2,8 +2,11 @@
 .nojekyll
 FILE_TREE.txt
 README.md
+README_AR_READY.md
 README_AR_UPLOAD.md
 UPLOAD_INSTRUCTIONS_AR.md
+api/[...path].js
+api/index.js
 css/styles.css
 docs/CONTENT_MANIFEST.md
 docs/FILE_TREE.txt
@@ -15,9 +18,11 @@ docs/phase21_audit_results_fast.json
 docs/phase22_file_tree.png
 docs/phase22_validation.json
 docs/stage20_validation.json
+functions/_middleware.js
 index.html
 js/app.js
 js/content.js
+vercel.json
 worker.js
 worker/worker.js
 worker/wrangler.toml

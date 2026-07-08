@@ -2,17 +2,33 @@
 (function initializeSugoConsole() {
   "use strict";
 
+  const API_BASE = (() => {
+    const explicit = (window.SUGO_API_BASE || "").trim().replace(/\/$/, "");
+    if (explicit) return explicit;
+    const host = window.location.hostname || "";
+    // Vercel static deployments cannot accept POST /, so same-site API calls go through /api.
+    // Cloudflare Pages can use functions/_middleware.js and keep the Worker API at the root.
+    if (host.endsWith(".vercel.app")) return "/api";
+    return "";
+  })();
+
+  function apiPath(path) {
+    if (!API_BASE) return path;
+    if (path === "/") return API_BASE;
+    return `${API_BASE}${path}`;
+  }
+
   const API_ENDPOINTS = Object.freeze({
-    service: "/",
-    health: "/health",
-    diagnostics: "/diagnostics",
-    menu: "/menu",
-    content: "/content",
-    ai: "/",
-    adminMenu: "/admin/menu",
-    adminContent: "/admin/content",
-    adminPane: "/admin/pane",
-    adminPaneReset: "/admin/pane/reset"
+    service: apiPath("/"),
+    health: apiPath("/health"),
+    diagnostics: apiPath("/diagnostics"),
+    menu: apiPath("/menu"),
+    content: apiPath("/content"),
+    ai: apiPath("/"),
+    adminMenu: apiPath("/admin/menu"),
+    adminContent: apiPath("/admin/content"),
+    adminPane: apiPath("/admin/pane"),
+    adminPaneReset: apiPath("/admin/pane/reset")
   });
 
   const STORAGE_KEYS = Object.freeze({

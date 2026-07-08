@@ -1,6 +1,6 @@
 name = "sugokb"
 main = "worker.js"
-compatibility_date = "2026-07-08"
+compatibility_date = "2025-08-01"
 
 # This root wrangler.toml is included so Cloudflare Workers Builds can deploy
 # from the repository root without failing. It intentionally contains no
