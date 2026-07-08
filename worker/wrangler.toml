@@ -1,0 +1,51 @@
+name = "sugo-sop-worker"
+main = "worker.js"
+compatibility_date = "2026-07-08"
+
+# Static frontend is in ../public. Deploy it separately to Pages/static hosting,
+# or serve it behind the same route as this Worker so frontend calls to `/` stay same-origin.
+
+[[kv_namespaces]]
+binding = "SUGO_KV"
+id = "REPLACE_WITH_YOUR_SUGO_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_YOUR_PREVIEW_SUGO_KV_NAMESPACE_ID"
+
+# -----------------------------------------------------------------------------
+# Required / optional secrets to configure with Wrangler:
+#
+#   wrangler secret put ADMIN_PASSWORD
+#   wrangler secret put GEMINI_API_KEY
+#   wrangler secret put GEMINI_KEY
+#   wrangler secret put GEMINI_KEY_1
+#   wrangler secret put GEMINI_API_KEY_1
+#   wrangler secret put CEREBRAS_API_KEY
+#   wrangler secret put CEREBRAS_KEY
+#   wrangler secret put CEREBRAS_KEY_1
+#   wrangler secret put CEREBRAS_API_KEY_1
+#   wrangler secret put GROK_API_KEY
+#   wrangler secret put XAI_API_KEY
+#   wrangler secret put GROK_KEY
+#   wrangler secret put XAI_KEY
+#
+# Numbered provider keys are supported up to 50 by the Worker, e.g.
+# GEMINI_KEY_2, CEREBRAS_API_KEY_2, GROK_API_KEY_2, XAI_API_KEY_2.
+# Do not put real secret values in this file.
+# -----------------------------------------------------------------------------
+
+[vars]
+# Public/non-secret runtime configuration. Adjust after deployment if needed.
+CORS_ORIGIN = "*"
+STRICT_ACCURACY_GATE = "true"
+DEBUG_ERRORS = "true"
+LOG_REQUESTS = "true"
+MAX_MESSAGES = "24"
+MAX_INPUT_CHARS = "180000"
+MAX_IMAGES_PER_REQUEST = "2"
+MAX_IMAGE_BASE64_CHARS = "6500000"
+RATE_LIMIT_PER_MINUTE = "90"
+RATE_LIMIT_WINDOW_SECONDS = "60"
+CACHE_TTL_SECONDS = "3600"
+# Optional model overrides:
+# GEMINI_MODEL = "gemini-2.5-flash"
+# CEREBRAS_MODEL = "llama-4-scout-17b-16e-instruct"
+# GROK_MODEL = "grok-3-mini"

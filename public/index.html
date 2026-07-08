@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="SUGO SOP Console rebuilt workspace shell.">
+  <title>SUGO SOP Console</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+
+  <div class="mobile-app-bar" aria-label="Mobile application bar">
+    <button class="mobile-sidebar-toggle" type="button" id="mobileSidebarToggle" aria-controls="appSidebar" aria-expanded="false" aria-label="Open navigation menu">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </button>
+    <div class="mobile-brand-lockup" aria-label="SUGO SOP">
+      <span class="mobile-brand-mark">S</span>
+      <span><strong>SUGO SOP</strong><small>Knowledge Lounge · MENA</small></span>
+    </div>
+    <button class="mobile-quick-access" type="button" id="mobileQuickAccessToggle" aria-controls="quickAccessDrawer" aria-label="Open quick access">QA</button>
+  </div>
+  <div class="sidebar-backdrop" id="sidebarBackdrop" hidden aria-hidden="true"></div>
+  <div class="app-shell" data-screen="app-shell">
+    <aside class="app-sidebar" id="appSidebar" aria-label="Primary sidebar" tabindex="-1">
+      <div class="sidebar-scroll">
+        <div class="brand-lockup" aria-label="SUGO SOP">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img" aria-label="SUGO mark">
+              <path d="M32 5 55 18.4v27.2L32 59 9 45.6V18.4L32 5Z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
+              <path d="M40.5 19.2H27.8c-5.7 0-9.5 3.4-9.5 8.3 0 4.3 2.8 6.6 7.7 8.8l9.2 4.1c2.5 1.1 3.4 2 3.4 3.6 0 2-1.7 3.3-4.7 3.3H21.8" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+              <path d="M23.4 44.8h12.8c5.6 0 9.5-3.3 9.5-8.3 0-4.2-2.8-6.6-7.7-8.8L28.8 23.6c-2.5-1.1-3.4-2-3.4-3.5 0-2 1.7-3.4 4.7-3.4h12.1" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity=".78"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-title"><span>SUGO</span> <strong>SOP</strong></div>
+            <div class="brand-subtitle">Knowledge Lounge · MENA</div>
+          </div>
+        </div>
+
+        <label class="field field--search app-search">
+          <span class="field-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="m20 20-4.6-4.6m2.1-5.1a7.2 7.2 0 1 1-14.4 0 7.2 7.2 0 0 1 14.4 0Z"/></svg>
+          </span>
+          <input id="searchInput" type="search" placeholder="Search knowledge..." aria-label="Search knowledge" autocomplete="off">
+          <kbd>⌘ K</kbd>
+        </label>
+        <div id="searchResultsPanel" class="search-results-panel" hidden aria-live="polite"></div>
+
+        <nav class="workspace-nav" aria-label="Workspace shortcuts">
+          <button class="nav-action" type="button" data-workspace-action="ask_ai" aria-pressed="false">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 1.6 5.3L19 10l-5.4 1.7L12 17l-1.6-5.3L5 10l5.4-1.7L12 3Z"/><path d="m5 16 .8 2.2L8 19l-2.2.8L5 22l-.8-2.2L2 19l2.2-.8L5 16Z"/></svg></span>
+            <span>Ask AI</span>
+          </button>
+          <button class="nav-action nav-action--outlined" type="button" data-workspace-action="create_ticket" aria-pressed="false">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 7.5H5.6A2.6 2.6 0 0 0 3 10.1v3.8a2.6 2.6 0 0 0 2.6 2.6H8M16 7.5h2.4a2.6 2.6 0 0 1 2.6 2.6v3.8a2.6 2.6 0 0 1-2.6 2.6H16M8 5v14m8-14v14M9.5 12h5"/></svg></span>
+            <span>Create Ticket</span>
+          </button>
+          <button class="nav-action" type="button" data-workspace-action="upload_image" aria-pressed="false">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5"/><path d="M4 15v3.2A1.8 1.8 0 0 0 5.8 20h12.4a1.8 1.8 0 0 0 1.8-1.8V15"/></svg></span>
+            <span>Upload Image</span>
+          </button>
+          <button class="nav-action" type="button" data-workspace-action="admin" aria-pressed="false">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.8 3 8.2 7 10 4-1.8 7-5.2 7-10V6l-7-3Z"/><path d="M9.5 12.2 11.2 14 15 9.8"/></svg></span>
+            <span>Admin Hooks</span>
+          </button>
+        </nav>
+
+        <section class="sidebar-section" aria-label="Favorite topics">
+          <div class="sidebar-section__heading">
+            <span>Favorites <strong id="favoritesCount" class="mini-count">0</strong></span>
+            <button type="button" id="showAllFavoritesBtn">View all</button>
+          </div>
+          <div id="favoritesList" class="sidebar-list saved-list" aria-live="polite"></div>
+        </section>
+
+        <section class="sidebar-section" aria-label="Recently used topics">
+          <div class="sidebar-section__heading">
+            <span>Recent <strong id="recentCount" class="mini-count">0</strong></span>
+            <button type="button" id="clearRecentBtn">Clear</button>
+          </div>
+          <div id="recentList" class="sidebar-list saved-list" aria-live="polite"></div>
+        </section>
+
+        <section class="knowledgebase-nav" aria-label="Knowledgebase navigation">
+          <div class="sidebar-section__heading">
+            <span>Knowledgebase</span>
+            <button type="button" id="navCountBadge" aria-label="Navigation topic count">284 topics</button>
+          </div>
+          <div id="knowledgebaseTree" class="nav-tree" aria-live="polite">
+            <p class="nav-tree__loading">Loading navigation...</p>
+          </div>
+        </section>
+      </div>
+
+      <button class="sidebar-collapse" type="button" aria-label="Collapse sidebar">«</button>
+    </aside>
+
+    <main class="app-main" id="mainContent" tabindex="-1" aria-label="Application workspace">
+      <header class="app-topbar">
+        <div class="topbar-title-group">
+          <div class="topbar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 7.5H5.6A2.6 2.6 0 0 0 3 10.1v3.8a2.6 2.6 0 0 0 2.6 2.6H8M16 7.5h2.4a2.6 2.6 0 0 1 2.6 2.6v3.8a2.6 2.6 0 0 1-2.6 2.6H16M8 5v14m8-14v14M9.5 12h5"/></svg></div>
+          <div>
+            <h1 id="workspaceTitle">SUGO SOP Console</h1>
+            <nav class="breadcrumbs" id="workspaceBreadcrumbs" aria-label="Current breadcrumb">
+              <span>Home</span><span>›</span><span>Welcome</span>
+            </nav>
+          </div>
+        </div>
+        <div class="utility-cluster" aria-label="User utilities placeholder">
+          <button class="quick-access-toggle" type="button" id="quickAccessToggle" aria-controls="quickAccessDrawer" aria-expanded="false">
+            <span>Quick Access</span>
+            <strong id="quickAccessTotalCount">0</strong>
+          </button>
+          <button class="icon-button" type="button" aria-label="Notifications"><span class="notification-dot">3</span><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 1 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8Z"/><path d="M10 21h4"/></svg></button>
+          <div class="profile-chip" aria-label="User preview">
+            <span class="avatar">MA</span>
+            <span class="profile-text"><strong>Mohammed A.</strong><small>IT Support</small></span>
+            <span class="down-arrow">⌄</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="workspace-grid" aria-label="Content pane router workspace">
+        <section class="workspace-panel workspace-panel--primary" aria-label="Primary routed content area">
+          <div class="panel-header compact">
+            <div>
+              <p class="eyebrow">01</p>
+              <h2>Workspace Router</h2>
+            </div>
+            <span class="badge badge--success">Accessibility pass</span>
+          </div>
+
+          <div class="router-status-grid" aria-label="Router status summary">
+            <article class="summary-card"><strong>284</strong><span>visible topic routes</span></article>
+            <article class="summary-card"><strong>120</strong><span>preserved orphan routes</span></article>
+            <article class="summary-card"><strong>37</strong><span>dynamic macro routes</span></article>
+            <article class="summary-card"><strong id="routerStateLabel">Home</strong><span>active routed view</span></article>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="route-outlet" id="routeOutlet" aria-live="polite">
+            <section class="route-pane route-pane--welcome" id="welcomePane" data-route-pane="welcome">
+              <article class="welcome-hero-card">
+                <span class="empty-topic-state__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.8A1.8 1.8 0 0 1 5.8 4h12.4A1.8 1.8 0 0 1 20 5.8v12.4a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 18.2V5.8Z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+                <div>
+                  <p class="eyebrow">Welcome</p>
+                  <h3>SUGO SOP Console</h3>
+                  <p>The router now switches between SOP content, saved lists, Ask AI, Create Ticket, Upload Image, and Admin editing hooks while preserving all migrated legacy records.</p>
+                </div>
+              </article>
+              <div class="welcome-action-grid">
+                <button class="route-action-card" type="button" id="openFirstTopicBtn">
+                  <strong>Open first topic</strong>
+                  <span>Jump into the first visible navigation pane.</span>
+                </button>
+                <button class="route-action-card" type="button" id="restoreLastPaneBtn">
+                  <strong>Restore saved route</strong>
+                  <span>Use <code>sugo_nav_state_v2</code> or the legacy last-pane key.</span>
+                </button>
+                <button class="route-action-card" type="button" id="showAllRecentBtn">
+                  <strong>Recently used</strong>
+                  <span>Show the routed recent list without leaving the shell.</span>
+                </button>
+              </div>
+            </section>
+
+            <section class="route-pane route-pane--topic" id="topicPane" data-route-pane="topic" hidden>
+              <div id="selectedTopicPanel" class="selected-topic-shell"></div>
+            </section>
+
+            <section class="route-pane route-pane--saved" id="savedPane" data-route-pane="saved" hidden>
+              <div id="savedRoutePanel" class="selected-topic-shell"></div>
+            </section>
+
+            <section class="route-pane route-pane--ask" id="askAiPane" data-route-pane="ask_ai" hidden>
+              <div class="ask-workspace" id="askAiWorkspace" aria-label="Ask AI Workspace">
+                <section class="ask-conversation-panel" aria-label="Ask AI conversation">
+                  <div class="ask-workspace__header">
+                    <div>
+                      <p class="eyebrow">Ask AI Workspace</p>
+                      <h3>SUGO AI Copilot</h3>
+                      <p>Ask SOP questions, draft support responses, or prepare ticket wording through the live same-origin Cloudflare Worker contract.</p>
+                    </div>
+                    <span class="badge badge--draft" id="askUiStateBadge">Worker Ready</span>
+                  </div>
+
+                  <div class="ask-control-strip" aria-label="Ask AI controls">
+                    <div class="ask-toggle-group" aria-label="Response mode">
+                      <span>Response mode</span>
+                      <button type="button" class="ask-toggle is-active" data-ask-control="responseMode" data-ask-value="brief" aria-pressed="true">Brief</button>
+                      <button type="button" class="ask-toggle" data-ask-control="responseMode" data-ask-value="detailed" aria-pressed="false">Detailed</button>
+                      <button type="button" class="ask-toggle" data-ask-control="responseMode" data-ask-value="step" aria-pressed="false">Step-by-step</button>
+                    </div>
+                    <div class="ask-toggle-group" aria-label="Output type">
+                      <span>Output</span>
+                      <button type="button" class="ask-toggle is-active" data-ask-control="outputType" data-ask-value="answer" aria-pressed="true">Answer</button>
+                      <button type="button" class="ask-toggle" data-ask-control="outputType" data-ask-value="ticket" aria-pressed="false">Ticket</button>
+                    </div>
+                    <div class="ask-toggle-group" aria-label="SOP mode">
+                      <span>SOP mode</span>
+                      <button type="button" class="ask-toggle is-active" data-ask-control="sopMode" data-ask-value="hybrid" aria-pressed="true">Hybrid</button>
+                      <button type="button" class="ask-toggle" data-ask-control="sopMode" data-ask-value="sop_only" aria-pressed="false">SOP only</button>
+                    </div>
+                  </div>
+
+                  <div class="ask-thread" id="askThread" aria-live="polite"></div>
+
+                  <form class="ask-composer" id="askComposer" aria-label="Ask AI message composer">
+                    <label class="ask-composer__field" for="askPromptInput">
+                      <span>Message</span>
+                      <textarea id="askPromptInput" rows="4" placeholder="Ask about a SOP, policy, customer reply, or ticket wording..." maxlength="4000"></textarea>
+                    </label>
+                    <div class="ask-composer__footer">
+                      <span class="ask-char-counter" id="askCharCounter">0 / 4000</span>
+                      <div class="ask-composer__actions">
+                        <button class="btn btn--secondary" type="button" id="askStopBtn" disabled>Stop</button>
+                        <button class="btn btn--primary" type="submit" id="askSendBtn">Send Prompt</button>
+                      </div>
+                    </div>
+                  </form>
+                </section>
+              </div>
+            </section>
+
+            <section class="route-pane route-pane--ticket" id="createTicketPane" data-route-pane="create_ticket" hidden>
+              <div class="ticket-workspace" id="createTicketWorkspace" aria-label="Create Ticket Workspace">
+                <form class="ticket-builder-panel" id="ticketForm" autocomplete="off">
+                  <div class="ticket-section ticket-section--types">
+                    <div class="ticket-section__heading">
+                      <div>
+                        <p class="eyebrow">1. Select Ticket Type</p>
+                        <h3>Choose the support route</h3>
+                      </div>
+                      <span class="badge badge--draft" id="ticketDraftStateBadge">Draft</span>
+                    </div>
+                    <div class="ticket-type-grid" id="ticketTypeGrid" aria-label="Ticket type options"></div>
+                  </div>
+
+                  <div class="ticket-section ticket-section--details">
+                    <div class="ticket-section__heading">
+                      <div>
+                        <p class="eyebrow">2. Ticket Details</p>
+                        <h3>Collect the required information</h3>
+                      </div>
+                      <span class="ticket-required-note"><i></i> Required fields</span>
+                    </div>
+
+                    <div class="ticket-form-grid">
+                      <label class="ticket-field ticket-field--wide" for="ticketSubject">
+                        <span>Subject <b>*</b></span>
+                        <input id="ticketSubject" name="subject" type="text" maxlength="120" placeholder="Briefly describe the issue or request">
+                      </label>
+
+                      <label class="ticket-field" for="ticketUrgency">
+                        <span>Urgency <b>*</b></span>
+                        <select id="ticketUrgency" name="urgency">
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high" selected>High</option>
+                          <option value="critical">Critical</option>
+                        </select>
+                      </label>
+
+                      <label class="ticket-field" for="ticketCategory">
+                        <span>Category <b>*</b></span>
+                        <select id="ticketCategory" name="category"></select>
+                      </label>
+
+                      <label class="ticket-field" for="ticketAffects">
+                        <span>Affects <b>*</b></span>
+                        <select id="ticketAffects" name="affects">
+                          <option value="me_only">Me only</option>
+                          <option value="single_user">Single user</option>
+                          <option value="host_or_agency">Host / Agency</option>
+                          <option value="room_or_event">Room / Event</option>
+                          <option value="multiple_users">Multiple users</option>
+                        </select>
+                      </label>
+
+                      <label class="ticket-field" for="ticketUserId">
+                        <span>User ID</span>
+                        <input id="ticketUserId" name="userId" type="text" maxlength="48" placeholder="User ID / Host ID / Agency ID">
+                      </label>
+
+                      <label class="ticket-field" for="ticketRelatedId">
+                        <span>Related ID</span>
+                        <input id="ticketRelatedId" name="relatedId" type="text" maxlength="64" placeholder="Order, room, task, ticket, or event ID">
+                      </label>
+
+                      <label class="ticket-field" for="ticketRegion">
+                        <span>Region / Market</span>
+                        <select id="ticketRegion" name="region">
+                          <option value="MENA">MENA</option>
+                          <option value="SUGO SV">SUGO SV</option>
+                          <option value="Global">Global</option>
+                          <option value="Unknown">Unknown</option>
+                        </select>
+                      </label>
+
+                      <label class="ticket-field" for="ticketContact">
+                        <span>Preferred Contact</span>
+                        <select id="ticketContact" name="contact">
+                          <option value="In-app ticket">In-app ticket</option>
+                          <option value="Email">Email</option>
+                          <option value="Live chat">Live chat</option>
+                          <option value="Internal escalation only">Internal escalation only</option>
+                        </select>
+                      </label>
+
+                      <label class="ticket-field ticket-field--wide" for="ticketDescription">
+                        <span>Description <b>*</b></span>
+                        <textarea id="ticketDescription" name="description" rows="8" maxlength="4000" placeholder="Provide clear details: what happened, when it happened, screenshots, IDs, device/app version, and exact error message if any."></textarea>
+                        <small id="ticketDescriptionCounter">0 / 4000</small>
+                      </label>
+                    </div>
+
+                    <div class="ticket-quick-chip-row" id="ticketQuickChips" aria-label="Quick ticket detail chips"></div>
+
+                    <div class="ticket-dropzone" id="ticketDropzone">
+                      <input id="ticketAttachments" type="file" multiple hidden>
+                      <div class="ticket-dropzone__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5"/><path d="M4 15v3.2A1.8 1.8 0 0 0 5.8 20h12.4a1.8 1.8 0 0 0 1.8-1.8V15"/></svg>
+                      </div>
+                      <div>
+                        <strong>Drag and drop files here or click to browse</strong>
+                        <span>Max file size 25MB. Supported: JPG, PNG, PDF, DOCX, XLSX, TXT</span>
+                      </div>
+                      <button class="btn btn--secondary" type="button" id="ticketBrowseBtn">Browse Files</button>
+                    </div>
+                    <div class="ticket-attachment-list" id="ticketAttachmentList" aria-live="polite"></div>
+                  </div>
+
+                  <div class="ticket-footer-actions">
+                    <span class="ticket-template-status" id="ticketTemplateStatus"><i></i> Draft updates automatically from the selected template</span>
+                    <div>
+                      <button class="btn btn--secondary" type="button" id="ticketResetBtn">Reset</button>
+                      <button class="btn btn--primary" type="submit" id="ticketCreateBtn">Create Ticket Draft</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </section>
+          </div>
+
+
+
+            <section class="route-pane route-pane--image" id="uploadImagePane" data-route-pane="upload_image" hidden>
+              <div class="image-workspace" id="uploadImageWorkspace" aria-label="Upload Image Workspace">
+                <form class="image-builder-panel" id="imageAnalysisForm" autocomplete="off">
+                  <div class="image-section image-section--upload">
+                    <div class="image-section__heading">
+                      <div>
+                        <p class="eyebrow">1. Upload Image</p>
+                        <h3>Add screenshot or evidence image</h3>
+                      </div>
+                      <span class="badge badge--draft" id="imageStatusBadge">No Image</span>
+                    </div>
+
+                    <input id="imageUploadInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+                    <div class="image-dropzone" id="imageDropzone" role="button" tabindex="0" aria-label="Upload image by drag and drop or browse">
+                      <div class="image-dropzone__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5"/><path d="M4 15v3.2A1.8 1.8 0 0 0 5.8 20h12.4a1.8 1.8 0 0 0 1.8-1.8V15"/></svg>
+                      </div>
+                      <div>
+                        <strong>Drag image here or click to browse</strong>
+                        <span>Supported: JPG, PNG, WebP. Large images are prepared locally before being sent to the Worker.</span>
+                      </div>
+                      <button class="btn btn--secondary" type="button" id="imageBrowseBtn">Browse Files</button>
+                    </div>
+                    <div class="image-status-line" id="imageStatusLine" aria-live="polite">No image selected yet.</div>
+                  </div>
+
+                  <div class="image-section image-section--preview">
+                    <div class="image-section__heading">
+                      <div>
+                        <p class="eyebrow">2. Image Preview</p>
+                        <h3>Verify the attachment before analysis</h3>
+                      </div>
+                    </div>
+                    <div class="image-preview-shell" id="imagePreviewShell" aria-live="polite">
+                      <div class="image-preview-empty">
+                        <span class="image-preview-empty__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.8A1.8 1.8 0 0 1 5.8 4h12.4A1.8 1.8 0 0 1 20 5.8v12.4a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 18.2V5.8Z"/><path d="m8 14 2.4-2.4a1 1 0 0 1 1.4 0L16 16"/><path d="M9 9.2h.01"/></svg></span>
+                        <div>
+                          <strong>No image selected</strong>
+                          <span>Upload a screenshot, payment evidence, app error, profile, room, or moderation image.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="image-section image-section--details">
+                    <div class="image-section__heading">
+                      <div>
+                        <p class="eyebrow">3. Analysis Prompt</p>
+                        <h3>Ask AI what to inspect</h3>
+                      </div>
+                    </div>
+
+                    <div class="image-control-strip" aria-label="Image analysis controls">
+                      <div class="ask-toggle-group" aria-label="Result language">
+                        <span>Language</span>
+                        <button type="button" class="ask-toggle is-active" data-image-control="language" data-image-value="english" aria-pressed="true">English</button>
+                        <button type="button" class="ask-toggle" data-image-control="language" data-image-value="arabic" aria-pressed="false">Arabic</button>
+                      </div>
+                      <div class="ask-toggle-group" aria-label="Output type">
+                        <span>Output</span>
+                        <button type="button" class="ask-toggle is-active" data-image-control="outputType" data-image-value="answer" aria-pressed="true">Vision answer</button>
+                        <button type="button" class="ask-toggle" data-image-control="outputType" data-image-value="ticket" aria-pressed="false">Vision ticket</button>
+                      </div>
+                      <div class="ask-toggle-group" aria-label="Detail level">
+                        <span>Detail</span>
+                        <button type="button" class="ask-toggle is-active" data-image-control="responseMode" data-image-value="brief" aria-pressed="true">Brief</button>
+                        <button type="button" class="ask-toggle" data-image-control="responseMode" data-image-value="detailed" aria-pressed="false">Detailed</button>
+                        <button type="button" class="ask-toggle" data-image-control="responseMode" data-image-value="step" aria-pressed="false">Steps</button>
+                      </div>
+                      <div class="ask-toggle-group" aria-label="Knowledge mode">
+                        <span>SOP mode</span>
+                        <button type="button" class="ask-toggle is-active" data-image-control="sopMode" data-image-value="hybrid" aria-pressed="true">Hybrid</button>
+                        <button type="button" class="ask-toggle" data-image-control="sopMode" data-image-value="sop_only" aria-pressed="false">SOP only</button>
+                      </div>
+                    </div>
+
+                    <div class="image-analysis-type-grid" aria-label="Image analysis type">
+                      <button type="button" class="image-analysis-type is-active" data-image-control="analysisType" data-image-value="screenshot_case" aria-pressed="true">Screenshot case reading</button>
+                      <button type="button" class="image-analysis-type" data-image-control="analysisType" data-image-value="ban_moderation" aria-pressed="false">Ban / moderation evidence</button>
+                      <button type="button" class="image-analysis-type" data-image-control="analysisType" data-image-value="payment_evidence" aria-pressed="false">Recharge / withdrawal evidence</button>
+                      <button type="button" class="image-analysis-type" data-image-control="analysisType" data-image-value="account_identity" aria-pressed="false">Account / profile / agency</button>
+                      <button type="button" class="image-analysis-type" data-image-control="analysisType" data-image-value="app_error" aria-pressed="false">App error / crash screenshot</button>
+                    </div>
+
+                    <div class="image-prompt-brief" aria-label="Structured vision prompt builder">
+                      <div class="image-prompt-brief__intro">
+                        <span class="image-prompt-step">Prompt Builder</span>
+                        <div>
+                          <strong>Ask AI what to inspect</strong>
+                          <p>Write the inspection brief in three ordered parts so the Worker receives clear case context, visible-evidence focus, and required output format.</p>
+                        </div>
+                      </div>
+
+                      <div class="image-identity-grid">
+                        <label class="ticket-field" for="imageUserId">
+                          <span>User ID / UID</span>
+                          <input id="imageUserId" name="imageUserId" type="text" maxlength="64" placeholder="Optional">
+                        </label>
+                        <label class="ticket-field" for="imageContextId">
+                          <span>Order / Room / Agency ID</span>
+                          <input id="imageContextId" name="imageContextId" type="text" maxlength="96" placeholder="Optional">
+                        </label>
+                      </div>
+
+                      <div class="image-prompt-grid">
+                        <label class="ticket-field image-prompt-field" for="imageCaseContext">
+                          <span>1. Case context</span>
+                          <textarea id="imageCaseContext" name="imageCaseContext" rows="4" maxlength="1400" placeholder="What happened? Include the user complaint, screen shown, country/device, amount, or previous support action if relevant."></textarea>
+                          <small id="imageCaseContextCounter">0 / 1400</small>
+                        </label>
+                        <label class="ticket-field image-prompt-field image-prompt-field--primary" for="imageInspectFocus">
+                          <span>2. What AI should inspect</span>
+                          <textarea id="imageInspectFocus" name="imageInspectFocus" rows="5" maxlength="1600" placeholder="Tell AI exactly what to check in the image: visible error message, payment proof, UID, profile details, moderation evidence, missing information, or policy match."></textarea>
+                          <small id="imageInspectFocusCounter">0 / 1600</small>
+                        </label>
+                        <label class="ticket-field image-prompt-field" for="imageExpectedOutput">
+                          <span>3. Required output</span>
+                          <textarea id="imageExpectedOutput" name="imageExpectedOutput" rows="4" maxlength="1000" placeholder="What should the result contain? Example: findings, missing evidence, SOP-grounded next action, safe customer reply, or ticket draft."></textarea>
+                          <small id="imageExpectedOutputCounter">0 / 1000</small>
+                        </label>
+                      </div>
+
+                      <div class="image-prompt-guide" aria-label="Prompt structure guide">
+                        <div><strong>Recommended order</strong><span>Context → visible evidence → missing details → next action.</span></div>
+                        <div><strong>Safety rule</strong><span>Ask AI to analyze only what is visible and SOP-supported.</span></div>
+                        <div><strong>Output rule</strong><span>Specify whether you need an answer, escalation checklist, or customer reply.</span></div>
+                      </div>
+                    </div>
+
+                    <div class="ticket-quick-chip-row" id="imageQuickChips" aria-label="Upload Image quick prompts"></div>
+                  </div>
+
+                  <div class="image-result-panel" id="imageResultPanel" aria-live="polite">
+                    <div class="image-result-empty">Vision analysis output will appear here after the Worker responds.</div>
+                  </div>
+
+                  <div class="ticket-footer-actions image-footer-actions">
+                    <span class="ticket-template-status" id="imageTemplateStatus"><i></i> Image analysis sends task_type=image_analysis with validated image input</span>
+                    <div>
+                      <button class="btn btn--secondary" type="button" id="imageStopBtn" disabled>Stop</button>
+                      <button class="btn btn--secondary" type="button" id="imageClearBtn">Clear</button>
+                      <button class="btn btn--primary" type="submit" id="imageAnalyzeBtn" disabled>Analyze Image</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </section>
+
+
+            <section class="route-pane route-pane--admin" id="adminPane" data-route-pane="admin" hidden>
+              <div class="admin-workspace" id="adminWorkspace" aria-label="Admin editable content hooks">
+                <section class="admin-shell-card">
+                  <div class="admin-workspace__header">
+                    <div>
+                      <p class="eyebrow">Admin / Editable Content Hooks</p>
+                      <h3>Worker KV editor bridge</h3>
+                      <p>Read public menu/content state and save admin-only menu, content, or pane overrides using the existing Worker contract.</p>
+                    </div>
+                    <span class="badge badge--draft" id="adminConnectionBadge">Auth required</span>
+                  </div>
+
+                  <div class="admin-alert" id="adminStatus" role="status" aria-live="polite">
+                    Enter the admin password for protected POST actions. Passwords stay in memory only and are sent as <code>Authorization: Bearer</code>.
+                  </div>
+
+                  <div class="admin-grid">
+                    <form class="admin-card admin-auth-card" id="adminAuthForm" autocomplete="off">
+                      <div class="admin-card__header">
+                        <div>
+                          <p class="eyebrow">1. Authorization</p>
+                          <h4>Admin password</h4>
+                        </div>
+                      </div>
+                      <label class="ticket-field" for="adminPasswordInput">
+                        <span>ADMIN_PASSWORD</span>
+                        <input id="adminPasswordInput" type="password" placeholder="Enter admin password" autocomplete="current-password">
+                      </label>
+                      <div class="ticket-footer-actions admin-inline-actions">
+                        <span class="ticket-template-status" id="adminAuthStatus"><i></i> Not connected</span>
+                        <div>
+                          <button class="btn btn--secondary" type="button" id="adminClearAuthBtn">Clear</button>
+                          <button class="btn btn--primary" type="submit" id="adminRememberAuthBtn">Use for this session</button>
+                        </div>
+                      </div>
+                    </form>
+
+                    <section class="admin-card admin-endpoints-card" aria-label="Backend endpoints">
+                      <div class="admin-card__header">
+                        <div>
+                          <p class="eyebrow">2. Worker contract</p>
+                          <h4>Endpoint checks</h4>
+                        </div>
+                      </div>
+                      <div class="admin-endpoint-list">
+                        <button class="admin-endpoint" type="button" data-admin-action="fetch-menu"><strong>GET /menu</strong><span>Load current KV navigation menu.</span></button>
+                        <button class="admin-endpoint" type="button" data-admin-action="fetch-content"><strong>GET /content</strong><span>Load editable SOP content package.</span></button>
+                        <button class="admin-endpoint" type="button" data-admin-action="fetch-health"><strong>GET /diagnostics</strong><span>Read Worker diagnostics without editing data.</span></button>
+                      </div>
+                    </section>
+                  </div>
+
+                  <div class="admin-grid admin-grid--editors">
+                    <section class="admin-card admin-pane-card" aria-label="Pane HTML override editor">
+                      <div class="admin-card__header">
+                        <div>
+                          <p class="eyebrow">3. Single pane override</p>
+                          <h4>POST /admin/pane</h4>
+                        </div>
+                        <span class="admin-contract-chip">{ paneId, html }</span>
+                      </div>
+                      <div class="admin-two-col">
+                        <label class="ticket-field" for="adminPaneIdInput">
+                          <span>Pane ID</span>
+                          <input id="adminPaneIdInput" type="text" list="adminPaneSuggestions" placeholder="senior-cs-v51-command-center">
+                          <datalist id="adminPaneSuggestions"></datalist>
+                        </label>
+                        <label class="ticket-field" for="adminPaneLookupInput">
+                          <span>Search pane</span>
+                          <input id="adminPaneLookupInput" type="search" placeholder="Find pane by title or ID">
+                        </label>
+                      </div>
+                      <div class="admin-pane-search-results" id="adminPaneSearchResults" aria-live="polite"></div>
+                      <label class="ticket-field ticket-field--full" for="adminPaneHtmlInput">
+                        <span>HTML override</span>
+                        <textarea id="adminPaneHtmlInput" rows="10" placeholder="Paste the replacement pane HTML exactly as approved..."></textarea>
+                      </label>
+                      <div class="ticket-footer-actions admin-inline-actions">
+                        <span class="ticket-template-status" id="adminPaneStatus"><i></i> Ready for pane override</span>
+                        <div>
+                          <button class="btn btn--secondary" type="button" data-admin-action="load-current-pane">Load migrated pane HTML</button>
+                          <button class="btn btn--secondary" type="button" data-admin-action="reset-pane">Reset Override</button>
+                          <button class="btn btn--primary" type="button" data-admin-action="save-pane">Save Pane</button>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="admin-card admin-json-card" aria-label="Content and menu JSON editor">
+                      <div class="admin-card__header">
+                        <div>
+                          <p class="eyebrow">4. JSON package editor</p>
+                          <h4>Menu / content KV payloads</h4>
+                        </div>
+                        <span class="admin-contract-chip">admin-only POST</span>
+                      </div>
+                      <div class="admin-json-tabs" role="tablist" aria-label="Admin JSON target">
+                        <button class="ask-toggle is-active" type="button" data-admin-json-tab="content" aria-pressed="true">Content JSON</button>
+                        <button class="ask-toggle" type="button" data-admin-json-tab="menu" aria-pressed="false">Menu JSON</button>
+                      </div>
+                      <label class="ticket-field ticket-field--full" for="adminJsonEditor">
+                        <span id="adminJsonEditorLabel">Editable content JSON</span>
+                        <textarea id="adminJsonEditor" rows="14" spellcheck="false" placeholder="Use GET /content or GET /menu to load a live JSON payload before saving."></textarea>
+                      </label>
+                      <div class="ticket-footer-actions admin-inline-actions">
+                        <span class="ticket-template-status" id="adminJsonStatus"><i></i> No JSON loaded</span>
+                        <div>
+                          <button class="btn btn--secondary" type="button" data-admin-action="format-json">Format JSON</button>
+                          <button class="btn btn--secondary" type="button" data-admin-action="copy-json">Copy JSON</button>
+                          <button class="btn btn--primary" type="button" data-admin-action="save-json">Save selected JSON</button>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+          <div class="panel-footer-placeholder">
+            <span class="required-placeholder"><i></i> Admin hooks are wired to the existing Worker endpoints without changing the backend contract</span>
+            <div class="footer-actions"><button class="btn btn--secondary" type="button" id="goHomeBtn">Home</button><button class="btn btn--primary" type="button" id="focusSearchBtn">Search Knowledge</button></div>
+          </div>
+        </section>
+
+        <aside class="workspace-panel workspace-panel--preview" aria-label="Right preview area">
+          <div class="panel-header compact">
+            <div>
+              <p class="eyebrow">02</p>
+              <h2>Route Preview</h2>
+              <p>Tracks the currently routed pane, saved list, or welcome view.</p>
+            </div>
+          </div>
+
+          <div class="topic-preview-card" id="topicPreviewCard" aria-live="polite">
+            <div class="preview-brand-row">
+              <span class="ticket-card-logo">S</span>
+              <div>
+                <h3>Welcome</h3>
+                <p>No topic selected yet.</p>
+              </div>
+              <span class="badge badge--draft">Home</span>
+            </div>
+            <div class="preview-rule"></div>
+            <dl class="topic-meta-list">
+              <div><dt>Route</dt><dd>welcome</dd></div>
+              <div><dt>Persisted key</dt><dd>sugo_nav_state_v2</dd></div>
+              <div><dt>Visible topic routes</dt><dd>284</dd></div>
+              <div><dt>Stored extra routes</dt><dd>157</dd></div>
+            </dl>
+          </div>
+        </aside>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="quick-access-backdrop" id="quickAccessBackdrop" hidden aria-hidden="true"></div>
+  <aside class="quick-access-drawer" id="quickAccessDrawer" aria-label="Quick Access drawer" aria-hidden="true" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="quick-access-drawer__header">
+      <div>
+        <p class="eyebrow">Saved workspace</p>
+        <h2>Quick Access</h2>
+        <span>Favorites, recent topics, AI answers, and generated tickets.</span>
+      </div>
+      <button class="icon-button" type="button" id="quickAccessClose" aria-label="Close Quick Access">×</button>
+    </div>
+    <div class="quick-access-tabs" role="tablist" aria-label="Quick Access tabs">
+      <button type="button" class="quick-access-tab is-active" data-quick-tab="favorites" role="tab" aria-selected="true">Favorites <strong id="qaCountFavorites">0</strong></button>
+      <button type="button" class="quick-access-tab" data-quick-tab="recent" role="tab" aria-selected="false">Recent <strong id="qaCountRecent">0</strong></button>
+      <button type="button" class="quick-access-tab" data-quick-tab="ai_answers" role="tab" aria-selected="false">AI Answers <strong id="qaCountAiAnswers">0</strong></button>
+      <button type="button" class="quick-access-tab" data-quick-tab="generated_tickets" role="tab" aria-selected="false">Tickets <strong id="qaCountGeneratedTickets">0</strong></button>
+    </div>
+    <div class="quick-access-content" id="quickAccessContent" role="tabpanel" aria-live="polite"></div>
+  </aside>
+
+  <script src="js/content.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
