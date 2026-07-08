@@ -2,6 +2,7 @@
 .nojekyll
 FILE_TREE.txt
 README.md
+README_AR_UPLOAD.md
 UPLOAD_INSTRUCTIONS_AR.md
 css/styles.css
 docs/CONTENT_MANIFEST.md
@@ -17,5 +18,7 @@ docs/stage20_validation.json
 index.html
 js/app.js
 js/content.js
+worker.js
 worker/worker.js
 worker/wrangler.toml
+wrangler.toml

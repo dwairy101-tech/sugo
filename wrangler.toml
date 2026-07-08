@@ -1,0 +1,35 @@
+name = "sugokb"
+main = "worker.js"
+compatibility_date = "2026-07-08"
+
+# This root wrangler.toml is included so Cloudflare Workers Builds can deploy
+# from the repository root without failing. It intentionally contains no
+# hardcoded secrets and no placeholder KV namespace IDs.
+#
+# After deployment, set secrets from Cloudflare Dashboard or Wrangler:
+#   wrangler secret put ADMIN_PASSWORD
+#   wrangler secret put GEMINI_API_KEY
+#   wrangler secret put CEREBRAS_API_KEY
+#   wrangler secret put GROK_API_KEY
+#   wrangler secret put XAI_API_KEY
+#
+# Optional KV binding for editable content:
+# Create a KV namespace in Cloudflare, then add this block with the real IDs:
+#
+# [[kv_namespaces]]
+# binding = "SUGO_KV"
+# id = "YOUR_REAL_PRODUCTION_KV_NAMESPACE_ID"
+# preview_id = "YOUR_REAL_PREVIEW_KV_NAMESPACE_ID"
+
+[vars]
+CORS_ORIGIN = "*"
+STRICT_ACCURACY_GATE = "true"
+DEBUG_ERRORS = "true"
+LOG_REQUESTS = "true"
+MAX_MESSAGES = "24"
+MAX_INPUT_CHARS = "180000"
+MAX_IMAGES_PER_REQUEST = "2"
+MAX_IMAGE_BASE64_CHARS = "6500000"
+RATE_LIMIT_PER_MINUTE = "90"
+RATE_LIMIT_WINDOW_SECONDS = "60"
+CACHE_TTL_SECONDS = "3600"
