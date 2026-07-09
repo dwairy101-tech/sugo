@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="dark" data-sugo-phase="19">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>SUGO SOP</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%23D62327' d='M24 3.5 41.8 13.8v20.4L24 44.5 6.2 34.2V13.8L24 3.5Z'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div id="app" class="app-root" data-workspace="create-ticket">
+    <div class="sugo-shell" data-shell="phase-19">
+      <aside class="app-sidebar sugo-shell__sidebar" data-region="sidebar">
+        <a class="brand-lockup" href="#" aria-label="SUGO SOP home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" role="img" focusable="false">
+              <path d="M24 3.5 41.8 13.8v20.4L24 44.5 6.2 34.2V13.8L24 3.5Z" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linejoin="round"/>
+              <path d="M16.2 17.4c2.2-4 7.8-5.2 11.5-2.6l7.1 4.9M31.8 30.6c-2.2 4-7.8 5.2-11.5 2.6l-7.1-4.9M15 22.7l15 8.7c2.7 1.6 6.1-.4 6.1-3.5 0-1.5-.8-2.8-2.1-3.5l-16-9.3M33 25.3 18 16.6c-2.7-1.6-6.1.4-6.1 3.5 0 1.5.8 2.8 2.1 3.5l16 9.3" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <span class="brand-wordmark"><span>SUGO</span><strong>SOP</strong></span>
+            <span class="brand-subtitle">Knowledge Lounge • MENA</span>
+          </span>
+        </a>
+
+        <div class="shell-sidebar-body">
+          <div class="sidebar-top-controls">
+            <form class="knowledge-search" role="search" aria-label="Search knowledge">
+              <label class="sr-only" for="globalKnowledgeSearch" data-i18n="sidebar.searchLabel">Search knowledge</label>
+              <span class="knowledge-search__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="m20 20-4.7-4.7m2.5-5.1a7.6 7.6 0 1 1-15.2 0 7.6 7.6 0 0 1 15.2 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <input id="globalKnowledgeSearch" class="knowledge-search__input" type="search" placeholder="Search knowledge..." autocomplete="off" spellcheck="false" data-i18n-placeholder="sidebar.searchPlaceholder" />
+              <kbd class="knowledge-search__shortcut" aria-hidden="true">⌘ K</kbd>
+            </form>
+
+            <nav class="workspace-actions" aria-label="Workspace actions" data-i18n-aria-label="sidebar.workspaceActions">
+              <button class="workspace-action workspace-action--primary" type="button" data-workspace-action="ask-ai" aria-pressed="false">
+                <span class="workspace-action__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M12 3.5 13.7 8l4.8 1.7-4.8 1.7L12 16l-1.7-4.6-4.8-1.7L10.3 8 12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                    <path d="M18.5 13.5 19.4 16l2.4.9-2.4.9-.9 2.7-.9-2.7-2.4-.9 2.4-.9.9-2.5ZM5.2 14.2l.7 1.9 1.9.7-1.9.7-.7 2-.7-2-1.9-.7 1.9-.7.7-1.9Z" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="workspace-action__label" data-i18n="sidebar.askAi">Ask AI</span>
+              </button>
+
+              <button class="workspace-action workspace-action--outline is-current" type="button" data-workspace-action="create-ticket" aria-pressed="true" aria-current="page">
+                <span class="workspace-action__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M6.4 4.8h11.2a1.6 1.6 0 0 1 1.6 1.6v2.4a2.2 2.2 0 0 0 0 4.4v4.4a1.6 1.6 0 0 1-1.6 1.6H6.4a1.6 1.6 0 0 1-1.6-1.6v-4.4a2.2 2.2 0 0 0 0-4.4V6.4a1.6 1.6 0 0 1 1.6-1.6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8.1 8.1h1.2m5.4 0h1.2M8.1 15.9h1.2m5.4 0h1.2M12 5.2v13.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="1.5 3"/>
+                  </svg>
+                </span>
+                <span class="workspace-action__label" data-i18n="sidebar.createTicket">Create Ticket</span>
+              </button>
+
+              <button class="workspace-action workspace-action--neutral" type="button" data-workspace-action="upload-image" aria-pressed="false">
+                <span class="workspace-action__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M12 15.8V4.9m0 0L8.3 8.6M12 4.9l3.7 3.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5.1 14.6v3.1a2.2 2.2 0 0 0 2.2 2.2h9.4a2.2 2.2 0 0 0 2.2-2.2v-3.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="workspace-action__label" data-i18n="sidebar.uploadImage">Upload Image</span>
+              </button>
+            </nav>
+          </div>
+
+          <div class="sidebar-collections" aria-label="Knowledge shortcuts" data-i18n-aria-label="sidebar.knowledgeShortcuts">
+            <section class="sidebar-collection" data-collection="favorites">
+              <header class="sidebar-section-header">
+                <div class="sidebar-section-title">
+                  <span class="sidebar-section-title__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                      <path d="m12 3.7 2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8L12 3.7Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span data-i18n="sidebar.favorites">FAVORITES</span>
+                </div>
+                <button class="sidebar-section-link" type="button" data-view-all="favorites" aria-expanded="false" data-i18n="sidebar.viewAll">View all</button>
+              </header>
+              <ul class="sidebar-item-list" data-list="favorites"></ul>
+              <p class="sidebar-empty" data-empty="favorites" hidden data-i18n="sidebar.emptyFavorites">No favorites yet</p>
+            </section>
+
+            <section class="sidebar-collection" data-collection="recent">
+              <header class="sidebar-section-header">
+                <div class="sidebar-section-title">
+                  <span class="sidebar-section-title__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                      <path d="M12 7.2v5.1l3.2 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span data-i18n="sidebar.recent">RECENT</span>
+                </div>
+                <button class="sidebar-section-link" type="button" data-view-all="recent" aria-expanded="false" data-i18n="sidebar.viewAll">View all</button>
+              </header>
+              <ul class="sidebar-item-list" data-list="recent"></ul>
+              <p class="sidebar-empty" data-empty="recent" hidden data-i18n="sidebar.emptyRecent">No recent items yet</p>
+            </section>
+          </div>
+
+          <nav class="sidebar-menu" aria-label="Menu" data-i18n-aria-label="sidebar.menuLabel">
+            <div class="sidebar-section-title sidebar-section-title--menu">
+              <span class="sidebar-section-title__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M4.8 5.4h2.6v2.6H4.8V5.4Zm5.8.3h8.6M4.8 10.7h2.6v2.6H4.8v-2.6Zm5.8.3h8.6M4.8 16h2.6v2.6H4.8V16Zm5.8.3h8.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span data-i18n="sidebar.menu">MENU</span>
+            </div>
+            <ul class="sidebar-menu-list">
+              <li>
+                <button class="sidebar-menu-item is-active" type="button" data-sidebar-menu="knowledgebase" aria-current="page">
+                  <span class="sidebar-menu-item__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.8 20 8v8l-8 4.2L4 16V8l8-4.2Zm0 0v8.5m8-4.3-8 4.3m-8-4.3 8 4.3" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="sidebar-menu-item__label" data-i18n="sidebar.knowledgebase">Knowledgebase</span>
+                  <span class="sidebar-menu-item__chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button class="sidebar-menu-item" type="button" data-sidebar-menu="service-catalog">
+                  <span class="sidebar-menu-item__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M5.2 7.2 12 3.8l6.8 3.4v9.6L12 20.2l-6.8-3.4V7.2Zm3.1 1.6 3.7 1.9 3.7-1.9M12 10.7v5.9" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="sidebar-menu-item__label" data-i18n="sidebar.serviceCatalog">Service Catalog</span>
+                  <span class="sidebar-menu-item__chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button class="sidebar-menu-item" type="button" data-sidebar-menu="my-tickets">
+                  <span class="sidebar-menu-item__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M6.4 4.8h11.2a1.6 1.6 0 0 1 1.6 1.6v2.4a2.1 2.1 0 0 0 0 4.2v4.6a1.6 1.6 0 0 1-1.6 1.6H6.4a1.6 1.6 0 0 1-1.6-1.6V13a2.1 2.1 0 0 0 0-4.2V6.4a1.6 1.6 0 0 1 1.6-1.6Z" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="sidebar-menu-item__label" data-i18n="sidebar.myTickets">My Tickets</span>
+                  <span class="sidebar-menu-item__chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button class="sidebar-menu-item" type="button" data-sidebar-menu="approvals">
+                  <span class="sidebar-menu-item__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M12 21a8.8 8.8 0 1 0 0-17.6A8.8 8.8 0 0 0 12 21Zm-3.7-8.9 2.4 2.4 5-5" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="sidebar-menu-item__label" data-i18n="sidebar.approvals">Approvals</span>
+                  <span class="sidebar-menu-item__chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button class="sidebar-menu-item" type="button" data-sidebar-menu="announcements">
+                  <span class="sidebar-menu-item__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M5.3 13.8 4 15.1V8.9l1.3 1.3 10.2-4.6v12.8L5.3 13.8Zm10.2-1.2 3.4 1.5a2.2 2.2 0 0 0 0-4l-3.4 1.5M7.4 14.7l1.8 4.3" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="sidebar-menu-item__label" data-i18n="sidebar.announcements">Announcements</span>
+                  <span class="sidebar-menu-item__chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button class="sidebar-menu-item" type="button" data-sidebar-menu="help-support">
+                  <span class="sidebar-menu-item__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M12 20.6a8.6 8.6 0 1 0 0-17.2 8.6 8.6 0 0 0 0 17.2Zm-2.1-10.7a2.3 2.3 0 1 1 3.8 1.7c-.8.6-1.7 1.2-1.7 2.5m0 3h.1" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="sidebar-menu-item__label" data-i18n="sidebar.helpSupport">Help &amp; Support</span>
+                  <span class="sidebar-menu-item__chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+
+          <section class="knowledge-tree-panel" data-kb-tree-panel aria-label="Knowledgebase navigation">
+            <div class="knowledge-tree-root" data-kb-root-title></div>
+            <div class="knowledge-tree" data-kb-tree></div>
+          </section>
+        </div>
+
+        <div class="sidebar-source-switcher" aria-label="Knowledgebase source" data-i18n-aria-label="sidebar.sourceSwitcherLabel">
+          <div class="source-switcher-title">
+            <span class="source-switcher-caret" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span data-i18n="sidebar.knowledgebaseUpper">KNOWLEDGEBASE</span>
+          </div>
+          <div class="source-switcher-options" role="radiogroup" aria-label="Knowledgebase source" data-i18n-aria-label="sidebar.sourceSwitcherLabel">
+            <button class="source-option is-active" type="button" role="radio" aria-checked="true" data-kb-source="mena">
+              <span class="source-option__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M6.2 6.7 12 3.9l5.8 2.8-5.8 2.8-5.8-2.8Zm0 5.3 5.8 2.8 5.8-2.8M6.2 17.3l5.8 2.8 5.8-2.8" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="source-option__label" data-i18n="sidebar.sourceMena">SUGO Knowledgebase — MENA</span>
+              <span class="source-option__status" aria-hidden="true"></span>
+            </button>
+            <button class="source-option" type="button" role="radio" aria-checked="false" data-kb-source="sv">
+              <span class="source-option__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M6.2 6.7 12 3.9l5.8 2.8-5.8 2.8-5.8-2.8Zm0 5.3 5.8 2.8 5.8-2.8M6.2 17.3l5.8 2.8 5.8-2.8" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="source-option__label" data-i18n="sidebar.sourceSv">SUGO SV</span>
+              <span class="source-option__status" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+        <button class="sidebar-collapse-button" type="button" aria-label="Collapse sidebar" data-i18n-aria-label="sidebar.collapseSidebar" aria-disabled="true">‹‹</button>
+      </aside>
+
+      <section class="workspace-grid" data-region="workspace">
+        <header class="app-header sugo-shell__header" data-region="header">
+          <div class="workspace-heading">
+            <span class="workspace-heading__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M8.2 7.2h7.6M8.2 16.8h7.6M6.4 4.8h11.2a1.6 1.6 0 0 1 1.6 1.6v2.4a2.2 2.2 0 0 0 0 4.4v4.4a1.6 1.6 0 0 1-1.6 1.6H6.4a1.6 1.6 0 0 1-1.6-1.6v-4.4a2.2 2.2 0 0 0 0-4.4V6.4a1.6 1.6 0 0 1 1.6-1.6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 5v14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.4 3"/>
+              </svg>
+            </span>
+            <div class="workspace-heading__copy">
+              <h1>Create Ticket</h1>
+              <nav class="breadcrumb" aria-label="Breadcrumb" data-i18n-aria-label="header.breadcrumb">
+                <ol>
+                  <li><a href="#" data-breadcrumb-home data-i18n="header.home">Home</a></li>
+                  <li aria-hidden="true"><span class="breadcrumb__separator">›</span></li>
+                  <li><a href="#">Tickets</a></li>
+                  <li aria-hidden="true"><span class="breadcrumb__separator">›</span></li>
+                  <li aria-current="page">Create Ticket</li>
+                </ol>
+              </nav>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="language-toggle" type="button" data-language-toggle aria-label="Switch language" data-i18n-aria-label="header.languageToggle">
+              <span class="language-toggle__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M4.7 5.4h8.2M8.8 3.4v2m2.6 0c-.8 3.3-3.1 6.4-6.7 8.5m2.1-5.2c1.2 2.1 3.1 3.8 5.6 5" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14.1 20.6 18 10.2l3.9 10.4m-6.5-3.2h5.2" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="language-toggle__label" data-language-toggle-label>AR</span>
+            </button>
+            <button class="icon-button notification-button" type="button" aria-label="Notifications" data-i18n-aria-label="header.notifications">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path d="M18.1 9.6a6.1 6.1 0 1 0-12.2 0c0 7.1-2.5 7.1-2.5 8.7h17.2c0-1.6-2.5-1.6-2.5-8.7Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9.8 20.1a2.3 2.3 0 0 0 4.4 0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              </svg>
+              <span class="notification-badge" aria-label="3 notifications" data-i18n-aria-label="header.notificationBadge">3</span>
+            </button>
+            <button class="user-menu-button" type="button" aria-label="Open user menu" aria-haspopup="menu" aria-expanded="false" data-i18n-aria-label="header.userMenu">
+              <span class="user-avatar" aria-hidden="true">MA</span>
+              <span class="user-meta">
+                <span class="user-name">Mohammed A.</span>
+                <span class="user-role">IT Support</span>
+              </span>
+              <svg class="user-chevron" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <main class="app-main sugo-shell__main" data-region="main">
+          <section class="workspace-panel ask-ai-workspace sugo-panel" aria-labelledby="askAIWorkspaceTitle" hidden>
+            <header class="ask-ai-hero">
+              <div class="ask-ai-hero__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M12 3.5 13.7 8l4.8 1.7-4.8 1.7L12 16l-1.7-4.6-4.8-1.7L10.3 8 12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                  <path d="M18.5 13.5 19.4 16l2.4.9-2.4.9-.9 2.7-.9-2.7-2.4-.9 2.4-.9.9-2.5ZM5.2 14.2l.7 1.9 1.9.7-1.9.7-.7 2-.7-2-1.9-.7 1.9-.7.7-1.9Z" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="ask-ai-hero__copy">
+                <span class="ask-ai-kicker" data-i18n="ask.kicker">Dedicated AI Workspace</span>
+                <h2 id="askAIWorkspaceTitle" data-i18n="ask.title">Ask AI Console</h2>
+                <p data-i18n="ask.subtitle">Ask SUGO policy, troubleshooting, account, payment, agency, host, game, or escalation questions. This workspace creates an agent answer only.</p>
+              </div>
+            </header>
+
+            <section class="ask-ai-composer-card" aria-labelledby="askAIQuestionLabel">
+              <label id="askAIQuestionLabel" class="ask-ai-label" for="askAIInput" data-i18n="ask.inputLabel">Question / Case details</label>
+              <textarea id="askAIInput" class="ask-ai-textarea" rows="8" placeholder="Example: user cannot receive recharge coins, what should the agent check and what should we reply?" data-i18n-placeholder="ask.inputPlaceholder" data-ask-input></textarea>
+              <p class="ask-ai-hint" data-ask-hint data-i18n="ask.hint.agent">Agent guidance mode: correct action, policy conditions, missing info, and safe support guidance.</p>
+
+              <div class="ask-ai-chip-row" aria-label="Ask AI quick prompts" data-i18n-aria-label="ask.quickPromptsLabel">
+                <button type="button" class="ask-ai-chip" data-ask-chip="What is the correct agent action for this case?" data-i18n="ask.chip.agentAction">Agent action</button>
+                <button type="button" class="ask-ai-chip" data-ask-chip="Check the relevant SOP and list the missing information needed before escalation." data-i18n="ask.chip.missingInfo">Missing info</button>
+                <button type="button" class="ask-ai-chip" data-ask-chip="Explain the escalation path and what evidence is required." data-i18n="ask.chip.escalation">Escalation</button>
+                <button type="button" class="ask-ai-chip" data-ask-chip="Give a short customer reply draft, but keep it as an agent answer not a ticket." data-i18n="ask.chip.shortReplyDraft">Short reply draft</button>
+              </div>
+
+              <div class="ask-ai-actions">
+                <button class="ask-ai-submit" type="button" data-ask-action="submit">
+                  <span class="ask-ai-submit__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M20.2 3.8 9.7 14.3m10.5-10.5-5.7 16.4-4.8-5.9-6-2.1 16.5-8.4Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span data-i18n="ask.generate">Generate AI Answer</span>
+                </button>
+                <button class="ask-ai-secondary" type="button" data-ask-action="clear" data-i18n="ask.clear">Clear</button>
+              </div>
+            </section>
+
+            <section class="ask-ai-answer-card" aria-labelledby="askAIAnswerTitle">
+              <header class="ask-ai-answer-header">
+                <div>
+                  <h3 id="askAIAnswerTitle" data-i18n="ask.answerTitle">AI answer</h3>
+                  <p data-i18n="ask.answerSubtitle">Rendered answer appears here after the worker response is received.</p>
+                </div>
+                <button class="ask-ai-copy" type="button" data-ask-action="copy" data-i18n="ask.copy" disabled>Copy</button>
+              </header>
+              <div class="ask-ai-status" role="status" aria-live="polite" data-ask-status data-i18n="ask.statusReady">Ready for an agent-facing SOP answer.</div>
+              <div class="ask-ai-answer" data-ask-answer aria-live="polite">
+                <p data-i18n="ask.emptyAnswer">Ask a question or paste a customer case to generate an answer.</p>
+              </div>
+            </section>
+          </section>
+
+          <section class="workspace-panel upload-image-workspace sugo-panel" aria-labelledby="uploadImageWorkspaceTitle" hidden>
+            <header class="ask-ai-hero upload-image-hero">
+              <div class="ask-ai-hero__icon upload-image-hero__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M5 5.2h14a1.8 1.8 0 0 1 1.8 1.8v10a1.8 1.8 0 0 1-1.8 1.8H5A1.8 1.8 0 0 1 3.2 17V7A1.8 1.8 0 0 1 5 5.2Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                  <path d="m5.8 16.4 4.2-4.2 2.9 2.9 2.1-2.1 3.2 3.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15.8 9.6h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="ask-ai-hero__copy">
+                <span class="ask-ai-kicker" data-i18n="upload.kicker">Dedicated Vision Workspace</span>
+                <h2 id="uploadImageWorkspaceTitle" data-i18n="upload.title">Upload Image Console</h2>
+                <p data-i18n="upload.subtitle">Upload a screenshot or image, add case context, and generate an image-aware SUGO support answer or vision ticket.</p>
+              </div>
+            </header>
+
+            <section class="upload-image-card" aria-labelledby="uploadImageDropLabel">
+              <label id="uploadImageDropLabel" class="ask-ai-label" data-i18n="upload.dropLabel">Image evidence</label>
+              <input id="uploadImageInput" class="upload-image-input" type="file" accept="image/jpeg,image/png,image/webp" data-upload-input hidden>
+              <div class="upload-image-dropzone" role="button" tabindex="0" data-upload-dropzone aria-describedby="uploadImageDropHelp">
+                <span class="upload-image-dropzone__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M12 16.5V4.8m0 0L7.5 9.2M12 4.8l4.5 4.4" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.6 15.2v2.9a1.7 1.7 0 0 0 1.7 1.7h11.4a1.7 1.7 0 0 0 1.7-1.7v-2.9" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"/></svg>
+                </span>
+                <span class="upload-image-dropzone__copy">
+                  <strong data-i18n="upload.dropTitle">Drag and drop an image here or click to browse</strong>
+                  <span id="uploadImageDropHelp" data-i18n="upload.dropHelp">Supported: JPG, PNG, WebP. Max 8MB before compression. Images are compressed to JPEG at max 1600px edge.</span>
+                </span>
+                <button class="upload-image-browse" type="button" data-upload-action="browse" data-i18n="upload.browseImage">Browse Image</button>
+              </div>
+              <div class="upload-image-preview" data-upload-preview>
+                <p data-i18n="upload.noImage">No image attached yet.</p>
+              </div>
+              <p class="upload-image-status" role="status" aria-live="polite" data-upload-status data-i18n="upload.statusReady">Upload an image to start vision analysis.</p>
+            </section>
+
+            <section class="ask-ai-composer-card upload-context-card" aria-labelledby="uploadImageContextLabel">
+              <label id="uploadImageContextLabel" class="ask-ai-label" for="uploadImageContext" data-i18n="upload.contextLabel">Case notes / requested check</label>
+              <textarea id="uploadImageContext" class="ask-ai-textarea" rows="7" placeholder="Example: customer shared this screenshot after a failed recharge. Please identify visible issue, missing info, and escalation path." data-i18n-placeholder="upload.contextPlaceholder" data-upload-context></textarea>
+              <p class="ask-ai-hint" data-upload-hint data-i18n="upload.hint.screenshot_case">Screenshot reading mode: visible text, UI state, likely support category, missing info, and safe next action.</p>
+
+              <div class="ask-ai-chip-row" aria-label="Upload Image quick prompts" data-i18n-aria-label="upload.quickPromptsLabel">
+                <button type="button" class="ask-ai-chip" data-upload-chip="Read the visible screenshot text, identify the issue category, missing information, and safe next action." data-i18n="upload.chip.screenshot">Read screenshot</button>
+                <button type="button" class="ask-ai-chip" data-upload-chip="Treat this as payment or withdrawal evidence. Extract visible amount, order ID, status, date, missing details, and escalation path." data-i18n="upload.chip.payment">Payment evidence</button>
+                <button type="button" class="ask-ai-chip" data-upload-chip="Treat this as an app error screenshot. Identify the visible error and give troubleshooting steps plus escalation trigger." data-i18n="upload.chip.appError">App error</button>
+                <button type="button" class="ask-ai-chip" data-upload-chip="Create a customer-ready vision ticket draft based only on the visible image and the case notes." data-i18n="upload.chip.ticketDraft">Vision ticket draft</button>
+              </div>
+
+              <div class="ask-ai-actions">
+                <button class="ask-ai-submit" type="button" data-upload-action="submit">
+                  <span class="ask-ai-submit__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M20.2 3.8 9.7 14.3m10.5-10.5-5.7 16.4-4.8-5.9-6-2.1 16.5-8.4Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span data-i18n="upload.analyze">Analyze Image</span>
+                </button>
+                <button class="ask-ai-secondary" type="button" data-upload-action="clear" data-i18n="upload.clear">Clear</button>
+              </div>
+            </section>
+
+            <section class="ask-ai-answer-card upload-image-answer-card" aria-labelledby="uploadImageAnswerTitle">
+              <header class="ask-ai-answer-header">
+                <div>
+                  <h3 id="uploadImageAnswerTitle" data-i18n="upload.answerTitle">Image analysis</h3>
+                  <p data-i18n="upload.answerSubtitle">Rendered image-aware answer appears here after the worker response is received.</p>
+                </div>
+                <button class="ask-ai-copy" type="button" data-upload-action="copy" data-i18n="upload.copy" disabled>Copy</button>
+              </header>
+              <div class="ask-ai-status" role="status" aria-live="polite" data-upload-answer-status data-i18n="upload.statusReady">Upload an image to start vision analysis.</div>
+              <div class="ask-ai-answer" data-upload-answer aria-live="polite">
+                <p data-i18n="upload.emptyAnswer">Upload a screenshot and add case notes to generate an image-aware support answer.</p>
+              </div>
+            </section>
+          </section>
+
+
+          <section class="workspace-panel kb-article-workspace sugo-panel" aria-labelledby="kbArticleTitle" hidden>
+            <header class="kb-article-hero">
+              <div class="kb-article-hero__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M5.4 5.7 12 3.5l6.6 2.2v12.6L12 20.5l-6.6-2.2V5.7Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                  <path d="M8.2 8.5h7.6M8.2 11.8h7.6M8.2 15.1h4.9" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="kb-article-hero__copy">
+                <span class="kb-article-kicker" data-i18n="kb.kicker">Knowledgebase Article</span>
+                <h2 id="kbArticleTitle" data-kb-article-title data-i18n="kb.emptyTitle">Select an article</h2>
+                <p data-kb-article-path data-i18n="kb.emptySubtitle">Choose a knowledgebase topic from the left navigation to review its SOP content.</p>
+              </div>
+              <button class="kb-article-copy" type="button" data-kb-action="copy" data-i18n="kb.copy" disabled>Copy Article</button>
+            </header>
+
+            <div class="kb-article-status" role="status" aria-live="polite" data-kb-status data-i18n="kb.statusReady">Ready to review SOP content.</div>
+
+            <article class="kb-article-card" data-kb-article-card>
+              <div class="kb-article-empty" data-kb-empty>
+                <span class="kb-article-empty__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.8 20 8v8l-8 4.2L4 16V8l8-4.2Zm0 0v8.5m8-4.3-8 4.3m-8-4.3 8 4.3" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <h3 data-i18n="kb.emptyTitle">Select an article</h3>
+                <p data-i18n="kb.emptySubtitle">Choose a knowledgebase topic from the left navigation to review its SOP content.</p>
+              </div>
+              <div class="kb-article-content" data-kb-content hidden></div>
+            </article>
+          </section>
+
+
+
+          <section class="workspace-panel placeholder-workspace sugo-panel" aria-labelledby="placeholderWorkspaceTitle" hidden data-placeholder-workspace>
+            <header class="placeholder-hero">
+              <div class="placeholder-hero__icon" aria-hidden="true" data-placeholder-icon>
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M5.2 7.2 12 3.8l6.8 3.4v9.6L12 20.2l-6.8-3.4V7.2Zm3.1 1.6 3.7 1.9 3.7-1.9M12 10.7v5.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="placeholder-hero__copy">
+                <span class="placeholder-kicker" data-i18n="placeholder.kicker">Awaiting scope</span>
+                <h2 id="placeholderWorkspaceTitle" data-placeholder-title>Service Catalog</h2>
+                <p data-placeholder-subtitle>This navigation area is included for product completeness, but no legacy workflow is connected yet.</p>
+              </div>
+            </header>
+
+            <div class="placeholder-card-grid" data-placeholder-cards></div>
+
+            <section class="placeholder-status-card" aria-labelledby="placeholderStatusTitle">
+              <h3 id="placeholderStatusTitle" data-i18n="placeholder.statusTitle">Implementation status</h3>
+              <p data-i18n="placeholder.statusBody">This screen is a non-functional placeholder. It does not call the worker, create records, approve requests, publish announcements, or load external data.</p>
+              <div class="placeholder-status-row" role="list">
+                <span role="listitem" data-i18n="placeholder.badge.visual">Visual shell ready</span>
+                <span role="listitem" data-i18n="placeholder.badge.noBackend">No backend contract confirmed</span>
+                <span role="listitem" data-i18n="placeholder.badge.noData">No legacy data source found</span>
+              </div>
+            </section>
+          </section>
+
+          <section class="workspace-panel ticket-workspace sugo-panel" aria-labelledby="ticketWorkspaceTitle">
+            <section class="ticket-section ticket-section--types" aria-labelledby="ticketTypeHeading">
+              <h2 id="ticketTypeHeading" class="ticket-section-title">
+                <span class="ticket-section-title__index">1.</span>
+                <span data-i18n="ticket.typeHeading">Select Ticket Type</span>
+              </h2>
+              <div class="ticket-type-grid" role="radiogroup" aria-labelledby="ticketTypeHeading" data-ticket-type-grid>
+                <button class="ticket-type-card is-selected" type="button" role="radio" aria-checked="true" data-ticket-type="it-support">
+                  <span class="ticket-type-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                      <path d="M5.2 13.3v-2.1a6.8 6.8 0 0 1 13.6 0v2.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M5.4 12.2h1.8a1.7 1.7 0 0 1 1.7 1.7v2.7a1.7 1.7 0 0 1-1.7 1.7H5.8a1.9 1.9 0 0 1-1.9-1.9v-2.7a1.5 1.5 0 0 1 1.5-1.5Zm13.2 0h-1.8a1.7 1.7 0 0 0-1.7 1.7v2.7a1.7 1.7 0 0 0 1.7 1.7h1.4a1.9 1.9 0 0 0 1.9-1.9v-2.7a1.5 1.5 0 0 0-1.5-1.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M15.2 19.2h-2.1a1.1 1.1 0 0 1 0-2.2h2.1" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <span class="ticket-type-card__copy">
+                    <span class="ticket-type-card__title" data-i18n="ticket.type.itSupport.title">IT Support</span>
+                    <span class="ticket-type-card__description" data-i18n="ticket.type.itSupport.description">Report an issue or request assistance with IT services.</span>
+                  </span>
+                  <span class="ticket-type-card__check" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m7.4 12.2 3.1 3.1 6.1-6.4" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+
+                <button class="ticket-type-card" type="button" role="radio" aria-checked="false" data-ticket-type="access-request">
+                  <span class="ticket-type-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                      <path d="M6.1 10.4h11.8a1.7 1.7 0 0 1 1.7 1.7v6.1a1.7 1.7 0 0 1-1.7 1.7H6.1a1.7 1.7 0 0 1-1.7-1.7v-6.1a1.7 1.7 0 0 1 1.7-1.7Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                      <path d="M8 10.4V7.9a4 4 0 0 1 7.7-1.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                      <path d="M12 14.2v2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <span class="ticket-type-card__copy">
+                    <span class="ticket-type-card__title" data-i18n="ticket.type.accessRequest.title">Access Request</span>
+                    <span class="ticket-type-card__description" data-i18n="ticket.type.accessRequest.description">Request access to systems, applications or resources.</span>
+                  </span>
+                  <span class="ticket-type-card__check" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m7.4 12.2 3.1 3.1 6.1-6.4" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+
+                <button class="ticket-type-card" type="button" role="radio" aria-checked="false" data-ticket-type="service-request">
+                  <span class="ticket-type-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                      <path d="M12 3.7 19.3 8v8L12 20.3 4.7 16V8L12 3.7Z" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round"/>
+                      <path d="M12 3.9v8.1m7.1-4-7.1 4-7.1-4M12 12v8" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="m8.7 10.1 7.2-4.1" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <span class="ticket-type-card__copy">
+                    <span class="ticket-type-card__title" data-i18n="ticket.type.serviceRequest.title">Service Request</span>
+                    <span class="ticket-type-card__description" data-i18n="ticket.type.serviceRequest.description">Request a new service or standard IT item.</span>
+                  </span>
+                  <span class="ticket-type-card__check" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m7.4 12.2 3.1 3.1 6.1-6.4" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+
+                <button class="ticket-type-card" type="button" role="radio" aria-checked="false" data-ticket-type="information">
+                  <span class="ticket-type-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                      <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" fill="none" stroke="currentColor" stroke-width="1.75"/>
+                      <path d="M12 10.3v5.8M12 7.2h.01" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <span class="ticket-type-card__copy">
+                    <span class="ticket-type-card__title" data-i18n="ticket.type.information.title">Information</span>
+                    <span class="ticket-type-card__description" data-i18n="ticket.type.information.description">General questions or information requests.</span>
+                  </span>
+                  <span class="ticket-type-card__check" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="m7.4 12.2 3.1 3.1 6.1-6.4" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+              </div>
+            </section>
+
+            <section class="ticket-section ticket-section--details" aria-labelledby="ticketDetailsHeading">
+              <h2 id="ticketDetailsHeading" class="ticket-section-title">
+                <span class="ticket-section-title__index">2.</span>
+                <span data-i18n="ticket.detailsHeading">Ticket Details</span>
+              </h2>
+
+              <form class="ticket-details-form" data-ticket-details-form novalidate>
+                <div class="ticket-form-grid">
+                  <div class="ticket-field ticket-field--subject">
+                    <label class="ticket-label" for="ticketSubject">
+                      <span data-i18n="ticket.subject">Subject</span>
+                      <span class="ticket-required" aria-hidden="true">*</span>
+                    </label>
+                    <div class="ticket-control-shell">
+                      <input id="ticketSubject" class="ticket-control" type="text" name="subject" data-ticket-field="subject" maxlength="140" placeholder="Briefly describe your issue or request" autocomplete="off" data-i18n-placeholder="ticket.subjectPlaceholder" />
+                    </div>
+                  </div>
+
+                  <div class="ticket-field ticket-field--urgency">
+                    <label class="ticket-label" for="ticketUrgency">
+                      <span data-i18n="ticket.urgency">Urgency</span>
+                      <span class="ticket-required" aria-hidden="true">*</span>
+                    </label>
+                    <div class="ticket-control-shell ticket-control-shell--select ticket-control-shell--with-status">
+                      <span class="ticket-status-dot ticket-status-dot--high" data-urgency-indicator aria-hidden="true"></span>
+                      <select id="ticketUrgency" class="ticket-control ticket-select" name="urgency" data-ticket-field="urgency" required>
+                        <option value="high" data-i18n="ticket.urgency.high">High</option>
+                        <option value="medium" data-i18n="ticket.urgency.medium">Medium</option>
+                        <option value="low" data-i18n="ticket.urgency.low">Low</option>
+                      </select>
+                      <span class="ticket-select-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="ticket-field ticket-field--category">
+                    <label class="ticket-label" for="ticketCategory">
+                      <span data-i18n="ticket.category">Category</span>
+                      <span class="ticket-required" aria-hidden="true">*</span>
+                    </label>
+                    <div class="ticket-control-shell ticket-control-shell--select">
+                      <select id="ticketCategory" class="ticket-control ticket-select" name="category" data-ticket-field="category" required>
+                        <option value="" data-i18n="ticket.categoryPlaceholder">Select a category</option>
+                        <option value="network-connectivity" data-i18n="ticket.category.networkConnectivity">Network &amp; Connectivity</option>
+                        <option value="account-access" data-i18n="ticket.category.accountAccess">Account &amp; Access</option>
+                        <option value="email-collaboration" data-i18n="ticket.category.emailCollaboration">Email &amp; Collaboration</option>
+                        <option value="hardware-devices" data-i18n="ticket.category.hardwareDevices">Hardware &amp; Devices</option>
+                        <option value="software-applications" data-i18n="ticket.category.softwareApplications">Software &amp; Applications</option>
+                        <option value="other" data-i18n="ticket.category.other">Other</option>
+                      </select>
+                      <span class="ticket-select-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="ticket-field ticket-field--affects">
+                    <label class="ticket-label" for="ticketAffects">
+                      <span data-i18n="ticket.affects">Affects</span>
+                      <span class="ticket-required" aria-hidden="true">*</span>
+                    </label>
+                    <div class="ticket-control-shell ticket-control-shell--select">
+                      <select id="ticketAffects" class="ticket-control ticket-select" name="affects" data-ticket-field="affects" required>
+                        <option value="" data-i18n="ticket.affectsPlaceholder">Select who is affected</option>
+                        <option value="me-only" data-i18n="ticket.affects.meOnly">Me only</option>
+                        <option value="my-team" data-i18n="ticket.affects.myTeam">My team</option>
+                        <option value="multiple-users" data-i18n="ticket.affects.multipleUsers">Multiple users</option>
+                        <option value="entire-office" data-i18n="ticket.affects.entireOffice">Entire office</option>
+                      </select>
+                      <span class="ticket-select-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="ticket-field ticket-field--location">
+                    <label class="ticket-label" for="ticketLocation">
+                      <span data-i18n="ticket.location">Location</span>
+                    </label>
+                    <div class="ticket-control-shell ticket-control-shell--select ticket-control-shell--with-leading-icon">
+                      <span class="ticket-leading-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><path d="M12 21s6.2-5.7 6.2-11.1a6.2 6.2 0 1 0-12.4 0C5.8 15.3 12 21 12 21Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M12 12.3a2.3 2.3 0 1 0 0-4.6 2.3 2.3 0 0 0 0 4.6Z" fill="none" stroke="currentColor" stroke-width="1.65"/></svg>
+                      </span>
+                      <select id="ticketLocation" class="ticket-control ticket-select" name="location" data-ticket-field="location">
+                        <option value="" data-i18n="ticket.locationPlaceholder">Select location</option>
+                        <option value="head-office-riyadh" data-i18n="ticket.location.headOfficeRiyadh">Head Office – Riyadh</option>
+                        <option value="remote" data-i18n="ticket.location.remote">Remote</option>
+                        <option value="branch-office" data-i18n="ticket.location.branchOffice">Branch Office</option>
+                      </select>
+                      <span class="ticket-select-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="ticket-field ticket-field--contact">
+                    <label class="ticket-label" for="ticketContact">
+                      <span data-i18n="ticket.preferredContact">Preferred Contact Method</span>
+                    </label>
+                    <div class="ticket-control-shell ticket-control-shell--select ticket-control-shell--with-leading-icon">
+                      <span class="ticket-leading-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><path d="M4.5 6.8h15v10.4h-15V6.8Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="m5.3 7.5 6.7 5 6.7-5" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <select id="ticketContact" class="ticket-control ticket-select" name="contact" data-ticket-field="contact">
+                        <option value="email" data-i18n="ticket.contact.email">Email</option>
+                        <option value="phone" data-i18n="ticket.contact.phone">Phone</option>
+                        <option value="microsoft-teams" data-i18n="ticket.contact.teams">Microsoft Teams</option>
+                      </select>
+                      <span class="ticket-select-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ticket-description-field" data-description-field>
+                  <label class="ticket-label" for="ticketDescription">
+                    <span data-i18n="ticket.description">Description</span>
+                    <span class="ticket-required" aria-hidden="true">*</span>
+                  </label>
+
+                  <div class="ticket-description-box">
+                    <div class="ticket-description-toolbar" role="toolbar" aria-label="Description formatting" data-i18n-aria-label="ticket.descriptionToolbar">
+                      <button class="ticket-toolbar-button" type="button" data-description-format="bold" aria-label="Bold" data-i18n-aria-label="ticket.toolbar.bold">
+                        <strong aria-hidden="true">B</strong>
+                      </button>
+                      <button class="ticket-toolbar-button" type="button" data-description-format="italic" aria-label="Italic" data-i18n-aria-label="ticket.toolbar.italic">
+                        <em aria-hidden="true">I</em>
+                      </button>
+                      <button class="ticket-toolbar-button" type="button" data-description-format="underline" aria-label="Underline" data-i18n-aria-label="ticket.toolbar.underline">
+                        <span aria-hidden="true" class="ticket-toolbar-underline">U</span>
+                      </button>
+                      <span class="ticket-toolbar-divider" aria-hidden="true"></span>
+                      <button class="ticket-toolbar-button" type="button" data-description-format="bullet" aria-label="Bulleted list" data-i18n-aria-label="ticket.toolbar.bulletList">
+                        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M8.5 6.8h10M8.5 12h10M8.5 17.2h10M4.8 6.8h.01M4.8 12h.01M4.8 17.2h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+                      </button>
+                      <button class="ticket-toolbar-button" type="button" data-description-format="numbered" aria-label="Numbered list" data-i18n-aria-label="ticket.toolbar.numberedList">
+                        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M10 6.8h9M10 12h9M10 17.2h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4.6 7.7h2M5.7 7.7V5.6M4.6 12.8c0-.8.7-1.3 1.4-1.3.8 0 1.3.5 1.3 1.2 0 .5-.3.9-.8 1.3l-1.8 1.4h2.8" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </button>
+                      <button class="ticket-toolbar-button" type="button" data-description-format="link" aria-label="Insert link" data-i18n-aria-label="ticket.toolbar.link">
+                        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M10.2 13.8a3.1 3.1 0 0 0 4.4 0l3.2-3.2a3.1 3.1 0 0 0-4.4-4.4l-1.1 1.1M13.8 10.2a3.1 3.1 0 0 0-4.4 0l-3.2 3.2a3.1 3.1 0 0 0 4.4 4.4l1.1-1.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </button>
+                      <button class="ticket-toolbar-button" type="button" data-description-format="image" aria-label="Insert image reference" data-i18n-aria-label="ticket.toolbar.image">
+                        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M4.8 6.2h14.4v11.6H4.8V6.2Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="m6.6 16 4.1-4.2 2.8 2.8 1.8-1.9 2.2 3.3M15.6 9.2h.01" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </button>
+                      <button class="ticket-toolbar-button" type="button" data-description-format="code" aria-label="Code" data-i18n-aria-label="ticket.toolbar.code">
+                        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="m9.2 8.1-4 3.9 4 3.9M14.8 8.1l4 3.9-4 3.9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </button>
+                    </div>
+
+                    <textarea id="ticketDescription" class="ticket-description-control" name="description" data-ticket-field="description" maxlength="4000" rows="7" placeholder="Provide as much detail as possible to help us understand and resolve your issue faster..." data-i18n-placeholder="ticket.descriptionPlaceholder"></textarea>
+                    <div class="ticket-description-footer">
+                      <span class="ticket-description-helper" data-i18n="ticket.descriptionHelper">Include impact, timing, error messages, and any troubleshooting already tried.</span>
+                      <output class="ticket-character-count" for="ticketDescription" data-description-counter>0 / 4000</output>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </section>
+
+            <section class="ticket-section ticket-section--attachments" aria-labelledby="ticketAttachmentsHeading">
+              <div class="ticket-section-heading-row">
+                <h3 id="ticketAttachmentsHeading" class="ticket-subheading" data-i18n="ticket.attachments">Attachments</h3>
+              </div>
+
+              <div class="ticket-attachments" data-attachments>
+                <label class="ticket-attachment-dropzone" for="ticketAttachmentInput" data-attachment-dropzone>
+                  <input id="ticketAttachmentInput" class="ticket-attachment-input" type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.docx,.xlsx,.txt,image/jpeg,image/png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain" data-attachment-input>
+                  <span class="ticket-attachment-cloud" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M7.2 17.6H6.8a3.8 3.8 0 0 1-.4-7.5 5.7 5.7 0 0 1 10.9-1.6 4.6 4.6 0 0 1 .3 9.1h-.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18.8V11m0 0-3.2 3.2M12 11l3.2 3.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="ticket-attachment-copy">
+                    <strong data-i18n="ticket.attachmentsDropText">Drag and drop files here or click to browse</strong>
+                    <small data-i18n="ticket.attachmentsHelp">Max file size 25MB. Supported: JPG, PNG, PDF, DOCX, XLSX, TXT</small>
+                  </span>
+                  <span class="ticket-attachment-browse" aria-hidden="true" data-i18n="ticket.browseFiles">Browse Files</span>
+                </label>
+
+                <div class="ticket-attachment-feedback" role="status" aria-live="polite" data-attachment-feedback></div>
+                <ul class="ticket-attachment-list" aria-label="Attached files" data-i18n-aria-label="ticket.attachmentListLabel" data-attachment-list></ul>
+              </div>
+            </section>
+
+            <footer class="ticket-actions-bar" aria-label="Ticket actions" data-i18n-aria-label="ticket.actionsLabel">
+              <div class="ticket-action-status-group">
+                <p class="ticket-required-note">
+                  <span class="ticket-required" aria-hidden="true">*</span>
+                  <span data-i18n="ticket.requiredFields">Required fields</span>
+                </p>
+                <p class="ticket-ai-status" data-ticket-ai-status hidden></p>
+              </div>
+              <div class="ticket-action-buttons">
+                <button class="ticket-action-button ticket-action-button--secondary" type="button" data-ticket-action="cancel" data-i18n="ticket.actionCancel">Cancel</button>
+                <button class="ticket-action-button ticket-action-button--primary" type="button" data-ticket-action="create">
+                  <span class="ticket-action-button__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M20.2 3.8 9.7 14.3m10.5-10.5-5.7 16.4-4.8-5.9-6-2.1 16.5-8.4Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span data-i18n="ticket.actionCreate">Create Ticket</span>
+                </button>
+              </div>
+            </footer>
+          </section>
+        </main>
+
+        <aside class="app-preview sugo-shell__preview" data-region="preview">
+
+          <section class="kb-article-side-panel sugo-panel" aria-labelledby="kbArticleToolsTitle" hidden>
+            <header class="ask-ai-options-header">
+              <span class="ask-ai-options-header__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.8 20 8v8l-8 4.2L4 16V8l8-4.2Zm0 0v8.5m8-4.3-8 4.3m-8-4.3 8 4.3" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div>
+                <h2 id="kbArticleToolsTitle" data-i18n="kb.toolsTitle">Article Tools</h2>
+                <p data-i18n="kb.toolsSubtitle">Review metadata, copy content, and open related SOP topics.</p>
+              </div>
+            </header>
+
+            <dl class="kb-article-meta" data-kb-meta>
+              <div>
+                <dt data-i18n="kb.meta.source">Source</dt>
+                <dd data-kb-meta-source>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="kb.meta.category">Category</dt>
+                <dd data-kb-meta-category>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="kb.meta.section">Section</dt>
+                <dd data-kb-meta-section>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="kb.meta.paneId">Pane ID</dt>
+                <dd data-kb-meta-pane>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="kb.meta.blocks">Field blocks</dt>
+                <dd data-kb-meta-blocks>0</dd>
+              </div>
+            </dl>
+
+            <button class="kb-article-side-copy" type="button" data-kb-action="copy" data-i18n="kb.copy" disabled>Copy Article</button>
+
+            <section class="kb-related" aria-labelledby="kbRelatedTitle">
+              <h3 id="kbRelatedTitle" data-i18n="kb.relatedTitle">Related Articles</h3>
+              <p data-i18n="kb.relatedSubtitle">Topics from the same section or closest SOP match.</p>
+              <div class="kb-related-list" data-kb-related></div>
+            </section>
+          </section>
+
+
+
+          <section class="placeholder-side-panel sugo-panel" aria-labelledby="placeholderSideTitle" hidden data-placeholder-side-panel>
+            <header class="ask-ai-options-header">
+              <span class="ask-ai-options-header__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.8 20 8v8l-8 4.2L4 16V8l8-4.2Zm0 0v8.5m8-4.3-8 4.3m-8-4.3 8 4.3" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div>
+                <h2 id="placeholderSideTitle" data-i18n="placeholder.sideTitle">Placeholder Notes</h2>
+                <p data-i18n="placeholder.sideSubtitle">These sidebar routes are visible in the target design but have no confirmed legacy implementation.</p>
+              </div>
+            </header>
+
+            <dl class="placeholder-meta" data-placeholder-meta>
+              <div>
+                <dt data-i18n="placeholder.meta.route">Route</dt>
+                <dd data-placeholder-meta-route>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="placeholder.meta.status">Status</dt>
+                <dd data-i18n="placeholder.meta.statusValue">Placeholder only</dd>
+              </div>
+              <div>
+                <dt data-i18n="placeholder.meta.worker">Worker calls</dt>
+                <dd data-i18n="placeholder.meta.workerValue">None</dd>
+              </div>
+              <div>
+                <dt data-i18n="placeholder.meta.next">Next required input</dt>
+                <dd data-i18n="placeholder.meta.nextValue">Product scope and backend contract</dd>
+              </div>
+            </dl>
+
+            <div class="placeholder-side-note" role="note">
+              <span class="placeholder-side-note__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 10.4v5.4M12 7.2h.01" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg></span>
+              <span data-i18n="placeholder.sideNote">The screen is intentionally read-only so the rebuild does not invent ticket databases, approval workflows, or announcement feeds.</span>
+            </div>
+          </section>
+
+          <section class="upload-image-options-panel sugo-panel" aria-labelledby="uploadImageOptionsTitle" hidden>
+            <header class="ask-ai-options-header">
+              <span class="ask-ai-options-header__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M5 5.2h14a1.8 1.8 0 0 1 1.8 1.8v10a1.8 1.8 0 0 1-1.8 1.8H5A1.8 1.8 0 0 1 3.2 17V7A1.8 1.8 0 0 1 5 5.2Z" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round"/><path d="m5.8 16.4 4.2-4.2 2.9 2.9 2.1-2.1 3.2 3.4" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.8 9.6h.01" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
+              </span>
+              <div>
+                <h2 id="uploadImageOptionsTitle" data-i18n="upload.optionsTitle">Image Analysis Options</h2>
+                <p data-i18n="upload.optionsSubtitle">Tune output, language, depth, SOP scope, and image-reading focus before sending.</p>
+              </div>
+            </header>
+
+            <div class="ask-ai-option-group" data-upload-group="output">
+              <div class="ask-ai-option-label" data-i18n="upload.output">Output</div>
+              <div class="ask-ai-segments" role="group" aria-label="Output type" data-i18n-aria-label="upload.outputLabel">
+                <button type="button" class="ask-ai-seg is-active" data-upload-option="output" data-value="answer" aria-pressed="true" data-i18n="upload.output.answer">Answer</button>
+                <button type="button" class="ask-ai-seg" data-upload-option="output" data-value="ticket" aria-pressed="false" data-i18n="upload.output.ticket">Vision ticket</button>
+              </div>
+            </div>
+
+            <div class="ask-ai-option-group" data-upload-group="language">
+              <div class="ask-ai-option-label" data-i18n="upload.language">Language</div>
+              <div class="ask-ai-segments" role="group" aria-label="Image analysis language" data-i18n-aria-label="upload.answerLanguageLabel">
+                <button type="button" class="ask-ai-seg is-active" data-upload-option="language" data-value="english" aria-pressed="true" data-i18n="ask.language.english">English</button>
+                <button type="button" class="ask-ai-seg" data-upload-option="language" data-value="arabic" aria-pressed="false" data-i18n="ask.language.arabic">Arabic</button>
+              </div>
+            </div>
+
+            <div class="ask-ai-option-group" data-upload-group="response">
+              <div class="ask-ai-option-label" data-i18n="upload.answerDepth">Answer depth</div>
+              <div class="ask-ai-segments ask-ai-segments--three" role="group" aria-label="Image analysis depth" data-i18n-aria-label="upload.answerDepthLabel">
+                <button type="button" class="ask-ai-seg is-active" data-upload-option="response" data-value="brief" aria-pressed="true" data-i18n="ask.response.brief">Brief</button>
+                <button type="button" class="ask-ai-seg" data-upload-option="response" data-value="detailed" aria-pressed="false" data-i18n="ask.response.detailed">Detailed</button>
+                <button type="button" class="ask-ai-seg" data-upload-option="response" data-value="step" aria-pressed="false" data-i18n="ask.response.steps">Steps</button>
+              </div>
+            </div>
+
+            <div class="ask-ai-option-group" data-upload-group="sop">
+              <div class="ask-ai-option-label" data-i18n="upload.knowledgeMode">Knowledge mode</div>
+              <div class="ask-ai-segments" role="group" aria-label="Image analysis knowledge mode" data-i18n-aria-label="upload.knowledgeModeLabel">
+                <button type="button" class="ask-ai-seg is-active" data-upload-option="sop" data-value="hybrid" aria-pressed="true" data-i18n="ask.sop.hybrid">Hybrid</button>
+                <button type="button" class="ask-ai-seg" data-upload-option="sop" data-value="sop_only" aria-pressed="false" data-i18n="ask.sop.sopOnly">SOP Only</button>
+              </div>
+            </div>
+
+            <div class="ask-ai-option-group" data-upload-group="analysis">
+              <div class="ask-ai-option-label" data-i18n="upload.focus">Image focus</div>
+              <div class="ask-ai-focus-stack" role="group" aria-label="Image analysis focus" data-i18n-aria-label="upload.focusLabel">
+                <button type="button" class="ask-ai-focus is-active" data-upload-option="analysis" data-value="screenshot_case" aria-pressed="true" data-i18n="upload.focus.screenshot">Screenshot reading</button>
+                <button type="button" class="ask-ai-focus" data-upload-option="analysis" data-value="ban_moderation" aria-pressed="false" data-i18n="upload.focus.ban">Ban / moderation</button>
+                <button type="button" class="ask-ai-focus" data-upload-option="analysis" data-value="payment_evidence" aria-pressed="false" data-i18n="upload.focus.payment">Payment evidence</button>
+                <button type="button" class="ask-ai-focus" data-upload-option="analysis" data-value="account_identity" aria-pressed="false" data-i18n="upload.focus.account">Account / identity</button>
+                <button type="button" class="ask-ai-focus" data-upload-option="analysis" data-value="app_error" aria-pressed="false" data-i18n="upload.focus.appError">App error</button>
+              </div>
+            </div>
+
+            <div class="ask-ai-options-summary" role="note">
+              <span class="ask-ai-options-summary__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 10.4v5.4M12 7.2h.01" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg></span>
+              <span data-i18n="upload.optionsNote">This workspace sends task_type image_analysis with the compressed image payload. Ticket and Ask AI workspaces stay separate.</span>
+            </div>
+
+            <dl class="ask-ai-source-summary">
+              <div>
+                <dt data-i18n="upload.taskLabel">Task</dt>
+                <dd data-i18n="upload.taskValue">image_analysis</dd>
+              </div>
+              <div>
+                <dt data-i18n="upload.workspaceLabel">Workspace</dt>
+                <dd data-i18n="upload.workspaceValue">upload_image</dd>
+              </div>
+              <div>
+                <dt data-i18n="upload.imagePayloadLabel">Image fields</dt>
+                <dd data-i18n="upload.imagePayloadValue">mimeType, data, name, width, height</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="ask-ai-options-panel sugo-panel" aria-labelledby="askAIOptionsTitle" hidden>
+            <header class="ask-ai-options-header">
+              <span class="ask-ai-options-header__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.8 20 8v8l-8 4.2L4 16V8l8-4.2Zm0 0v8.5m8-4.3-8 4.3m-8-4.3 8 4.3" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div>
+                <h2 id="askAIOptionsTitle" data-i18n="ask.optionsTitle">Ask AI Options</h2>
+                <p data-i18n="ask.optionsSubtitle">Tune language, depth, knowledge scope, and answer focus before sending.</p>
+              </div>
+            </header>
+
+            <div class="ask-ai-option-group" data-ask-group="language">
+              <div class="ask-ai-option-label" data-i18n="ask.language">Language</div>
+              <div class="ask-ai-segments" role="group" aria-label="Answer language" data-i18n-aria-label="ask.answerLanguageLabel">
+                <button type="button" class="ask-ai-seg is-active" data-ask-option="language" data-value="english" aria-pressed="true" data-i18n="ask.language.english">English</button>
+                <button type="button" class="ask-ai-seg" data-ask-option="language" data-value="arabic" aria-pressed="false" data-i18n="ask.language.arabic">Arabic</button>
+              </div>
+            </div>
+
+            <div class="ask-ai-option-group" data-ask-group="response">
+              <div class="ask-ai-option-label" data-i18n="ask.answerDepth">Answer depth</div>
+              <div class="ask-ai-segments ask-ai-segments--three" role="group" aria-label="Answer depth" data-i18n-aria-label="ask.answerDepthLabel">
+                <button type="button" class="ask-ai-seg is-active" data-ask-option="response" data-value="brief" aria-pressed="true" data-i18n="ask.response.brief">Brief</button>
+                <button type="button" class="ask-ai-seg" data-ask-option="response" data-value="detailed" aria-pressed="false" data-i18n="ask.response.detailed">Detailed</button>
+                <button type="button" class="ask-ai-seg" data-ask-option="response" data-value="step" aria-pressed="false" data-i18n="ask.response.steps">Steps</button>
+              </div>
+            </div>
+
+            <div class="ask-ai-option-group" data-ask-group="sop">
+              <div class="ask-ai-option-label" data-i18n="ask.knowledgeMode">Knowledge mode</div>
+              <div class="ask-ai-segments" role="group" aria-label="Knowledge mode" data-i18n-aria-label="ask.knowledgeModeLabel">
+                <button type="button" class="ask-ai-seg is-active" data-ask-option="sop" data-value="hybrid" aria-pressed="true" data-i18n="ask.sop.hybrid">Hybrid</button>
+                <button type="button" class="ask-ai-seg" data-ask-option="sop" data-value="sop_only" aria-pressed="false" data-i18n="ask.sop.sopOnly">SOP Only</button>
+              </div>
+            </div>
+
+            <div class="ask-ai-option-group" data-ask-group="focus">
+              <div class="ask-ai-option-label" data-i18n="ask.focus">Ask AI focus</div>
+              <div class="ask-ai-focus-stack" role="group" aria-label="Ask AI focus" data-i18n-aria-label="ask.focusLabel">
+                <button type="button" class="ask-ai-focus is-active" data-ask-option="focus" data-value="agent" aria-pressed="true" data-i18n="ask.focus.agent">Agent guidance</button>
+                <button type="button" class="ask-ai-focus" data-ask-option="focus" data-value="sop_check" aria-pressed="false" data-i18n="ask.focus.sopCheck">SOP check + confidence</button>
+                <button type="button" class="ask-ai-focus" data-ask-option="focus" data-value="troubleshoot" aria-pressed="false" data-i18n="ask.focus.troubleshoot">Troubleshooting steps</button>
+                <button type="button" class="ask-ai-focus" data-ask-option="focus" data-value="escalation" aria-pressed="false" data-i18n="ask.focus.escalation">Escalation review</button>
+              </div>
+            </div>
+
+            <div class="ask-ai-options-summary" role="note">
+              <span class="ask-ai-options-summary__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 10.4v5.4M12 7.2h.01" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg></span>
+              <span data-i18n="ask.optionsNote">This is locked to Answer output. Ticket creation and image analysis have their own specialized workspaces.</span>
+            </div>
+
+            <dl class="ask-ai-source-summary">
+              <div>
+                <dt data-i18n="ask.outputLabel">Output</dt>
+                <dd data-i18n="ask.outputAnswer">Answer</dd>
+              </div>
+              <div>
+                <dt data-i18n="ask.workerLabel">Worker route</dt>
+                <dd data-i18n="ask.workerRoute">Base URL POST</dd>
+              </div>
+              <div>
+                <dt data-i18n="ask.streamLabel">Stream</dt>
+                <dd data-i18n="ask.streamValue">false, SSE parser preserved</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="preview-panel sugo-panel" aria-labelledby="ticketPreviewHeading" data-ticket-preview>
+            <header class="ticket-preview-heading">
+              <h2 id="ticketPreviewHeading" class="ticket-section-title ticket-section-title--preview">
+                <span class="ticket-section-title__index">3.</span>
+                <span data-i18n="ticket.previewHeading">Preview</span>
+              </h2>
+              <p data-i18n="ticket.previewSubtitle">Review your ticket before submission</p>
+            </header>
+
+            <article class="ticket-preview-card" aria-live="polite">
+              <header class="ticket-preview-brand-row">
+                <span class="ticket-preview-mark" aria-hidden="true">
+                  <svg viewBox="0 0 48 48" focusable="false">
+                    <path d="M24 3.5 41.8 13.8v20.4L24 44.5 6.2 34.2V13.8L24 3.5Z" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linejoin="round"/>
+                    <path d="M16.2 17.4c2.2-4 7.8-5.2 11.5-2.6l7.1 4.9M31.8 30.6c-2.2 4-7.8 5.2-11.5 2.6l-7.1-4.9M15 22.7l15 8.7c2.7 1.6 6.1-.4 6.1-3.5 0-1.5-.8-2.8-2.1-3.5l-16-9.3M33 25.3 18 16.6c-2.7-1.6-6.1.4-6.1 3.5 0 1.5.8 2.8 2.1 3.5l16 9.3" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="ticket-preview-brand-copy">
+                  <span class="ticket-preview-wordmark"><span>SUGO</span><strong>SOP</strong></span>
+                  <span class="ticket-preview-subtitle">Knowledge Lounge • MENA</span>
+                </span>
+                <span class="ticket-preview-badge" data-i18n="ticket.previewBadgeDraft">DRAFT</span>
+              </header>
+
+              <div class="ticket-preview-divider" aria-hidden="true"></div>
+
+              <dl class="ticket-preview-fields">
+                <div class="ticket-preview-row">
+                  <dt>
+                    <span class="ticket-preview-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5.2 13.3v-2.1a6.8 6.8 0 0 1 13.6 0v2.1M5.4 12.2h1.8a1.7 1.7 0 0 1 1.7 1.7v2.7a1.7 1.7 0 0 1-1.7 1.7H5.8a1.9 1.9 0 0 1-1.9-1.9v-2.7a1.5 1.5 0 0 1 1.5-1.5Zm13.2 0h-1.8a1.7 1.7 0 0 0-1.7 1.7v2.7a1.7 1.7 0 0 0 1.7 1.7h1.4a1.9 1.9 0 0 0 1.9-1.9v-2.7a1.5 1.5 0 0 0-1.5-1.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span data-i18n="ticket.preview.ticketType">Ticket Type</span>
+                  </dt>
+                  <dd data-preview-field="ticketType">IT Support</dd>
+                </div>
+                <div class="ticket-preview-row">
+                  <dt>
+                    <span class="ticket-preview-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4.5 6.8h15v10.4h-15V6.8Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="m5.3 7.5 6.7 5 6.7-5" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span data-i18n="ticket.preview.subject">Subject</span>
+                  </dt>
+                  <dd data-preview-field="subject">—</dd>
+                </div>
+                <div class="ticket-preview-row">
+                  <dt>
+                    <span class="ticket-preview-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.7 19.3 8v8L12 20.3 4.7 16V8L12 3.7Zm0 .2v8.1m7.1-4-7.1 4-7.1-4" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span data-i18n="ticket.preview.category">Category</span>
+                  </dt>
+                  <dd data-preview-field="category">—</dd>
+                </div>
+                <div class="ticket-preview-row">
+                  <dt>
+                    <span class="ticket-preview-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 7.4v5.2l3.1 2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span data-i18n="ticket.preview.urgency">Urgency</span>
+                  </dt>
+                  <dd class="ticket-preview-urgency" data-preview-field="urgency"><span class="ticket-status-dot ticket-status-dot--high" aria-hidden="true"></span><span>High</span></dd>
+                </div>
+                <div class="ticket-preview-row">
+                  <dt>
+                    <span class="ticket-preview-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.6 11.2a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2Zm8.8 0a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2ZM3.8 19c.6-3 2.3-4.6 4-4.6s3.4 1.6 4 4.6M12.2 18.9c.7-2.9 2.3-4.5 4-4.5 1.8 0 3.4 1.6 4 4.6" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span data-i18n="ticket.preview.affects">Affects</span>
+                  </dt>
+                  <dd data-preview-field="affects">—</dd>
+                </div>
+                <div class="ticket-preview-row">
+                  <dt>
+                    <span class="ticket-preview-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M19 10c0 5.3-7 10.3-7 10.3S5 15.3 5 10a7 7 0 1 1 14 0Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M12 12.3a2.3 2.3 0 1 0 0-4.6 2.3 2.3 0 0 0 0 4.6Z" fill="none" stroke="currentColor" stroke-width="1.65"/></svg></span>
+                    <span data-i18n="ticket.preview.location">Location</span>
+                  </dt>
+                  <dd data-preview-field="location">—</dd>
+                </div>
+                <div class="ticket-preview-row">
+                  <dt>
+                    <span class="ticket-preview-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4.5 6.8h15v10.4h-15V6.8Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="m5.3 7.5 6.7 5 6.7-5" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span data-i18n="ticket.preview.preferredContact">Preferred Contact</span>
+                  </dt>
+                  <dd data-preview-field="contact">Email</dd>
+                </div>
+              </dl>
+
+              <div class="ticket-preview-divider" aria-hidden="true"></div>
+
+              <section class="ticket-preview-block" aria-labelledby="ticketPreviewDescriptionLabel">
+                <h3 id="ticketPreviewDescriptionLabel">
+                  <span class="ticket-preview-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.3 4.3h9.4v15.4H7.3V4.3Z" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round"/><path d="M9.8 8.4h4.4M9.8 11.8h4.8M9.8 15.2h3.5" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/></svg></span>
+                  <span data-i18n="ticket.preview.description">Description</span>
+                </h3>
+                <p class="ticket-preview-description" data-preview-field="description">—</p>
+              </section>
+
+              <section class="ticket-preview-block" aria-labelledby="ticketPreviewAttachmentsLabel">
+                <h3 id="ticketPreviewAttachmentsLabel">
+                  <span class="ticket-preview-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12.3 19.3 7 14a4 4 0 0 1 5.7-5.7l5.2 5.2a2.7 2.7 0 0 1-3.8 3.8L9 12.2a1.4 1.4 0 0 1 2-2l4.8 4.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <span data-i18n="ticket.preview.attachments">Attachments</span>
+                </h3>
+                <p class="ticket-preview-attachment-count" data-preview-field="attachmentCount">0 files attached</p>
+                <ul class="ticket-preview-attachment-list" data-preview-attachments></ul>
+              </section>
+
+              <div class="ticket-preview-terms" role="note">
+                <span class="ticket-preview-terms__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 10.4v5.4M12 7.2h.01" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg></span>
+                <span>
+                  <span data-i18n="ticket.preview.termsPrefix">By submitting this ticket, you agree to our</span>
+                  <a href="#" data-i18n="ticket.preview.termsService">Terms of Service</a>
+                  <span data-i18n="ticket.preview.termsAnd">and</span>
+                  <a href="#" data-i18n="ticket.preview.privacyPolicy">Privacy Policy</a>.
+                </span>
+              </div>
+            </article>
+
+            <button class="preview-help-button" type="button" aria-label="Help & Support" data-i18n-aria-label="ticket.preview.helpButton">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M20.3 11.6a8.2 8.2 0 0 1-11.5 7.5L4 20.2l1.2-4.5a8.2 8.2 0 1 1 15.1-4.1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </section>
+        </aside>
+      </section>
+    </div>
+  </div>
+
+  <div class="global-search-overlay" data-search-overlay hidden aria-hidden="true">
+    <div class="global-search-backdrop" data-search-close tabindex="-1"></div>
+    <section class="global-search-dialog" role="dialog" aria-modal="true" aria-labelledby="globalSearchTitle" aria-describedby="globalSearchHelp">
+      <header class="global-search-header">
+        <span class="global-search-header__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="m20 20-4.7-4.7m2.5-5.1a7.6 7.6 0 1 1-15.2 0 7.6 7.6 0 0 1 15.2 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <div class="global-search-title-copy">
+          <h2 id="globalSearchTitle" data-i18n="search.title">Search knowledge</h2>
+          <p id="globalSearchHelp" data-i18n="search.subtitle">Find SOP articles, hidden panes, and saved shortcuts across the SUGO knowledgebase.</p>
+        </div>
+        <button class="global-search-close" type="button" data-search-close aria-label="Close search" data-i18n-aria-label="search.close">Esc</button>
+      </header>
+
+      <div class="global-search-input-wrap">
+        <span class="global-search-input-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="m20 20-4.7-4.7m2.5-5.1a7.6 7.6 0 1 1-15.2 0 7.6 7.6 0 0 1 15.2 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <input id="globalSearchDialogInput" class="global-search-input" type="search" autocomplete="off" spellcheck="false" placeholder="Search by article, SOP keyword, ticket case, or pane ID" data-search-input data-i18n-placeholder="search.placeholder" />
+      </div>
+
+      <div class="global-search-filters" role="radiogroup" aria-label="Search filters" data-i18n-aria-label="search.filtersLabel">
+        <button class="global-search-filter is-active" type="button" role="radio" aria-checked="true" data-search-filter="all" data-i18n="search.filter.all">All</button>
+        <button class="global-search-filter" type="button" role="radio" aria-checked="false" data-search-filter="visible" data-i18n="search.filter.articles">Articles</button>
+        <button class="global-search-filter" type="button" role="radio" aria-checked="false" data-search-filter="hidden" data-i18n="search.filter.hidden">Hidden panes</button>
+        <button class="global-search-filter" type="button" role="radio" aria-checked="false" data-search-filter="shortcuts" data-i18n="search.filter.shortcuts">Shortcuts</button>
+      </div>
+
+      <div class="global-search-summary" role="status" aria-live="polite" data-search-summary data-i18n="search.ready">Type to search the full SUGO knowledgebase.</div>
+      <div class="global-search-results" data-search-results></div>
+
+      <footer class="global-search-footer">
+        <span><kbd>↑</kbd><kbd>↓</kbd> <span data-i18n="search.footerNavigate">Navigate</span></span>
+        <span><kbd>Enter</kbd> <span data-i18n="search.footerOpen">Open</span></span>
+        <span><kbd>Esc</kbd> <span data-i18n="search.footerClose">Close</span></span>
+      </footer>
+    </section>
+  </div>
+  <script src="./js/kb-data.js"></script>
+  <script src="./js/kb-content.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
