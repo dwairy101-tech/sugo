@@ -1,0 +1,164 @@
+{
+  "source": "DATA11/index.html",
+  "sourceIndexSha256": "3399dba93e8f4c12794d79be6b55a22ca97c2d7316bc75bc3e22f83d9f0426ce",
+  "uniqueRegisteredPaneIds": 404,
+  "deletedByFinalCleanup": 119,
+  "activeRuntimePanes": 285,
+  "visibleNavigationPanes": 284,
+  "hiddenActivePanes": [
+    "online-recharge-ticket-optimized"
+  ],
+  "missingContentForVisibleNavigation": [],
+  "activeContentSha256": "5e4b84aee382fdc382351ed3bf4809468fae63458a14a8dba6f5e6901a8f6dde",
+  "archivedContentSha256": "7163667b90b1c18c210e871238cf0df92718e5ada30e3bbcbc555943d2ec4d21",
+  "activeFormats": {
+    "dual": 189,
+    "support_macro": 96
+  },
+  "phase19BilingualCompletion": {
+    "auditedPaneCount": 285,
+    "correctedPaneCount": 27,
+    "correctedEntryCount": 27,
+    "missingLanguageBlocksAfterFix": [],
+    "supportMacroFieldParityIssuesAfterFix": [],
+    "ticketIssuesAfterFix": [],
+    "genericEnglishPlaceholderIssuesAfterFix": [],
+    "correctedPanes": [
+      {
+        "paneId": "sv-refined-report-abuse-evidence",
+        "title": "Report Abuse Evidence",
+        "detail": "Added the missing English Ticket field and removed the duplicated Ticket text from the English Answer field."
+      },
+      {
+        "paneId": "sv-refined-unban-review-male-using-female-account-video-sent",
+        "title": "Review Sent: Male Using Female Account",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-unban-review-underage-verification-video-sent",
+        "title": "Review Sent: Underage Verification",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-report-insulting-management",
+        "title": "Report Insulting Management",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-ban-drug-use-during-live",
+        "title": "Ban: Drug Use During Live",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-ban-male-using-female-account",
+        "title": "Ban: Male Using Female Account",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-ban-pretending-to-be-management",
+        "title": "Ban: Pretending to Be Management",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-ban-pretending-to-be-a-coin-seller",
+        "title": "Ban: Pretending to Be Coin Seller",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-ban-sexual-content-in-messages",
+        "title": "Ban: Sexual Content in Messages",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-ban-vpn-region-violation",
+        "title": "Ban: VPN / Region Violation",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-ban-weapon-during-live",
+        "title": "Ban: Weapon During Live",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "sv-refined-medium-risk-requirements",
+        "title": "Medium Risk Requirements",
+        "detail": "Rebuilt the English Answer and Ticket from the verified topic meaning; removed misplaced/duplicated closing text and restored one opening and one closing."
+      },
+      {
+        "paneId": "senior-cs-v51-command-center",
+        "title": "Command Center",
+        "detail": "Repaired the English Ticket where the signature had been inserted in the middle of the message."
+      },
+      {
+        "paneId": "sv-refined-ban-insulting-another-user",
+        "title": "Ban: Insulting Another User",
+        "detail": "Replaced a generic English placeholder with the topic-specific meaning already present in Arabic, then regenerated the English Ticket with a complete opening and closing."
+      },
+      {
+        "paneId": "sv-refined-ban-sexual-messages",
+        "title": "Ban: Sexual Messages",
+        "detail": "Replaced a generic English placeholder with the topic-specific meaning already present in Arabic, then regenerated the English Ticket with a complete opening and closing."
+      },
+      {
+        "paneId": "sv-refined-ban-sexual-moments",
+        "title": "Ban: Sexual Moments",
+        "detail": "Replaced a generic English placeholder with the topic-specific meaning already present in Arabic, then regenerated the English Ticket with a complete opening and closing."
+      },
+      {
+        "paneId": "sv-refined-ban-sexual-picture",
+        "title": "Ban: Sexual Picture",
+        "detail": "Replaced a generic English placeholder with the topic-specific meaning already present in Arabic, then regenerated the English Ticket with a complete opening and closing."
+      },
+      {
+        "paneId": "sv-refined-ban-sexual-video",
+        "title": "Ban: Sexual Video",
+        "detail": "Replaced a generic English placeholder with the topic-specific meaning already present in Arabic, then regenerated the English Ticket with a complete opening and closing."
+      },
+      {
+        "paneId": "sv-refined-ban-smoking-image",
+        "title": "Ban: Smoking Image",
+        "detail": "Replaced a generic English placeholder with the topic-specific meaning already present in Arabic, then regenerated the English Ticket with a complete opening and closing."
+      },
+      {
+        "paneId": "sv-refined-ban-weapon-image",
+        "title": "Ban: Weapon Image",
+        "detail": "Replaced a generic English placeholder with the topic-specific meaning already present in Arabic, then regenerated the English Ticket with a complete opening and closing."
+      },
+      {
+        "paneId": "sv-refined-ban-sexual-offer",
+        "title": "Ban: Sexual Offer",
+        "detail": "Completed the missing topic-specific policy text in both English and Arabic and added complete Ticket envelopes in both languages."
+      },
+      {
+        "paneId": "senior-cs-escalation-directory",
+        "title": "Escalation Directory",
+        "detail": "Completed the English and Arabic Ticket endings with one customer-service signature, while preserving the original internal procedure content."
+      },
+      {
+        "paneId": "senior-cs-missing-info-checklists",
+        "title": "Missing Info Checklists",
+        "detail": "Completed the English and Arabic Ticket endings with one customer-service signature, while preserving the original internal procedure content."
+      },
+      {
+        "paneId": "senior-cs-backend-links-reference",
+        "title": "Backend Links Reference",
+        "detail": "Completed the English and Arabic Ticket endings with one customer-service signature, while preserving the original internal procedure content."
+      },
+      {
+        "paneId": "sv-refined-report-issue-case",
+        "title": "Report Technical Issue",
+        "detail": "Replaced the incomplete legacy English opening with the complete SUGO greeting and retained one complete closing/signature."
+      },
+      {
+        "paneId": "sv-refined-coins-not-received",
+        "title": "Coins Not Received",
+        "detail": "Replaced the incomplete legacy English opening with the complete SUGO greeting and retained one complete closing/signature."
+      },
+      {
+        "paneId": "sv-refined-cancel-withdrawal-request",
+        "title": "Cancel Withdrawal Request",
+        "detail": "Replaced the incomplete legacy English opening with the complete SUGO greeting and retained one complete closing/signature."
+      }
+    ]
+  }
+}

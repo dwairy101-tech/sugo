@@ -1,0 +1,11 @@
+{
+  "build": "20260710-crimson-v2",
+  "sugoKnowledgeBasePaneCount": 192,
+  "missingPaneIds": [],
+  "missingEnglishBlocks": [],
+  "missingArabicBlocks": [],
+  "emptySupportMacroFields": [],
+  "defaultArticleLanguageFilter": "all",
+  "defaultArticleContentFilter": "all",
+  "rendererGuarantee": "Every non-empty source line is emitted once as a paragraph, list item, heading, or linked URL."
+}
