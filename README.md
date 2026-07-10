@@ -28,3 +28,8 @@ Do not upload the parent ZIP as one file. Extract it first, then upload the file
 If the repository still contains an older root `index.html`, replace or delete it before uploading this package.
 
 The Cloudflare Worker remains in `worker/` and is not deployed by GitHub Pages.
+
+
+## Crimson Noir build
+
+This GitHub Pages build uses the approved desktop-only dark crimson, black, and gray theme. Article pages open with all available English/Arabic content and all content types visible by default.

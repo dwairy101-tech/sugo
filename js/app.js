@@ -9,7 +9,7 @@
   const MAX_RECENT = 10;
   const MAX_FAVORITES_DISPLAY = 16;
   const MAX_AI_FAVORITES = 12;
-  const SUPPORTED_THEMES = new Set(["light", "dark"]);
+  const SUPPORTED_THEMES = new Set(["dark"]);
   const WORKSPACES = Object.freeze({
     ASK_AI: "ask_ai",
     CREATE_TICKET: "create_ticket",
@@ -309,18 +309,14 @@
     }
   }
 
-  function applyTheme(theme, { persist = true } = {}) {
-    const resolved = SUPPORTED_THEMES.has(theme) ? theme : "light";
+  function applyTheme(_theme, { persist = true } = {}) {
+    const resolved = "dark";
     root.dataset.theme = resolved;
 
     const themeMeta = document.querySelector('meta[name="theme-color"]');
-    if (themeMeta) {
-      themeMeta.content = resolved === "dark" ? "#101522" : "#f6f8fc";
-    }
+    if (themeMeta) themeMeta.content = "#080809";
 
-    if (persist) {
-      storeTheme(resolved);
-    }
+    if (persist) storeTheme(resolved);
 
     document.dispatchEvent(new CustomEvent("sugo:themechange", {
       detail: { theme: resolved }
@@ -1060,7 +1056,19 @@
     svChildren.hidden = true;
 
     rootList.append(noResults, kbButton, kbChildren, svButton, svChildren);
-    navigation.append(heading, rootList);
+
+    const headingRow = document.createElement("div");
+    headingRow.className = "sidebar-navigation__header";
+    const editMenu = document.createElement("button");
+    editMenu.type = "button";
+    editMenu.className = "sidebar-navigation__edit";
+    editMenu.dataset.adminMenuEdit = "true";
+    editMenu.textContent = "Edit";
+    editMenu.title = "Edit menu";
+    editMenu.setAttribute("aria-label", "Edit menu");
+    headingRow.append(heading, editMenu);
+
+    navigation.append(headingRow, rootList);
     return navigation;
   }
 
@@ -1519,6 +1527,16 @@
 
   function bindNavigationShell(sidebar) {
     sidebar.addEventListener("click", (event) => {
+      const editMenuButton = event.target.closest("[data-admin-menu-edit]");
+      if (editMenuButton && sidebar.contains(editMenuButton)) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (window.SUGO?.Admin?.openMenuEditor) {
+          void window.SUGO.Admin.openMenuEditor();
+        }
+        return;
+      }
+
       const menuToggle = event.target.closest("[data-navigation-menu-toggle]");
       if (menuToggle && sidebar.contains(menuToggle)) {
         const expanded = menuToggle.getAttribute("aria-expanded") === "true";
@@ -4204,55 +4222,100 @@
     return !/[.!?;:]$/.test(line);
   }
 
+  function appendArticleInline(container, value) {
+    const text = String(value || "");
+    const labelMatch = text.match(/^([^:：]{1,46}[:：])\s+(.+)$/u);
+    const source = labelMatch ? labelMatch[2] : text;
+
+    if (labelMatch) {
+      const strong = document.createElement("strong");
+      strong.className = "article-inline-label";
+      strong.textContent = `${labelMatch[1]} `;
+      container.append(strong);
+    }
+
+    const urlPattern = /(https?:\/\/[^\s]+)/gi;
+    let cursor = 0;
+    for (const match of source.matchAll(urlPattern)) {
+      const index = match.index || 0;
+      if (index > cursor) container.append(document.createTextNode(source.slice(cursor, index)));
+      const link = document.createElement("a");
+      link.className = "article-inline-link";
+      link.href = match[0];
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = match[0];
+      container.append(link);
+      cursor = index + match[0].length;
+    }
+    if (cursor < source.length) container.append(document.createTextNode(source.slice(cursor)));
+  }
+
   function appendArticleTextLines(container, text) {
-    const lines = String(text || "").replace(/\r/g, "").split("\n");
+    const lines = String(text || "")
+      .replace(/\r/g, "")
+      .replace(/\u00a0/g, " ")
+      .split("\n");
+
+    let paragraph = null;
     let currentList = null;
-    let currentType = "";
+    let currentListType = "";
+
+    function closeParagraph() {
+      paragraph = null;
+    }
 
     function closeList() {
       currentList = null;
-      currentType = "";
+      currentListType = "";
     }
 
-    function ensureList(type, start = 1) {
-      if (currentList && currentType === type) return currentList;
-      closeList();
-      currentType = type;
+    function ensureParagraph() {
+      if (!paragraph) {
+        paragraph = document.createElement("p");
+        paragraph.className = "article-rich-text__paragraph";
+        container.append(paragraph);
+      } else {
+        paragraph.append(document.createElement("br"));
+      }
+      return paragraph;
+    }
+
+    function ensureList(type) {
+      if (currentList && currentListType === type) return currentList;
+      closeParagraph();
+      currentListType = type;
       currentList = document.createElement(type);
-      currentList.className = "article-rich-text__list";
-      if (type === "ol" && Number.isFinite(start) && start > 1) currentList.start = start;
+      currentList.className = `article-rich-text__list article-rich-text__list--${type}`;
       container.append(currentList);
       return currentList;
     }
 
     for (const rawLine of lines) {
-      const line = rawLine.trim();
+      const line = rawLine.replace(/[ \t]+$/g, "").trim();
       if (!line) {
+        closeParagraph();
         closeList();
         continue;
       }
 
-      const ordered = line.match(/^(\d+)[.)]\s+(.*)$/);
-      const bullet = line.match(/^[•*\-]\s*(.*)$/);
-      if (ordered) {
-        const list = ensureList("ol", Number(ordered[1]) || 1);
+      const ordered = line.match(/^([0-9٠-٩]+)\s*[.)\-:]\s*(.+)$/u);
+      const bullet = line.match(/^[•●▪◦‣⁃*+\-–—]\s*(.+)$/u);
+      if (ordered || bullet) {
+        const type = ordered ? "ol" : "ul";
+        const list = ensureList(type);
         const item = document.createElement("li");
-        item.textContent = ordered[2];
-        list.append(item);
-        continue;
-      }
-      if (bullet) {
-        const list = ensureList("ul");
-        const item = document.createElement("li");
-        item.textContent = bullet[1];
+        item.dataset.marker = ordered ? `${ordered[1]}.` : "•";
+        const copy = document.createElement("span");
+        copy.className = "article-rich-text__list-copy";
+        appendArticleInline(copy, ordered ? ordered[2] : bullet[1]);
+        item.append(copy);
         list.append(item);
         continue;
       }
 
       closeList();
-      const paragraph = document.createElement("p");
-      paragraph.textContent = line;
-      container.append(paragraph);
+      appendArticleInline(ensureParagraph(), line);
     }
   }
 
@@ -4486,8 +4549,8 @@
     articleViewState.activeLanguage = resolvedLanguage;
     articleViewState.activeType = resolvedType;
     try {
-      localStorage.setItem("sugo_content_filter_lang", resolvedLanguage);
-      localStorage.setItem("sugo_content_filter_type", resolvedType);
+      localStorage.setItem("sugo_content_filter_lang_v2", resolvedLanguage);
+      localStorage.setItem("sugo_content_filter_type_v2", resolvedType);
     } catch (_error) {}
 
     languageButtons.forEach((button) => {
@@ -4653,18 +4716,10 @@
     const typeValues = types.length > 1 ? ["all", ...types] : types;
 
     if (!preserveFilter || !samePane || !languageValues.includes(articleViewState.activeLanguage)) {
-      articleViewState.activeLanguage = readArticleFilterPreference(
-        "sugo_content_filter_lang",
-        languageValues,
-        languageValues.includes("ar") ? "ar" : (languageValues[0] || "all")
-      );
+      articleViewState.activeLanguage = languageValues.includes("all") ? "all" : (languageValues[0] || "all");
     }
     if (!preserveFilter || !samePane || !typeValues.includes(articleViewState.activeType)) {
-      articleViewState.activeType = readArticleFilterPreference(
-        "sugo_content_filter_type",
-        typeValues,
-        articleBestDefaultType(types)
-      );
+      articleViewState.activeType = typeValues.includes("all") ? "all" : (typeValues[0] || "all");
     }
 
     workspace.classList.add("has-content");
@@ -5645,10 +5700,7 @@
     root.lang = "en";
     root.dir = "ltr";
 
-    const storedTheme = readStoredTheme();
-    applyTheme(SUPPORTED_THEMES.has(storedTheme) ? storedTheme : "light", {
-      persist: false
-    });
+    applyTheme("dark", { persist: false });
 
     mountApplicationShell();
   }
