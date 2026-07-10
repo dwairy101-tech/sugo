@@ -1,12 +1,17 @@
-# SUGO SOP Portal
+# SUGO SOP
 
-Final clean rebuild of the SUGO SOP bilingual knowledge-base, AI assistant, ticket-drafting, and image-analysis portal.
+A clean, static, GitHub-ready rebuild of the SUGO support knowledge base, AI assistant, image-analysis workspace, and AI ticket-drafting console.
 
-## Status
+## Final scope
 
-Phase 20 complete. The static frontend is rebuilt as a small GitHub-ready codebase, the existing Cloudflare Worker is copied unchanged, the worker-facing request/response contract was rechecked, and English/Arabic visual QA was run across the completed screens.
+- **Desktop only:** minimum supported viewport width is 1280 px.
+- **English application interface:** product chrome, controls, buttons, and primary headings are English and LTR.
+- **Bilingual knowledge content:** original English and Arabic article content is retained, searchable, copyable, and displayed with the correct per-block direction.
+- **Reference screenshots are visual references only:** their business titles and sample categories are not imported unless verified in the legacy source.
+- **Unchanged Worker:** `worker/worker.js` is copied byte-for-byte from the supplied production Worker.
+- **No build step:** the frontend uses plain HTML, CSS, and ordered JavaScript files.
 
-## Folder structure
+## Repository structure
 
 ```text
 sugo-sop/
@@ -14,10 +19,16 @@ sugo-sop/
 │   ├── index.html
 │   ├── css/
 │   │   └── styles.css
-│   └── js/
-│       ├── kb-data.js
-│       ├── kb-content.js
-│       └── app.js
+│   ├── js/
+│   │   ├── kb-data.js
+│   │   ├── kb-content.js
+│   │   ├── kb-matcher.js
+│   │   ├── worker-api.js
+│   │   ├── admin.js
+│   │   └── app.js
+│   └── data/
+│       ├── content-audit.json
+│       └── legacy-deleted-panes.json
 ├── worker/
 │   ├── worker.js
 │   └── wrangler.toml
@@ -25,173 +36,259 @@ sugo-sop/
 └── .gitignore
 ```
 
-## Local preview
+## Knowledge-base inventory
 
-Open `public/index.html` directly in a browser, or serve the folder with any static server:
+| Item | Final count |
+|---|---:|
+| Knowledge-base roots | 2 |
+| Categories | 16 |
+| Sections | 72 |
+| Visible topics | 284 |
+| Active runtime panes | 285 |
+| Hidden active AI-routing panes | 1 |
+| Historical pane IDs removed by the legacy cleanup layer and retained only for audit | 119 |
+| Bilingual dual-text panes | 189 |
+| Bilingual support-macro panes | 96 |
+
+The active content corpus has complete visible-navigation coverage. `public/data/content-audit.json` records the source hashes, counts, bilingual parity checks, and the approved Phase 19 completion pass. That pass corrected 27 pane entries where one language, a customer-facing Ticket field, or a greeting/closing envelope was incomplete.
+
+## Feature map
+
+| Legacy or approved feature | New implementation |
+|---|---|
+| Product shell, top bar, breadcrumb, sidebar, workspace, and output column | `public/js/app.js`, `public/css/styles.css` |
+| Collapsed-by-default upper `Menu` tree | `public/js/app.js` |
+| Two original KB roots and full nested navigation | `public/js/kb-data.js`, `public/js/app.js` |
+| Active English/Arabic pane corpus | `public/js/kb-content.js` |
+| Favorites and recent topics | `public/js/app.js`, browser local storage |
+| Bilingual article detail, filters, copy actions, related topics | `public/js/app.js` |
+| English and Arabic full-content search | `public/js/app.js` |
+| Client-side KB ranking and request audit metadata | `public/js/kb-matcher.js` |
+| Create Ticket selector, context fields, image evidence, live draft, AI generation | `public/js/app.js`, `public/js/worker-api.js` |
+| Ask AI modes, SOP mode, focus profiles, follow-up, copy, retry, stop | `public/js/app.js`, `public/js/worker-api.js` |
+| Upload Image analysis and Vision Ticket handoff | `public/js/app.js`, `public/js/worker-api.js` |
+| AI answer-to-ticket output population | `SUGO.TicketBuilder.applyGeneratedTicket(...)` in `public/js/app.js` |
+| JSON and defensive SSE response parsing | `public/js/worker-api.js` |
+| KV-backed pane editing, reset, and menu editing | `public/js/admin.js` |
+| Unchanged Cloudflare Worker and provider fallback logic | `worker/worker.js` |
+
+## Screenshot-to-feature map
+
+The supplied composite screenshot was used for geometry, spacing, typography, borders, and component styling only.
+
+| Reference position | Rebuilt feature |
+|---|---|
+| Welcome shell | Default application shell and empty workspace state |
+| Category and section views | Nested original KB navigation |
+| Article screen | Bilingual article detail and related topics |
+| AI Answer screen | Ask AI result and follow-up panel |
+| Create Ticket screen | AI drafting form and output preview; no unsupported external ticket database was invented |
+| Internal Notes screen | Existing authenticated pane editor and original internal-note content |
+| Favorites screen | Favorites tab in the sidebar |
+| Recent Topics screen | Recent tab in the sidebar |
+| All Topics screen | Original navigation tree and search results |
+| Search Results screen | Ranked bilingual search experience |
+
+## Local frontend preview
+
+No package installation is required.
 
 ```bash
 cd public
 python -m http.server 8080
 ```
 
-Then open the local server address in the browser.
+Open `http://localhost:8080` in a desktop browser. Keep the viewport at 1280 px or wider.
 
-## Worker deployment
+The frontend currently targets the original production Worker URL in:
 
-```bash
-cd worker
-wrangler deploy
+```text
+public/js/worker-api.js
+public/js/admin.js
 ```
 
-Before deployment, replace the placeholder KV namespace ID in `worker/wrangler.toml` and set required secrets with `wrangler secret put`.
-
-## Required Cloudflare Worker bindings and secrets
-
-| Name | Type | Purpose |
-| --- | --- | --- |
-| `SUGO_KV` | KV namespace binding | Stores menu/content/admin pane data used by the existing worker. |
-| `GEMINI_API_KEY` | Secret | Gemini provider key used by the existing worker fallback chain. |
-| `CEREBRAS_API_KEY` | Secret | Cerebras provider key used by the existing worker fallback chain. |
-| `GROK_API_KEY` | Secret | Grok provider key used by the existing worker fallback chain. |
-| `ADMIN_PASSWORD` | Secret | Bearer-token password for admin menu/content/pane endpoints. |
+The AI URL intentionally matches the legacy contract. When deploying the Worker under a different URL, update the `DEFAULT_BASE_URL` constant in `worker-api.js`. The admin/content layer also supports defining `window.SUGO_WORKER_URL` before `admin.js` loads.
 
 ## Frontend ↔ Worker contract
 
-The frontend AI calls post JSON to the Worker base URL, not to `/chat` or `/api`. The rebuilt frontend preserves the legacy body fields:
+AI calls use `POST` directly to the Worker base URL, with `Content-Type: application/json` and no `/chat` path.
 
-- `task_type`
-- `workspace`
-- `max_completion_tokens`
-- `response_mode`
-- `output_type`
-- `language`
-- `sop_mode`
-- `kb_matches`
-- `kb_confidence`
-- `kb_confidence_score`
-- `kb_ambiguous`
-- `kb_primary_route`
-- `kb_query_intents`
-- `has_image`
-- `images`
-- `image`
-- `cache`
-- `stream`
-- `messages`
+### Request body
 
-The supported task/workspace combinations are:
+The frontend sends:
 
-| UI workspace | `task_type` | `workspace` | `output_type` | Image fields |
-| --- | --- | --- | --- | --- |
-| Create Ticket | `create_ticket` | `create_ticket` | `ticket` | `has_image: false`, `cache: true` |
-| Ask AI | `ask_ai` | `ask_ai` | `answer` | `has_image: false`, `cache: true` |
-| Upload Image | `image_analysis` | `upload_image` | `answer` or `ticket` | `has_image: true`, `images[]`, duplicate `image`, `cache: false` |
+```text
+task_type
+workspace
+max_completion_tokens
+response_mode
+output_type
+language
+sop_mode
+kb_matches
+kb_confidence
+kb_confidence_score
+kb_ambiguous
+kb_primary_route
+kb_query_intents
+has_image
+images
+image
+cache
+stream
+messages
+```
 
-All AI requests use `Content-Type: application/json`, `stream: false`, an `AbortController` timeout, the client-side KB matcher, and both response parsers:
+Key routing values:
 
-- `text/event-stream` line parsing for `data:` payloads.
-- OpenAI-style JSON parsing from `choices[0].message.content`.
+| Workspace | `task_type` | `workspace` | `output_type` |
+|---|---|---|---|
+| Ask AI | `ask_ai` | `ask_ai` | `answer` |
+| Create Ticket | `create_ticket` | `create_ticket` | `ticket` |
+| Create Ticket with image | `image_analysis` | `upload_image` | `ticket` |
+| Upload Image answer | `image_analysis` | `upload_image` | `answer` |
+| Upload Image ticket | `image_analysis` | `upload_image` | `ticket` |
 
-Reserved Worker routes remain:
+Token limits are preserved:
 
-- `GET /menu`
-- `GET /content`
-- `POST /admin/menu`
-- `POST /admin/content`
-- `POST /admin/pane`
-- `POST /admin/pane/reset`
-- `GET /health`
-- `GET /diagnostics`
-- `OPTIONS *`
+| Output | Brief | Detailed / Step |
+|---|---:|---:|
+| Answer | 5200 | 9000 |
+| Ticket | 4200 | 7000 |
 
-Admin endpoint compatibility wrappers are exposed at `window.SUGO.workerAdminAPI` and use `Authorization: Bearer <password>` for admin POST calls. No visible admin editing screen was added because the target screenshot did not define placement for that UI.
+The active frontend sends `stream: false`; therefore the normal production response is OpenAI-style JSON from `choices[0].message.content`. The defensive `text/event-stream` parser remains implemented and supports `json.response`, OpenAI-style deltas, and `[DONE]`.
 
-## Feature Map
+Image requests send one compressed image in both `images[0]` and `image`, with matching `{ mimeType, data, name, width, height }` objects. Image requests use `cache: false`; text-only requests use `cache: true`.
 
-| Legacy / required feature | New location | Status |
-| --- | --- | --- |
-| Repository scaffold | Project root, `public/`, `worker/` | Complete |
-| Design-system foundation | `public/css/styles.css` | Complete |
-| App shell layout | `public/index.html`, `public/css/styles.css` | Complete |
-| Top header bar and brand lockup | `public/index.html`, `public/css/styles.css` | Complete |
-| Header language toggle | `public/index.html`, `public/js/app.js` | Complete |
-| Sidebar top controls | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Sidebar Favorites & Recent panels | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Sidebar Menu shell | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Knowledgebase source switcher | `public/index.html`, `public/js/app.js` | Complete |
-| Knowledgebase nested navigation tree | `public/js/kb-data.js`, `public/js/app.js` | Complete |
-| Extracted pane/article bodies | `public/js/kb-content.js` | Complete, 404 unique pane bodies |
-| Hidden panes retained for search/matching | `public/js/kb-data.js`, `public/js/kb-content.js` | Complete, 120 hidden panes |
-| Client-side KB matcher | `public/js/app.js` | Complete |
-| Create Ticket type selector | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Create Ticket details form | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Create Ticket rich description field | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Create Ticket attachments | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Create Ticket live preview | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| AI-to-ticket population link | `public/js/app.js` | Complete |
-| Worker-compatible Create Ticket AI draft | `public/js/app.js` | Complete |
-| Ask AI redesigned console | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Upload Image / vision console | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Local image compression and payload prep | `public/js/app.js` | Complete |
-| KB article detail view | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Global search / command palette | `public/index.html`, `public/css/styles.css`, `public/js/app.js` | Complete |
-| Service Catalog placeholder | `public/index.html`, `public/js/app.js` | Visual shell only |
-| My Tickets placeholder | `public/index.html`, `public/js/app.js` | Visual shell only |
-| Approvals placeholder | `public/index.html`, `public/js/app.js` | Visual shell only |
-| Announcements placeholder | `public/index.html`, `public/js/app.js` | Visual shell only |
-| Help & Support placeholder | `public/index.html`, `public/js/app.js` | Visual shell only |
-| Admin endpoint wrappers | `public/js/app.js` | Compatibility wrapper only, no visible screen |
-| Existing Cloudflare Worker | `worker/worker.js` | Copied unchanged |
-| Wrangler deploy template | `worker/wrangler.toml` | Complete |
+### Admin/content routes
 
-## Knowledgebase extraction summary
+| Method | Route | Frontend use |
+|---|---|---|
+| GET | `/menu` | Load integrated menu overrides |
+| GET | `/content` | Load pane overrides |
+| POST | `/admin/menu` | Save menu changes |
+| POST | `/admin/pane` | Save one pane override |
+| POST | `/admin/pane/reset` | Reset one pane override |
+| POST | `/admin/content` | Supported by the unchanged Worker; not called by the rebuilt frontend |
+| GET | `/health` | Worker health report |
+| GET | `/diagnostics` | Extended Worker diagnostics |
+| OPTIONS | any route | CORS preflight |
 
-- Roots: 2
-- Visible navigation topics: 284
-- Content pane IDs carried in metadata: 404
-- Hidden/non-navigation pane IDs retained for search/content matching: 120
-- The tree data lives in `public/js/kb-data.js`.
-- Article bodies live in `public/js/kb-content.js`.
+Admin POST calls use `Authorization: Bearer <ADMIN_PASSWORD>`.
 
-## QA summary
+## Deploy the Cloudflare Worker
 
-Final automated/browser QA was run with Chromium against `public/index.html`.
+Cloudflare recommends running Wrangler locally through `npx`.
 
-Checked:
+```bash
+cd worker
+npx wrangler login
+npx wrangler kv namespace create SUGO_KV
+```
 
-- Create Ticket screen.
-- Ask AI screen.
-- Upload Image screen.
-- Knowledgebase article view.
-- Search overlay.
-- Service Catalog, My Tickets, Approvals, Announcements, Help & Support placeholders.
-- English `ltr` and Arabic `rtl` language states.
-- Worker request payload shapes for Create Ticket, Ask AI, and Upload Image.
-- JavaScript syntax for `app.js`, `kb-data.js`, and `kb-content.js`.
-- Worker file SHA256 against the original extracted `worker.js`.
+Copy the generated namespace ID into `wrangler.toml`:
 
-Results:
+```toml
+[[kv_namespaces]]
+binding = "SUGO_KV"
+id = "YOUR_NAMESPACE_ID"
+```
 
-- Console errors: 0.
-- Page errors: 0.
-- Worker file unchanged: yes.
-- AI request `stream`: `false`, with SSE parser still preserved.
-- The only automated overflow sample was the intentionally hidden file input used by the attachment control; visible UI controls passed the final visual pass.
+Add the admin password and at least one provider key:
 
-## Deployment checklist
+```bash
+npx wrangler secret put ADMIN_PASSWORD
+npx wrangler secret put GEMINI_API_KEY
+# or:
+npx wrangler secret put CEREBRAS_API_KEY
+# or:
+npx wrangler secret put GROK_API_KEY
+```
 
-1. Replace `REPLACE_WITH_SUGO_KV_NAMESPACE_ID` inside `worker/wrangler.toml`.
-2. Set Worker secrets:
-   - `wrangler secret put GEMINI_API_KEY`
-   - `wrangler secret put CEREBRAS_API_KEY`
-   - `wrangler secret put GROK_API_KEY`
-   - `wrangler secret put ADMIN_PASSWORD`
-3. Deploy the Worker from `worker/`.
-4. Host the static frontend from `public/`.
-5. If the Worker URL changes, update `CONFIG.workerUrl` inside `public/js/app.js` before publishing.
+Then deploy:
 
-## Known scope boundaries
+```bash
+npx wrangler deploy
+```
 
-- The placeholder routes are visual shells only because no ticket database, approval workflow, announcement feed, or service catalog endpoint was confirmed in the legacy source.
-- Admin endpoint wrappers are preserved for compatibility, but no visible admin editing screen was added without an approved target placement.
-- The Cloudflare Worker logic was intentionally not rewritten.
+The Worker also accepts key rotation:
+
+- Gemini: `GEMINI_KEY`, `GEMINI_API_KEY`, `GEMINI_KEY_1…50`, `GEMINI_API_KEY_1…50`
+- Cerebras: `CEREBRAS_KEY`, `CEREBRAS_API_KEY`, `CEREBRAS_KEY_1…50`, `CEREBRAS_API_KEY_1…50`
+- Grok/xAI: `GROK_API_KEY`, `XAI_API_KEY`, `GROK_KEY`, `XAI_KEY`, and numbered variants
+
+Optional Worker variables:
+
+```text
+GEMINI_MODEL
+CEREBRAS_MODEL
+GROK_MODEL
+CORS_ORIGIN
+CACHE_TTL_SECONDS
+DEBUG_ERRORS
+LOG_REQUESTS
+STRICT_ACCURACY_GATE
+MAX_MESSAGES
+MAX_INPUT_CHARS
+MAX_IMAGES_PER_REQUEST
+MAX_IMAGE_BASE64_CHARS
+PROVIDER_TIMEOUT_MS
+RATE_LIMIT_PER_MINUTE
+RATE_LIMIT_WINDOW_SECONDS
+```
+
+Never commit real passwords, API keys, `.env`, or `.dev.vars` files.
+
+## Static frontend deployment
+
+`public/` can be deployed to any static host. For Cloudflare Pages with Wrangler:
+
+```bash
+npx wrangler pages deploy public --project-name sugo-sop
+```
+
+After deployment, confirm that the frontend Worker URL points to the deployed Worker and set `CORS_ORIGIN` appropriately when a restricted origin is desired.
+
+## Final QA summary
+
+The final pass verifies:
+
+- JavaScript syntax for every frontend module and the unchanged Worker.
+- Local asset references and ordered script loading.
+- No uncaught page exceptions in the tested flows.
+- No unexpected failed requests in mocked integration tests.
+- Menu closed on initial load and opens on click.
+- No document-level horizontal overflow at 1536×960 or 1280×800.
+- English LTR application chrome.
+- English LTR and Arabic RTL article blocks.
+- English and Arabic search.
+- All 284 visible topics resolve to active content.
+- Create Ticket text and image request contracts.
+- Ask AI, one-turn follow-up, JSON parsing, and SSE parsing.
+- Upload Image answer/ticket modes and smart ticket handoff.
+- Timeout, stop, retry, and HTTP-error states.
+- KV pane save/reset and menu save contracts with Bearer authorization.
+- Direct execution of the unchanged Worker against the exact generated Ask AI, Create Ticket, and image request bodies.
+- Worker health, diagnostics, CORS, content, menu, admin, validation, JSON, and SSE branches.
+
+Live calls to Gemini, Cerebras, or Grok require the deployer's private provider keys. The final automated integration suite used deterministic mock provider responses while executing the real unchanged Worker request-validation and routing code.
+
+## Known boundaries
+
+- The Worker has no external ticket-system submission endpoint. `Create Ticket` produces a ready-to-copy draft and does not claim that a third-party ticket was submitted.
+- The notification badge is visual only because the legacy frontend and Worker do not expose a notification API.
+- The application is intentionally desktop-only.
+- The interface is English-only; bilingual article content remains intact by design.
+
+## GitHub push
+
+The repository is ready for normal Git initialization:
+
+```bash
+git init
+git add .
+git commit -m "Rebuild SUGO SOP frontend"
+git branch -M main
+git remote add origin <YOUR_REPOSITORY_URL>
+git push -u origin main
+```
