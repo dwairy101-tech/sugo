@@ -371,6 +371,16 @@
     const utilities = document.createElement("div");
     utilities.className = "topbar__utilities";
     utilities.innerHTML = `
+      <button
+        id="sugoCloseContent"
+        class="topbar__close-content"
+        type="button"
+        title="Close current content"
+        aria-label="Close current content"
+        hidden
+      >
+        <span aria-hidden="true">${ICONS.close}</span>
+      </button>
       <span class="topbar__notification" aria-hidden="true">
         <span class="topbar__notification-icon">${ICONS.bell}</span>
         <span class="topbar__notification-badge">0</span>
@@ -5575,6 +5585,86 @@
     workspace.replaceChildren();
   }
 
+  function syncContentCloseButton() {
+    const button = document.getElementById("sugoCloseContent");
+    if (!button) return false;
+    const workspace = document.querySelector(".app-shell__workspace");
+    const preview = document.querySelector(".app-shell__preview");
+    const hasContent = Boolean(
+      workspace?.childElementCount ||
+      preview?.childElementCount ||
+      workspace?.classList.contains("has-content") ||
+      preview?.classList.contains("has-content")
+    );
+    button.hidden = !hasContent;
+    button.setAttribute("aria-expanded", String(hasContent));
+    return hasContent;
+  }
+
+  function clearStoredLastPane() {
+    try {
+      window.localStorage.removeItem(STORAGE_KEY_LAST_PANE);
+    } catch (_error) {
+      /* Storage may be unavailable. */
+    }
+  }
+
+  function closeActiveContent({ source = "close-button", focus = true } = {}) {
+    /* Closing hides the current view without deleting the user's drafted text or AI result. */
+    resetTicketRequestState({ abort: true });
+    resetAskAIRequestState({ abort: true });
+    resetVisionRequestState({ abort: true });
+
+    window.clearTimeout(searchViewState.inputTimer);
+    searchViewState.query = "";
+    searchViewState.results = [];
+    searchViewState.returnMode = "";
+    searchViewState.composing = false;
+
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) searchInput.value = "";
+
+    document.querySelectorAll(".sidebar-tool-button[data-workspace]").forEach((button) => {
+      button.classList.remove("is-selected");
+      button.setAttribute("aria-pressed", "false");
+    });
+    clearNavigationSelection();
+    articleViewState.paneId = "";
+    clearStoredLastPane();
+
+    const shell = document.querySelector(".app-shell");
+    if (shell) delete shell.dataset.activeWorkspace;
+
+    clearWorkspaceContent();
+    const preview = document.querySelector(".app-shell__preview");
+    if (preview) {
+      preview.classList.remove("has-content");
+      preview.setAttribute("aria-hidden", "true");
+      preview.replaceChildren();
+    }
+
+    setBreadcrumb(["SUGO SOP"]);
+    syncContentCloseButton();
+
+    document.dispatchEvent(new CustomEvent("sugo:contentclose", {
+      detail: { source }
+    }));
+
+    if (focus) searchInput?.focus();
+    return true;
+  }
+
+  function bindContentCloseButton(workspace, preview) {
+    const button = document.getElementById("sugoCloseContent");
+    if (!button) return;
+    button.addEventListener("click", () => closeActiveContent({ source: "header-close" }));
+
+    const observer = new MutationObserver(syncContentCloseButton);
+    observer.observe(workspace, { childList: true, subtree: false, attributes: true, attributeFilter: ["class", "aria-hidden"] });
+    observer.observe(preview, { childList: true, subtree: false, attributes: true, attributeFilter: ["class", "aria-hidden"] });
+    syncContentCloseButton();
+  }
+
   function renderSelectedWorkspace(workspace) {
     if (workspace === WORKSPACES.ASK_AI) {
       renderAskAIWorkspace();
@@ -5705,6 +5795,7 @@
     mount.replaceChildren(shell);
 
     bindSidebarTools(sidebar);
+    bindContentCloseButton(workspace, preview);
     renderNavigationTree();
     setNavigationMenuExpanded(false);
 
@@ -6122,6 +6213,7 @@
     applyTheme,
     setBreadcrumb,
     selectWorkspace,
+    closeContent: closeActiveContent,
     selectLibrary: setLibrary,
     supportedThemes: [...SUPPORTED_THEMES],
     workspaces: { ...WORKSPACES },

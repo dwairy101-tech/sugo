@@ -5735,3 +5735,56 @@ textarea::placeholder {
   padding-inline-start: 0.2rem;
   line-height: 1.85;
 }
+
+
+/* Crimson close-control v4 — one global close button for every active right-side view. */
+.topbar__close-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--color-primary-500) 55%, var(--color-border));
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  background: linear-gradient(180deg, rgba(111, 10, 29, 0.34), rgba(18, 18, 20, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+
+.topbar__close-content[hidden] {
+  display: none !important;
+}
+
+.topbar__close-content:hover {
+  border-color: var(--color-primary-500);
+  color: #ffffff;
+  background: linear-gradient(180deg, rgba(151, 20, 49, 0.62), rgba(58, 8, 18, 0.96));
+}
+
+.topbar__close-content:active {
+  transform: translateY(1px);
+}
+
+.topbar__close-content:focus-visible {
+  outline: 2px solid var(--color-primary-400);
+  outline-offset: 2px;
+}
+
+.topbar__close-content span,
+.topbar__close-content svg {
+  display: block;
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+}
+
+.topbar__close-content svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
