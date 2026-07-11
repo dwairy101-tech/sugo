@@ -2703,8 +2703,13 @@ textarea.ticket-detail-field__control {
   box-shadow: 0 -0.5rem 1.25rem rgba(0, 0, 0, 0.28);
 }
 
+.ticket-preview-panel__actions.has-copy {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .ticket-preview-panel__clear,
-.ticket-preview-panel__generate {
+.ticket-preview-panel__generate,
+.ticket-preview-panel__copy {
   min-inline-size: 0;
   min-block-size: 2.65rem;
   padding-inline: var(--space-3);
@@ -2719,6 +2724,27 @@ textarea.ticket-detail-field__control {
     background-color var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-fast) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard);
+}
+
+.ticket-preview-panel__copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface-subtle);
+}
+
+.ticket-preview-panel__copy:hover {
+  border-color: var(--color-primary-200);
+  color: var(--color-primary-800);
+  background: var(--color-primary-50);
+}
+
+.ticket-preview-panel__copy svg {
+  inline-size: 1rem;
+  block-size: 1rem;
 }
 
 .ticket-preview-panel__clear {
@@ -2745,6 +2771,7 @@ textarea.ticket-detail-field__control {
   background: var(--color-primary-700);
 }
 
+.ticket-preview-panel__copy:active,
 .ticket-preview-panel__clear:active,
 .ticket-preview-panel__generate:active {
   transform: translateY(1px);
@@ -2881,7 +2908,8 @@ textarea.ticket-detail-field__control {
 }
 
 .ticket-preview-panel__generate:disabled,
-.ticket-preview-panel__clear:disabled {
+.ticket-preview-panel__clear:disabled,
+.ticket-preview-panel__copy:disabled {
   cursor: not-allowed;
   opacity: 0.62;
   transform: none;

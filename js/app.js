@@ -204,7 +204,8 @@
     requestId: 0,
     kbConfidence: "",
     kbPrimaryRoute: "",
-    topics: []
+    topics: [],
+    copyStatus: ""
   };
   let ticketAttachedImage = null;
   const askAIWorkspaceState = {
@@ -2667,6 +2668,7 @@
     ticketRequestState.kbConfidence = "";
     ticketRequestState.kbPrimaryRoute = "";
     ticketRequestState.topics = [];
+    ticketRequestState.copyStatus = "";
   }
 
   function clearTicketWorkspaceState({ focus = false, source = "clear" } = {}) {
@@ -2742,6 +2744,7 @@
     ticketRequestState.kbConfidence = "";
     ticketRequestState.kbPrimaryRoute = "";
     ticketRequestState.topics = [];
+    ticketRequestState.copyStatus = "";
     ticketWorkspaceState.generatedOutput = "";
     renderTicketPreviewPanel();
 
@@ -2856,6 +2859,39 @@
       }
     }));
     return getTicketPreviewSnapshot();
+  }
+
+  async function copyGeneratedTicket() {
+    const text = String(ticketWorkspaceState.generatedOutput || "").trim();
+    if (!text) return false;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        textarea.setAttribute("readonly", "");
+        document.body.append(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      }
+
+      ticketRequestState.copyStatus = "Copied";
+      renderTicketPreviewPanel();
+      window.setTimeout(() => {
+        ticketRequestState.copyStatus = "";
+        renderTicketPreviewPanel();
+      }, 1200);
+      return true;
+    } catch (_error) {
+      ticketRequestState.copyStatus = "Copy failed";
+      renderTicketPreviewPanel();
+      return false;
+    }
   }
 
   function renderTicketPreviewPanel() {
@@ -2983,7 +3019,16 @@
     }
 
     const actions = document.createElement("div");
-    actions.className = "ticket-preview-panel__actions";
+    actions.className = `ticket-preview-panel__actions${snapshot.generatedOutput ? " has-copy" : ""}`;
+
+    if (snapshot.generatedOutput) {
+      const copy = document.createElement("button");
+      copy.type = "button";
+      copy.className = "ticket-preview-panel__copy";
+      copy.innerHTML = `${ICONS.copy}<span>${ticketRequestState.copyStatus || "Copy Ticket"}</span>`;
+      copy.addEventListener("click", () => void copyGeneratedTicket());
+      actions.append(copy);
+    }
 
     const clear = document.createElement("button");
     clear.type = "button";
@@ -4191,6 +4236,8 @@
         : visionWorkspaceState.answer.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
       scroller.append(answer);
       renderVisionSources(scroller);
+      const relatedVisualGuides = createRelatedVisualGuides(visionRequestState.topics, "image analysis result");
+      if (relatedVisualGuides) scroller.append(relatedVisualGuides);
     } else if (visionRequestState.status === "idle") {
       const empty = document.createElement("div");
       empty.className = "vision-output__empty";
@@ -4396,7 +4443,8 @@
           output: result.answer,
           userId: visionWorkspaceState.userId,
           orderId: visionWorkspaceState.contextId,
-          evidence: visionWorkspaceState.note
+          evidence: visionWorkspaceState.note,
+          topics: Array.isArray(result.kb?.topics) ? result.kb.topics : []
         }, { source: "vision-ticket" });
       }
       renderVisionWorkspace();
@@ -6830,6 +6878,11 @@
     if (activePane && getArticlePane(activePane)) {
       renderArticleDetail(activePane, { preserveFilter: true });
     }
+
+    const activeWorkspace = document.querySelector(".app-shell")?.dataset.activeWorkspace || "";
+    if (activeWorkspace === WORKSPACES.CREATE_TICKET) renderTicketPreviewPanel();
+    else if (activeWorkspace === WORKSPACES.ASK_AI) renderAskAIOutputPanel();
+    else if (activeWorkspace === WORKSPACES.UPLOAD_IMAGE) renderVisionOutputPanel();
   });
 
   initializeFoundation();
