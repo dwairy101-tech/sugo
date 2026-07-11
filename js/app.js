@@ -4000,7 +4000,9 @@
     clear.addEventListener("click", () => clearVisionWorkspace({ focus: true }));
     actions.append(analyze, clear);
 
-    card.append(label, input, dropzone, status, preview, detailGrid, chips, actions);
+    // Keep the primary action immediately below the upload area so it is visible
+    // on shorter desktop screens without forcing the user to scroll to the end.
+    card.append(label, input, dropzone, status, actions, preview, detailGrid, chips);
     window.setTimeout(renderVisionImagePreview, 0);
     return card;
   }
