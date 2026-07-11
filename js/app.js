@@ -5687,16 +5687,12 @@
     const workspace = document.querySelector(".app-shell__workspace");
     if (!workspace) return false;
 
-    const data = getKnowledgeBaseData();
-    const navigation = Array.isArray(data?.navigation) ? data.navigation : [];
-    const stats = data?.stats || {};
-
     workspace.classList.remove("has-content");
     workspace.classList.add("has-home");
     workspace.removeAttribute("aria-hidden");
 
     const home = document.createElement("main");
-    home.className = "home-dashboard";
+    home.className = "home-dashboard home-dashboard--minimal";
     home.setAttribute("aria-label", "SUGO SOP home");
 
     const hero = document.createElement("section");
@@ -5712,71 +5708,18 @@
       </div>
     `;
 
-    const actions = document.createElement("section");
-    actions.className = "home-dashboard__section";
-    actions.innerHTML = `
-      <header class="home-dashboard__section-heading">
-        <span>
-          <span class="home-dashboard__section-kicker">Workspaces</span>
-          <h2>Start a task</h2>
-        </span>
-        <p>Choose the tool that matches the support case.</p>
-      </header>
-    `;
-
-    const actionGrid = document.createElement("div");
-    actionGrid.className = "home-action-grid";
-    actionGrid.append(
-      createHomeWorkspaceCard({
-        workspace: WORKSPACES.ASK_AI,
-        icon: ICONS.askAI,
-        title: "Ask AI",
-        description: "Agent guidance, SOP checks, troubleshooting, and escalation review.",
-        featured: true
-      }),
-      createHomeWorkspaceCard({
-        workspace: WORKSPACES.CREATE_TICKET,
-        icon: ICONS.ticket,
-        title: "Create Ticket",
-        description: "Prepare a customer reply, missing-information request, or escalation note."
-      }),
-      createHomeWorkspaceCard({
-        workspace: WORKSPACES.UPLOAD_IMAGE,
-        icon: ICONS.upload,
-        title: "Upload image",
-        description: "Analyze screenshots and evidence images with knowledge-base context."
-      })
-    );
-    actions.append(actionGrid);
-
-    const libraries = document.createElement("section");
-    libraries.className = "home-dashboard__section home-dashboard__section--libraries";
-    libraries.innerHTML = `
-      <header class="home-dashboard__section-heading">
-        <span>
-          <span class="home-dashboard__section-kicker">Knowledge Bases</span>
-          <h2>Browse verified content</h2>
-        </span>
-        <p>${Number(stats.topicCount || 284).toLocaleString("en-US")} topics across the two original SUGO libraries.</p>
-      </header>
-    `;
-
-    const libraryGrid = document.createElement("div");
-    libraryGrid.className = "home-library-grid";
-    for (const library of navigation) {
-      const calculatedCount = (library.categories || []).reduce((libraryTotal, category) => {
-        return libraryTotal + (category.sections || []).reduce((categoryTotal, section) => {
-          return categoryTotal + (section.topics || []).length;
-        }, 0);
-      }, 0);
-      const count = stats.byLibrary?.[library.id]?.topics || calculatedCount;
-      libraryGrid.append(createHomeLibraryCard(library, count));
-    }
-    libraries.append(libraryGrid);
-
-    home.append(hero, actions, libraries);
+    // The welcome screen intentionally contains only the two requested text lines.
+    home.append(hero);
     workspace.replaceChildren(home);
-    renderHomePreview();
+
+    // Keep the right preview area empty on Home without changing any feature behavior.
+    const preview = document.querySelector(".app-shell__preview");
+    if (preview) {
+      preview.classList.remove("has-content", "has-home");
+      preview.setAttribute("aria-hidden", "true");
+      preview.replaceChildren();
+    }
+
     setBreadcrumb(["SUGO SOP"]);
     if (!preserveMenu) setNavigationMenuExpanded(false);
     syncContentCloseButton();
