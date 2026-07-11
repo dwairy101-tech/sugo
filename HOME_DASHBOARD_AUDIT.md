@@ -1,10 +1,11 @@
-# SUGO SOP Welcome Screen Update
+# SUGO SOP Home Dashboard Update
 
-- The Home welcome screen now displays only:
-  - `Knowledge Lounge · MENA`
-  - `Welcome to SUGO SOP`
-- Removed the Home cards for Ask AI, Create Ticket, and Upload image.
-- Removed the Home Knowledge Bases cards and supporting dashboard text.
-- The Home preview area is cleared so no extra dashboard content appears beside the welcome message.
-- Existing sidebar navigation, articles, Ask AI, Create Ticket, Upload Image, admin, bilingual content, and Worker behavior remain unchanged.
-- Build cache key: `20260711-welcome-text-only-v8`.
+- Replaced the empty/skeleton startup state with a functional home dashboard.
+- The application now always opens on Home; the previous topic remains available through Recent Topics instead of opening automatically.
+- Added direct actions for Ask AI, Create Ticket, Upload image, and Menu browsing.
+- Added live library counts from the original knowledge-base data.
+- Added live Recent Topics and Favorites to the right panel.
+- The global close button now returns to the designed home screen instead of blank regions.
+- Search Escape and empty search return to the home screen.
+- Existing article, AI, ticket, image, menu, admin, bilingual content, and Worker behavior remains unchanged.
+- Build cache key: `20260711-crimson-home-v5`.
