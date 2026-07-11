@@ -7,6 +7,8 @@
   const REQUEST_TIMEOUT_MS = 90000;
   const VALID_RESPONSE_MODES = new Set(["brief", "detailed", "step"]);
   const VALID_OUTPUT_TYPES = new Set(["answer", "ticket"]);
+  const VALID_TICKET_TYPES = new Set(["customer_reply", "missing_info", "internal_escalation", "policy_sensitive"]);
+  const VALID_TICKET_TONES = new Set(["professional", "empathetic", "firm"]);
   const state = {
     controller: null,
     pending: false,
@@ -264,96 +266,224 @@
     const parts = [];
     const cleanRaw = cleanTicketCaseText(input.caseDetails || lookupQuery);
     const evidence = cleanTicketCaseText(input.evidence);
+    const draftToPolish = String(input.draftToPolish || "").trim();
+    const quickPrompt = String(input.quickPrompt || "").trim();
     if (cleanRaw) parts.push(`Customer/case details:\n${cleanRaw}`);
     if (String(input.userId || "").trim()) parts.push(`User ID / UID: ${String(input.userId).trim()}`);
     if (String(input.orderId || "").trim()) parts.push(`Related ID / Order / Room / Agency ID: ${String(input.orderId).trim()}`);
     if (evidence) parts.push(`Evidence / internal notes:\n${evidence}`);
+    if (draftToPolish) parts.push(`Existing draft to rewrite:\n${draftToPolish}`);
+    if (quickPrompt) parts.push(`Selected quick action:\n${quickPrompt}`);
     parts.push(`Ticket request profile: ${input.type || "customer_reply"} · ${input.tone || "professional"} tone.`);
     return parts.filter(Boolean).join("\n\n").trim();
   }
 
-  function ticketInstruction(input) {
-    const typeRules = {
-      customer_reply: "Create a ready-to-send customer-facing support ticket/reply. Include a natural greeting, clear action/result, any required missing information, and a natural polite closing from SUGO Customer Support Team.",
-      missing_info: "Create a polite missing-information request only. Ask for the exact required details/evidence and do not promise resolution before those details are provided.",
-      internal_escalation: "Create an internal escalation note, not a customer reply. Include case summary, suspected category, evidence attached, missing evidence, risk level, and recommended next team/action.",
-      policy_sensitive: "Create a safe policy-sensitive reply. Avoid blame, avoid guarantees, avoid unsupported policy claims, and request verification/escalation when required."
-    };
-    const toneRules = {
-      professional: "Use a professional, concise support tone.",
-      empathetic: "Use a warmer empathetic tone while staying concise and policy-safe.",
-      firm: "Use a firm but polite tone. Do not sound aggressive."
-    };
-    return [
-      "This request came from the dedicated Create Ticket workspace, not the Ask AI guidance workspace.",
-      "Output type is locked to Ticket. Do not provide analysis before the ticket unless the selected ticket type is internal escalation.",
-      typeRules[input.type] || typeRules.customer_reply,
-      toneRules[input.tone] || toneRules.professional,
-      "Do not duplicate greetings or closings. Do not add fake ticket IDs, fake dates, fake agent names, or unsupported SLA promises.",
-      "If facts are missing, ask for them clearly instead of inventing them."
-    ].join(" ");
+  function normalizeTicketType(value) {
+    return VALID_TICKET_TYPES.has(value) ? value : "customer_reply";
   }
 
-  function buildSystemPrompt({ kb, responseMode, outputType, language, strictSop, hasImage, askToolInstruction }) {
+  function normalizeTicketTone(value) {
+    return VALID_TICKET_TONES.has(value) ? value : "professional";
+  }
+
+  function ticketInstruction(input) {
+    const ticketType = normalizeTicketType(input.type);
+    const ticketTone = normalizeTicketTone(input.tone);
+    const typeRules = {
+      customer_reply: "Create one ready-to-send customer-facing support reply. Include only verified case-specific information, the correct action or result, any exact missing information, and a natural closing.",
+      missing_info: "Create one ready-to-send customer-facing request for missing information. Ask only for the exact details or evidence required by the matched SOP, and do not promise a resolution before review.",
+      internal_escalation: "Create an internal escalation note for the support team, not a customer reply. Include a concise case summary, matched category, identifiers, evidence available, missing evidence, risk or policy sensitivity, and the recommended next team/action.",
+      policy_sensitive: "Create one safe ready-to-send customer reply for a policy-sensitive case. Avoid blame, guarantees, unsupported policy claims, or disclosure of internal rules; request verification or escalation when the SOP requires it."
+    };
+    const toneRules = {
+      professional: "Use a professional, clear, concise support tone.",
+      empathetic: "Use a warm and empathetic tone while remaining concise, accurate, and policy-safe.",
+      firm: "Use a firm but polite tone. State requirements clearly without sounding aggressive."
+    };
+    const quickPrompt = String(input.quickPrompt || "").trim();
+    const draftToPolish = String(input.draftToPolish || "").trim();
+    return [
+      "This request comes from the dedicated Create Ticket workspace.",
+      typeRules[ticketType],
+      toneRules[ticketTone],
+      quickPrompt ? `Execute this selected quick action exactly: ${quickPrompt}` : "",
+      draftToPolish ? "Rewrite the supplied existing draft instead of ignoring it, while correcting it against the matched SOP." : "",
+      "Do not add fake ticket IDs, dates, agent names, amounts, outcomes, SLA promises, refunds, compensation, approvals, or policy claims.",
+      "If required facts are missing, ask for them clearly instead of inventing them.",
+      ticketType === "internal_escalation" ? "Do not add a customer greeting or customer-service signature." : "Do not duplicate greetings, apologies, or closings."
+    ].filter(Boolean).join(" ");
+  }
+
+  function getPrimaryTicketMacro(kb, language) {
+    const macros = window.SUGO?.TicketMacros;
+    if (!macros?.getTicketText) return null;
+    const bestTopic = kb?.bestTopic || null;
+    const bestIsMacro = Boolean(bestTopic && (bestTopic.ticketMacro || String(bestTopic.id || "").startsWith("sv-tickets-")));
+    const topic = bestIsMacro
+      ? bestTopic
+      : (Array.isArray(kb?.topics)
+          ? kb.topics.find((item) => Boolean(item?.primary) && (item.ticketMacro || String(item.id || "").startsWith("sv-tickets-")))
+          : null);
+    if (!topic?.id) return null;
+    const text = String(macros.getTicketText(topic.id, language) || "").trim();
+    return text ? { id: topic.id, text } : null;
+  }
+
+  function isRequestedLanguage(text, language) {
+    const clean = String(text || "")
+      .replace(/https?:\/\/\S+/gi, " ")
+      .replace(/\b[A-Z0-9][A-Z0-9_.\/-]{2,}\b/g, " ");
+    const arabicCount = (clean.match(/[\u0600-\u06FF]/g) || []).length;
+    const latinCount = (clean.match(/[A-Za-z]/g) || []).length;
+    if (language === "arabic") return arabicCount >= 12 && arabicCount >= latinCount * 0.75;
+    return latinCount >= 12 && arabicCount <= Math.max(4, latinCount * 0.08);
+  }
+
+  function groundingOverlapScore(answer, reference) {
+    const boilerplate = new Set([
+      "مرحبا", "مرحباً", "عزيزي", "العميل", "يرجى", "شكرا", "شكراً", "لتواصلك", "معنا", "فريق", "خدمة", "عملاء", "سوجو",
+      "نعتذر", "المشكلة", "تواجهك", "عائلة", "اعتذارنا", "الإزعاج", "الازعاج", "ونشكركم", "الشكر", "صبركم", "نتمنى", "يوماً", "يوما", "سعيداً", "سعيدا",
+      "welcome", "dear", "customer", "please", "thank", "thanks", "contacting", "support", "service", "team", "sugo", "sorry", "issue"
+    ]);
+    const tokenize = (value) => [...new Set(String(value || "")
+      .toLowerCase()
+      .replace(/https?:\/\/\S+/gi, " ")
+      .replace(/[^a-z0-9\u0600-\u06ff]+/gi, " ")
+      .split(/\s+/)
+      .filter((token) => token.length >= 3 && !boilerplate.has(token)))];
+    const referenceTokens = tokenize(reference);
+    if (!referenceTokens.length) return 1;
+    const answerTokens = new Set(tokenize(answer));
+    const hits = referenceTokens.filter((token) => answerTokens.has(token)).length;
+    return hits / referenceTokens.length;
+  }
+
+  function isTicketTypeCompliant(answer, request) {
+    const text = String(answer || "").trim();
+    if (!text) return false;
+    if (request.ticketType === "internal_escalation") {
+      const internalMarker = request.body.language === "arabic"
+        ? /(تصعيد|ملخص الحالة|ملخص التصعيد|الأدلة|الادلة|الإجراء المقترح|الاجراء المقترح|الفريق المقترح)/
+        : /(internal escalation|case summary|available evidence|missing evidence|recommended action|next team)/i;
+      const customerMarker = /(مرحب|عزيزي العميل|فريق خدمة عملاء|شكرا لتواصلك|شكرًا لتواصلك|hello dear customer|welcome to the sugo|customer support team)/i;
+      return internalMarker.test(text) && !customerMarker.test(text);
+    }
+    if (["customer_reply", "policy_sensitive"].includes(request.ticketType) && request.localTicketMacro?.text) {
+      return groundingOverlapScore(text, request.localTicketMacro.text) >= 0.08;
+    }
+    return true;
+  }
+
+  function buildLanguageSafeFallback(request) {
+    const language = request.body.language;
+    const ticketType = request.ticketType;
+    const input = request.originalInput || {};
+    const caseDetails = cleanTicketCaseText(input.caseDetails || request.lookupQuery || request.query);
+    const evidence = cleanTicketCaseText(input.evidence);
+    const userId = String(input.userId || "").trim();
+    const orderId = String(input.orderId || "").trim();
+
+    if (ticketType !== "internal_escalation" && request.localTicketMacro?.text) {
+      return request.localTicketMacro.text;
+    }
+
+    if (ticketType === "internal_escalation") {
+      if (language === "arabic") {
+        return [
+          "ملخص التصعيد الداخلي",
+          caseDetails ? `الحالة: ${caseDetails}` : "الحالة: لم يتم تقديم وصف كافٍ للمشكلة.",
+          request.localTicketMacro?.id ? `التصنيف المطابق: ${request.localTicketMacro.id}` : "التصنيف المطابق: يحتاج إلى مراجعة يدوية.",
+          userId ? `معرّف المستخدم: ${userId}` : "معرّف المستخدم: غير مرفق.",
+          orderId ? `المعرّف المرتبط: ${orderId}` : "المعرّف المرتبط: غير مرفق.",
+          evidence ? `الأدلة المتوفرة: ${evidence}` : "الأدلة المتوفرة: لا توجد أدلة مرفقة.",
+          "الإجراء المقترح: مراجعة الحالة وفق الإجراء التشغيلي المطابق، والتحقق من المعرّفات والأدلة قبل اتخاذ أي قرار أو إرسال نتيجة للعميل."
+        ].join("\n\n");
+      }
+      return [
+        "Internal escalation summary",
+        caseDetails ? `Case: ${caseDetails}` : "Case: Insufficient issue description was provided.",
+        request.localTicketMacro?.id ? `Matched category: ${request.localTicketMacro.id}` : "Matched category: Manual review required.",
+        userId ? `User ID: ${userId}` : "User ID: Not provided.",
+        orderId ? `Related ID: ${orderId}` : "Related ID: Not provided.",
+        evidence ? `Available evidence: ${evidence}` : "Available evidence: No evidence attached.",
+        "Recommended action: Review the case against the matched SOP and verify all identifiers and evidence before making a decision or communicating an outcome to the customer."
+      ].join("\n\n");
+    }
+
+    if (language === "arabic") {
+      return [
+        "مرحباً بك في عائلة سوجو!",
+        "حتى نتمكن من مراجعة حالتك بدقة ومساعدتك بالشكل الصحيح، يرجى تزويدنا بوصف واضح للمشكلة، ومعرّف الحساب، وأي معرّف مرتبط بالعملية، بالإضافة إلى صورة أو فيديو شاشة يوضح المشكلة إن أمكن.",
+        "بعد استلام المعلومات المطلوبة، سيتم التحقق من الحالة وفق الإجراءات المعتمدة.",
+        "شكراً لتواصلك مع سوجو، يسعدنا دائماً خدمتك.",
+        "فريق خدمة عملاء سوجو"
+      ].join("\n\n");
+    }
+    return [
+      "Welcome to the SUGO family!",
+      "To review your case accurately and assist you correctly, please provide a clear description of the issue, your account ID, any related transaction or room ID, and a screenshot or screen recording showing the issue when possible.",
+      "Once the required information is received, the case will be reviewed according to the approved procedures.",
+      "Thank you for contacting SUGO. We are always happy to assist you.",
+      "SUGO Customer Support Team"
+    ].join("\n\n");
+  }
+
+  function buildSystemPrompt({ kb, responseMode, outputType, language, strictSop, hasImage, askToolInstruction, ticketType, ticketTone, localTicketMacro }) {
     const isTicket = outputType === "ticket";
+    const isInternalEscalation = isTicket && ticketType === "internal_escalation";
     const isDetailed = responseMode === "detailed";
     const isStep = responseMode === "step";
     const modeInstruction = isStep
-      ? "## RESPONSE MODE — STEP-BY-STEP:\nUse clear numbered steps. Separate agent action, customer message, required evidence, and escalation if applicable.\n\n"
+      ? "## RESPONSE MODE — STEP-BY-STEP:\nUse clear ordered steps and finish every step fully.\n\n"
       : isDetailed
-        ? "## RESPONSE MODE — DETAILED:\nGive a complete answer with conditions, exceptions, and escalation details when relevant.\n\n"
-        : "## RESPONSE MODE — BRIEF:\nGive a concise answer with only the essential action points.\n\n";
+        ? "## RESPONSE MODE — DETAILED:\nGive a complete result with all verified conditions and required evidence.\n\n"
+        : "## RESPONSE MODE — BRIEF:\nGive a concise result with only essential verified information.\n\n";
     const knowledgeModeInstruction = strictSop
-      ? "## KNOWLEDGE MODE — STRICT SOP ONLY:\nUse ONLY the internal knowledge base supplied below. In Smart Ticket mode, never use outside policy or generic support text. If the supplied SOP does not clearly support the case, ask for the missing details or recommend internal escalation. Do not use web search and do not invent policy.\n\n"
-      : "## KNOWLEDGE MODE — HYBRID:\nUse the internal knowledge base first. If it is incomplete or there is no strong match, you may use provider web/search capabilities for SUGO-specific public information, but clearly avoid unrelated products.\n\n";
+      ? "## KNOWLEDGE MODE — STRICT SOP ONLY:\nUse only the internal knowledge base supplied below. Never invent policy or use outside information. If the SOP is incomplete, request the exact missing details or recommend internal escalation.\n\n"
+      : "## KNOWLEDGE MODE — HYBRID:\nUse the internal knowledge base first. Only use SUGO-specific public fallback information when the local SOP is genuinely incomplete.\n\n";
     const imageInstruction = hasImage
-      ? "## ATTACHED IMAGE ANALYSIS:\nThe user attached an image/screenshot. Read the visible content carefully, identify any error message, account/profile/payment/room details, and connect it with the relevant SOP. Do not invent unreadable text or hidden details. If the image is unclear, say what cannot be confirmed. In Ticket mode, use the image as evidence but write only a clean customer-facing message.\n\n"
+      ? "## ATTACHED IMAGE:\nRead only clearly visible information. Do not invent unreadable or hidden details. Use the image as evidence and state what still needs verification.\n\n"
       : "";
-    const outputTypeInstruction = isTicket
-      ? "## OUTPUT TYPE — TICKET / CUSTOMER REPLY:\nReturn a ready-to-send customer support ticket/reply only. Use a respectful greeting, clear body, and polite closing. Do not explain internal reasoning. Do not mention that you used a knowledge base. Do not include internal fields such as Mention, Care, Reporter, VIP, Charm, or admin notes unless the user explicitly asks for an internal form. If the internal KB contains a Ticket field, prioritize it and rewrite it professionally in the selected language. If required information is missing, ask the customer for the missing items inside the ticket message. Do not use numbered or bulleted list markers in the final ticket; for Arabic tickets use: أولاً، ثانياً، ثالثاً، and so on.\n"
-      : "## OUTPUT TYPE — ANSWER / AGENT GUIDANCE:\nAnswer the support agent directly. Explain the correct procedure, key conditions, and what to send to the customer. You may include internal notes, escalation guidance, or source chips when useful. Do not format it as a customer ticket unless the selected output type is Ticket.\n";
-    const smartTicketInstruction = isTicket
-      ? "## SMART CREATE TICKET MODE — HIGH ACCURACY:\n- Treat the user's text as raw customer conversation/problem details and extract the actual issue before writing.\n- Use the strongest matching SOP Ticket text when available; rewrite it naturally and ignore irrelevant SOP lines.\n- Do not invent IDs, names, dates, amounts, policy decisions, refunds, compensation, unban results, or approval guarantees.\n- If required details are missing, ask for them politely inside the customer-facing ticket.\n- Keep the final output customer-facing only: no analysis, no confidence labels, no source names, no admin notes, no internal routing, and no hidden-policy wording.\n- For sensitive cases such as account ownership, ban, abuse, recharge, withdrawal, VIP, Charm, agency, or host issues, be conservative and request verification/escalation when the SOP is not conclusive.\n- Final output must be one polished ready-to-send support ticket/reply in the selected language.\n- Ticket formatting rule: no numeric list markers and no bullets. If ordering is needed in Arabic, use أولاً، ثانياً، ثالثاً، etc.; in English, use First, Second, Third, etc. Keep each item on its own line.\n\n"
-      : "";
-    const kbHasContent = Boolean(kb?.hasMeaningfulMatch && String(kb?.text || "").trim().length > 150);
-    const sourceBlock = kbHasContent
+    const ticketTypeInstructions = {
+      customer_reply: "Return exactly one polished customer-facing reply ready to send. No analysis, source notes, confidence labels, or internal routing.",
+      missing_info: "Return exactly one customer-facing message requesting only the precise missing information or evidence needed for the matched procedure.",
+      internal_escalation: "Return exactly one internal escalation note. Do not address the customer, do not add a greeting or closing, and do not hide the internal case summary, evidence, missing evidence, risk, or next action.",
+      policy_sensitive: "Return exactly one safe customer-facing reply ready to send. Do not disclose internal policy, blame anyone, or guarantee an outcome; request verification or escalation when required."
+    };
+    const toneInstructions = {
+      professional: "Use a professional, clear, concise tone.",
+      empathetic: "Use a warm empathetic tone without adding unsupported apologies or promises.",
+      firm: "Use a firm but polite tone and state requirements unambiguously."
+    };
+    const sourceBlock = kb?.hasMeaningfulMatch && String(kb?.text || "").trim()
       ? `=== INTERNAL KNOWLEDGE BASE MATCHES ===\nConfidence: ${kb.confidenceLabel} (${kb.confidenceScore})\nBest match: ${kb.bestTopic ? kb.bestTopic.id : "none"}\n\n${kb.text}`
-      : strictSop
-        ? "=== INTERNAL KNOWLEDGE BASE MATCHES ===\n[No directly relevant articles found. Strict SOP Only mode is active.]"
-        : "=== INTERNAL KNOWLEDGE BASE MATCHES ===\n[No directly relevant articles found. Hybrid mode may use SUGO-specific fallback information if available.]";
+      : "=== INTERNAL KNOWLEDGE BASE MATCHES ===\n[No directly relevant article was found.]";
+    const exactMacroBlock = localTicketMacro?.text
+      ? `\n\n=== EXACT MATCHED TICKET MACRO (${localTicketMacro.id}) ===\n${localTicketMacro.text}\n=== END EXACT MACRO ===`
+      : "";
     const languageInstruction = language === "arabic"
-      ? "You must answer only in formal Modern Standard Arabic. Do not use English, slang, or Egyptian/Jordanian colloquial expressions."
-      : "You must answer only in professional English. Do not use Arabic.";
+      ? "Write the entire result in formal Modern Standard Arabic. English is allowed only inside unavoidable product names, IDs, codes, or URLs. Never return an English customer message."
+      : "Write the entire result in professional English. Do not include Arabic except inside an exact quoted identifier when unavoidable.";
 
-    return "You are an expert SUGO app support specialist for the MENA region. " +
-      "SUGO (also known as Sugo Live or VoiceMaker) is a popular live voice and social app operating in MENA. " +
-      "Your role: give accurate, complete answers about SUGO features, policies, and troubleshooting to customer support agents.\n\n" +
-      knowledgeModeInstruction + modeInstruction + imageInstruction +
-      (askToolInstruction ? `## ASK AI DEDICATED WORKSPACE PROFILE:\n${String(askToolInstruction).trim().slice(0, 1200)}\n\n` : "") +
-      "## SOURCE DISCIPLINE:\n" +
-      "- Treat the provided SOP text as the source of truth when it contains a match.\n" +
-      "- If INTERNAL MATCHES show a Primary route, use that route first and do not replace it with a broad overview, generic appeal, or unrelated unban article.\n" +
-      "- In Ticket mode, if a matching sv-tickets topic exists, prioritize its Ticket field over general SOP text.\n" +
-      "- If confidence is low, avoid definitive policy language.\n" +
-      "- For sensitive topics such as ban, abuse, payment, withdrawal, VIP, or agency, prefer escalation when the SOP is incomplete.\n\n" +
-      outputTypeInstruction + "\n" + smartTicketInstruction + customerEnvelopePrompt(language) +
-      "## DEFAULT QUALITY RULES — ALWAYS ON:\n" +
-      "- Clean and organize the answer before final output; remove duplicate points, repeated headings, repeated sentences, and filler.\n" +
-      "- Numbered lists must be continuous and correct: 1, 2, 3, 4. Never restart at 1 unless a new section truly starts.\n" +
-      "- Keep spacing tight: avoid extra blank lines, avoid large gaps, and use compact readable paragraphs.\n" +
-      "- Keep English text left-to-right and Arabic text right-to-left in meaning and punctuation.\n" +
-      "- When writing a ticket, make it ready to send: write a natural case-specific greeting, exact action, missing information request if needed, and a natural polite closing as SUGO Customer Support Team. Do not duplicate opening or closing lines.\n\n" +
-      "## FORMATTING:\n" +
-      "- ## for main headings, ### for sub-sections\n" +
-      "- **bold** for key terms, numbers, important values\n" +
-      "- Numbered lists for step-by-step processes; bullet lists for unordered items\n" +
-      "- Short paragraphs (2-4 sentences)\n" +
-      "- Start DIRECTLY with the answer — no preamble like 'Based on the knowledge base...'\n" +
-      "- No LaTeX notation; use plain Unicode: ≥, ≤, →, ×, ÷, %\n" +
-      (isDetailed || isStep ? "- Give a complete answer and finish every section fully; do not stop mid-list or mid-sentence\n" : "- Give a complete concise answer and finish every sentence fully\n") +
-      (isTicket ? "- Do not add source notes or internal labels in Ticket mode\n" : "- Mention uncertainty clearly when SOP confidence is medium or low\n") +
-      "- Follow-up questions: use the prior conversation context to understand references\n\n" + sourceBlock +
-      `\n\nIMPORTANT LANGUAGE RULE:\n${languageInstruction}`;
+    return [
+      "You are an expert SUGO MENA support specialist.",
+      knowledgeModeInstruction,
+      modeInstruction,
+      imageInstruction,
+      "## CREATE TICKET PROFILE",
+      isTicket ? ticketTypeInstructions[ticketType] : "Answer the support agent directly with accurate SOP guidance.",
+      isTicket ? toneInstructions[ticketTone] : "",
+      askToolInstruction ? `Selected workspace instruction: ${String(askToolInstruction).trim().slice(0, 1600)}` : "",
+      "## ACCURACY RULES",
+      "Use the strongest primary route first. If an sv-tickets macro matches, treat its Ticket field as the authoritative reply template.",
+      "Never invent IDs, amounts, dates, actions already completed, approvals, refunds, compensation, bans, unbans, or resolution guarantees.",
+      "Remove irrelevant SOP content and preserve all case-specific requirements, links, time limits, and evidence requests.",
+      isInternalEscalation ? "Keep internal escalation fields visible and useful." : "Do not mention the knowledge base, internal routing, confidence, or admin fields to the customer.",
+      isTicket && !isInternalEscalation ? customerEnvelopePrompt(language) : "",
+      "## LANGUAGE — NON-NEGOTIABLE",
+      languageInstruction,
+      sourceBlock + exactMacroBlock
+    ].filter(Boolean).join("\n\n");
   }
 
   function normalizeImagePayload(images) {
@@ -373,12 +503,15 @@
     const outputType = VALID_OUTPUT_TYPES.has(input.outputType) ? input.outputType : "ticket";
     const responseMode = VALID_RESPONSE_MODES.has(input.responseMode) ? input.responseMode : "detailed";
     const language = input.language === "arabic" ? "arabic" : "english";
+    const ticketType = outputType === "ticket" ? normalizeTicketType(input.type) : "customer_reply";
+    const ticketTone = outputType === "ticket" ? normalizeTicketTone(input.tone) : "professional";
+    const normalizedInput = { ...input, type: ticketType, tone: ticketTone };
     const strictSop = input.sopMode !== "hybrid";
     const images = normalizeImagePayload(input.images);
     const hasImage = Boolean(images?.length);
-    const lookupQuery = String(input.kbQuery || buildTicketLookupQuery(input)).trim();
+    const lookupQuery = String(input.kbQuery || buildTicketLookupQuery(normalizedInput)).trim();
     const fallbackQuery = outputType === "ticket"
-      ? (lookupQuery ? buildTicketQuery(input, lookupQuery) : "Create a ready-to-send customer support ticket based on the attached image.")
+      ? (lookupQuery ? buildTicketQuery(normalizedInput, lookupQuery) : "Create a ready-to-send customer support ticket based on the attached image.")
       : lookupQuery;
     const finalQuery = String(input.query || fallbackQuery).trim();
     if (!finalQuery && !hasImage) {
@@ -390,14 +523,15 @@
 
     const matcher = window.SUGO?.KnowledgeBaseMatcher;
     if (!matcher?.match || !matcher?.toRequestMatches) throw new WorkerRequestError("The knowledge-base matcher is not available.", { code: "MATCHER_UNAVAILABLE" });
-    const kb = matcher.match(lookupQuery || finalQuery, hasImage ? 6 : 12, hasImage ? 2200 : 3200, input.exactPaneId || null, {
+    const kb = matcher.match(lookupQuery || finalQuery, hasImage ? 8 : 14, hasImage ? 2600 : 4200, input.exactPaneId || null, {
       outputType,
       preferTicketTopics: outputType === "ticket",
       smartTicket: outputType === "ticket",
       compactPrompt: false,
       completeAnswer: true
     });
-    const kbHasContent = Boolean(kb.hasMeaningfulMatch && String(kb.text || "").trim().length > 150);
+    const localTicketMacro = outputType === "ticket" ? getPrimaryTicketMacro(kb, language) : null;
+    const kbHasContent = Boolean(kb.hasMeaningfulMatch && String(kb.text || "").trim().length > 100);
     if (strictSop && !kbHasContent && !hasImage) {
       throw new WorkerRequestError(
         outputType === "ticket"
@@ -407,8 +541,12 @@
       );
     }
 
-    const askInstruction = String(input.askToolInstruction || ticketInstruction(input)).trim();
-    const systemPrompt = buildSystemPrompt({ kb, responseMode, outputType, language, strictSop, hasImage, askToolInstruction: askInstruction });
+    const askInstruction = String(input.askToolInstruction || ticketInstruction(normalizedInput)).trim();
+    const systemPrompt = buildSystemPrompt({
+      kb, responseMode, outputType, language, strictSop, hasImage,
+      askToolInstruction: askInstruction,
+      ticketType, ticketTone, localTicketMacro
+    });
     const imageMeta = input.imageMeta || images?.[0] || null;
     const finalUserContent = hasImage
       ? `${finalQuery}\n\n[Attached image: ${imageMeta?.name || "image"}; ${imageMeta?.width || "?"}×${imageMeta?.height || "?"}; compressed ${formatBytes(imageMeta?.size || 0)}]`
@@ -425,9 +563,13 @@
     const body = {
       task_type: hasImage ? "image_analysis" : (outputType === "ticket" ? "create_ticket" : "ask_ai"),
       workspace: hasImage ? "upload_image" : (outputType === "ticket" ? "create_ticket" : "ask_ai"),
-      max_completion_tokens: outputType === "ticket" ? (["detailed", "step"].includes(responseMode) ? 7000 : 4200) : (["detailed", "step"].includes(responseMode) ? 9000 : 5200),
+      max_completion_tokens: outputType === "ticket" ? (responseMode === "brief" ? 4200 : 7000) : (responseMode === "brief" ? 5200 : 9000),
       response_mode: responseMode,
       output_type: outputType,
+      ticket_type: ticketType,
+      ticket_tone: ticketTone,
+      requested_language: language,
+      primary_ticket_macro_id: localTicketMacro?.id || null,
       language,
       sop_mode: strictSop ? "sop_only" : "hybrid",
       kb_matches: matcher.toRequestMatches(kb),
@@ -443,14 +585,19 @@
       stream: false,
       messages
     };
-    return { body, kb, query: finalQuery, lookupQuery, kbHasContent };
+    return {
+      body, kb, query: finalQuery, lookupQuery, kbHasContent,
+      localTicketMacro, ticketType, ticketTone,
+      originalInput: normalizedInput
+    };
   }
 
-  async function parseEventStream(response, onProgress, { language = "english", isTicketOutput = false } = {}) {
+  async function parseEventStream(response, onProgress, { language = "english", isTicketOutput = false, ticketType = "customer_reply" } = {}) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
     let answer = "";
+    const customerFacing = isTicketOutput && ticketType !== "internal_escalation";
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -467,11 +614,12 @@
           const delta = json.response ?? json.choices?.[0]?.delta?.content ?? "";
           if (delta) {
             answer += delta;
-            const liveAnswer = applyCustomerReplyEnvelope(stripLatexNotation(answer), language, false, isTicketOutput);
+            let liveAnswer = stripLatexNotation(answer);
+            if (customerFacing) liveAnswer = applyCustomerReplyEnvelope(liveAnswer, language, false, true);
             if (typeof onProgress === "function") onProgress({ text: liveAnswer, html: renderMarkdown(liveAnswer) });
           }
         } catch (_error) {
-          /* Preserve the legacy behavior: malformed SSE lines are ignored. */
+          /* Malformed SSE lines are ignored while valid content continues streaming. */
         }
       }
     }
@@ -508,11 +656,21 @@
         throw new WorkerRequestError(`Request failed (${response.status}): ${errorText.slice(0, 300)}`, { status: response.status, code: "HTTP_ERROR" });
       }
       const parsed = response.body && response.headers.get("content-type")?.includes("text/event-stream")
-        ? await parseEventStream(response, options.onProgress, { language: request.body.language, isTicketOutput: request.body.output_type === "ticket" })
+        ? await parseEventStream(response, options.onProgress, {
+            language: request.body.language,
+            isTicketOutput: request.body.output_type === "ticket",
+            ticketType: request.ticketType
+          })
         : await parseJsonResponse(response);
-      let answer = stripPreamble(parsed.answer);
-      answer = stripLatexNotation(answer);
-      answer = applyCustomerReplyEnvelope(answer, request.body.language, true, request.body.output_type === "ticket");
+      let answer = stripLatexNotation(stripPreamble(parsed.answer));
+      const isTicket = request.body.output_type === "ticket";
+      const isInternalEscalation = isTicket && request.ticketType === "internal_escalation";
+      if (!isRequestedLanguage(answer, request.body.language) || !isTicketTypeCompliant(answer, request)) {
+        answer = buildLanguageSafeFallback(request);
+      }
+      if (isTicket && !isInternalEscalation) {
+        answer = applyCustomerReplyEnvelope(answer, request.body.language, true, true);
+      }
       const result = {
         answer,
         html: renderMarkdown(answer),
@@ -521,9 +679,18 @@
         kb: request.kb,
         requestBody: request.body,
         query: request.query,
-        lookupQuery: request.lookupQuery
+        lookupQuery: request.lookupQuery,
+        usedLocalTicketMacro: Boolean(request.localTicketMacro),
+        ticketType: request.ticketType,
+        ticketTone: request.ticketTone
       };
-      state.lastResponseMeta = { branch: parsed.branch, at: Date.now(), kbConfidence: request.kb?.confidence || "low" };
+      state.lastResponseMeta = {
+        branch: parsed.branch,
+        at: Date.now(),
+        kbConfidence: request.kb?.confidence || "low",
+        macroId: request.localTicketMacro?.id || null,
+        ticketType: request.ticketType
+      };
       return result;
     } catch (error) {
       window.clearTimeout(timeout);

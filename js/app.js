@@ -193,7 +193,9 @@
     userId: "",
     orderId: "",
     evidence: "",
-    generatedOutput: ""
+    generatedOutput: "",
+    quickPrompt: "",
+    draftToPolish: ""
   };
   const ticketRequestState = {
     status: "idle",
@@ -1847,6 +1849,10 @@
       } else {
         ticketWorkspaceState.type = getTicketType(button.dataset.ticketPromptType).value;
       }
+      ticketWorkspaceState.quickPrompt = String(button.dataset.ticketPrompt || "").trim();
+      ticketWorkspaceState.draftToPolish = /rewrite|polish/i.test(ticketWorkspaceState.quickPrompt)
+        ? String(ticketWorkspaceState.generatedOutput || "").trim()
+        : "";
       textarea.focus();
       emitTicketCaseChange("quick-prompt");
     });
@@ -2353,6 +2359,8 @@
       orderId: ticketWorkspaceState.orderId,
       evidence: ticketWorkspaceState.evidence,
       generatedOutput: ticketWorkspaceState.generatedOutput,
+      quickPrompt: ticketWorkspaceState.quickPrompt,
+      draftToPolish: ticketWorkspaceState.draftToPolish,
       image: getTicketImageMetadata()
     };
   }
@@ -2398,6 +2406,8 @@
     ticketWorkspaceState.orderId = "";
     ticketWorkspaceState.evidence = "";
     ticketWorkspaceState.generatedOutput = "";
+    ticketWorkspaceState.quickPrompt = "";
+    ticketWorkspaceState.draftToPolish = "";
     ticketAttachedImage = null;
 
     const caseInput = document.getElementById("sugoTicketInput");
@@ -2472,6 +2482,8 @@
         userId: ticketWorkspaceState.userId,
         orderId: ticketWorkspaceState.orderId,
         evidence: ticketWorkspaceState.evidence,
+        quickPrompt: ticketWorkspaceState.quickPrompt,
+        draftToPolish: ticketWorkspaceState.draftToPolish,
         images: buildTicketImagePayload(),
         imageMeta: getTicketImageMetadata(),
         responseMode: "detailed",
@@ -2497,6 +2509,8 @@
       ticketRequestState.kbConfidence = result.kb?.confidence || "";
       ticketRequestState.kbPrimaryRoute = result.kb?.primaryRoute?.name || "";
       applyGeneratedTicket({ output: result.answer }, { source: "worker" });
+      ticketWorkspaceState.quickPrompt = "";
+      ticketWorkspaceState.draftToPolish = "";
       return { ok: true, ...result };
     } catch (error) {
       if (requestId !== ticketRequestState.requestId) {

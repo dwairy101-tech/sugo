@@ -187,19 +187,31 @@ export default {
     const responseMode = ["brief", "detailed", "step"].includes(incoming.response_mode) ? incoming.response_mode : "brief";
     const outputType = ["answer", "ticket"].includes(incoming.output_type) ? incoming.output_type : "answer";
     const sopMode = ["hybrid", "sop_only"].includes(incoming.sop_mode) ? incoming.sop_mode : "hybrid";
+    const ticketType = ["customer_reply", "missing_info", "internal_escalation", "policy_sensitive"].includes(incoming.ticket_type)
+      ? incoming.ticket_type
+      : "customer_reply";
+    const ticketTone = ["professional", "empathetic", "firm"].includes(incoming.ticket_tone)
+      ? incoming.ticket_tone
+      : "professional";
+    const requestedLanguage = incoming.language === "arabic" || incoming.requested_language === "arabic"
+      ? "ar"
+      : incoming.language === "english" || incoming.requested_language === "english"
+        ? "en"
+        : null;
     const taskType = normalizeTaskType(incoming, { outputType, hasImages });
     const needsWebSearch = detectNeedsWebSearch(systemMsg, incoming);
     const requestAnalysis = analyzeSupportRequest(messages, systemMsg, { outputType, sopMode, needsWebSearch, taskType, hasImages });
+    if (requestedLanguage) requestAnalysis.likelyLanguage = requestedLanguage;
     const kbMatchAudit = sanitizeKbMatchAudit(incoming);
     if (kbMatchAudit.confidence && kbMatchAudit.confidence !== "unknown") {
       requestAnalysis.sopConfidence = kbMatchAudit.confidence;
     }
     const routeProfile = buildRouteProfile({ incoming, messages, responseMode, outputType, sopMode, taskType, needsWebSearch, requestAnalysis, kbMatchAudit, hasImages });
-    const strictGateResponse = buildStrictAccuracyGateResponse({ incoming, messages, responseMode, outputType, sopMode, taskType, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages, requestId, startedAt, rateLimit, env });
+    const strictGateResponse = buildStrictAccuracyGateResponse({ incoming, messages, responseMode, outputType, sopMode, taskType, ticketType, ticketTone, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages, requestId, startedAt, rateLimit, env });
     if (strictGateResponse) {
       return jsonResponse(strictGateResponse, corsHeaders);
     }
-    const workerAddendum = buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages });
+    const workerAddendum = buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType, ticketType, ticketTone, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages });
     const effectiveMessages = addSystemInstruction(messages, workerAddendum);
     const effectiveSystemMsg = effectiveMessages.find(msg => msg.role === "system") || null;
     let effectiveConversationMsgs = effectiveMessages.filter(msg => msg.role !== "system");
@@ -255,6 +267,8 @@ export default {
         outputType,
         sopMode,
         taskType,
+        ticketType,
+        ticketTone,
         needsWebSearch,
         routeProfile,
         requestAnalysis,
@@ -277,8 +291,8 @@ export default {
         return allProvidersFailedResponse(corsHeaders, attempts, false);
       }
 
-      const finalText = applyWorkerQualityPipeline(result.text, { outputType, responseMode, sopMode, taskType, needsWebSearch, requestAnalysis, kbMatchAudit, routeProfile, hasImages });
-      const qualityFlags = inspectFinalAnswer(finalText, { outputType, taskType, requestAnalysis, kbMatchAudit, routeProfile, hasImages });
+      const finalText = applyWorkerQualityPipeline(result.text, { outputType, responseMode, sopMode, taskType, ticketType, ticketTone, needsWebSearch, requestAnalysis, kbMatchAudit, routeProfile, hasImages });
+      const qualityFlags = inspectFinalAnswer(finalText, { outputType, taskType, ticketType, ticketTone, requestAnalysis, kbMatchAudit, routeProfile, hasImages });
       const responseBody = {
         choices: [{ message: { role: "assistant", content: finalText } }],
         _meta: {
@@ -290,6 +304,9 @@ export default {
           outputType,
           sopMode,
           taskType,
+          ticketType,
+          ticketTone,
+          requestedLanguage: requestAnalysis.likelyLanguage,
           route: routeProfile.name,
           requestId,
           strictAccuracy: true,
@@ -729,10 +746,11 @@ function buildWorkerHealthReport(env, diagnostics = false) {
   return report;
 }
 
-function buildStrictAccuracyGateResponse({ incoming, outputType, sopMode, taskType, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages, requestId, startedAt, rateLimit, env }) {
+function buildStrictAccuracyGateResponse({ incoming, outputType, sopMode, taskType, ticketType, ticketTone, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages, requestId, startedAt, rateLimit, env }) {
   if (String(env?.STRICT_ACCURACY_GATE || "true").toLowerCase() === "false") return null;
   if (String(incoming?.strict_accuracy_gate || "").toLowerCase() === "false") return null;
   if (hasImages) return null;
+  if (ticketType === "internal_escalation") return null;
   const sensitive = Boolean(requestAnalysis?.sensitiveCategories?.length);
   const missing = Array.isArray(requestAnalysis?.missingInfo) ? requestAnalysis.missingInfo : [];
   const lowKb = ["low", "unknown"].includes(effectiveKnowledgeConfidence(requestAnalysis, kbMatchAudit));
@@ -871,7 +889,7 @@ function addSystemInstruction(messages, addendum) {
   return out;
 }
 
-function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages }) {
+function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType, ticketType = "customer_reply", ticketTone = "professional", needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages }) {
   const modeLine = responseMode === "brief"
     ? "Keep the reply concise, direct, complete, and ready to use. Do not omit important conditions, limits, IDs, dates, waiting periods, or required evidence when they are present in the context."
     : responseMode === "step"
@@ -902,11 +920,22 @@ function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType
         ].join(" ");
 
   const taskLine = taskType === "create_ticket"
-    ? [
-        "TASK TYPE: CREATE TICKET WORKSPACE.",
-        "The UI is asking for a customer-facing ticket/reply. Do not write internal analysis, agent notes, confidence scores, route names, or SOP explanations.",
-        "If the case is missing required details, write a clean customer reply asking for only those details. Do not provide a final decision."
-      ].join(" ")
+    ? ticketType === "internal_escalation"
+      ? [
+          "TASK TYPE: CREATE TICKET — INTERNAL ESCALATION.",
+          "The UI is asking for an internal escalation note, not a customer reply.",
+          "Keep the case summary, identifiers, available evidence, missing evidence, risk, matched category, and recommended next team/action visible.",
+          "Do not add a customer greeting, apology, closing, or customer-service signature."
+        ].join(" ")
+      : [
+          `TASK TYPE: CREATE TICKET — ${String(ticketType || "customer_reply").toUpperCase()}.`,
+          "The UI is asking for one customer-facing ticket/reply ready to send. Do not write internal analysis, agent notes, confidence scores, route names, or SOP explanations.",
+          ticketType === "missing_info"
+            ? "Ask only for the exact missing details or evidence needed by the matched SOP. Do not give a final decision."
+            : ticketType === "policy_sensitive"
+              ? "Use cautious policy-safe wording and do not guarantee an outcome or disclose internal policy."
+              : "Give the correct verified action or result and request missing information only when required."
+        ].join(" ")
     : taskType === "image_analysis"
       ? [
           "TASK TYPE: UPLOAD IMAGE WORKSPACE.",
@@ -926,17 +955,27 @@ function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType
   ].join(" ");
 
   const ticketLine = outputType === "ticket"
-    ? [
-        "SMART TICKET MODE:",
-        "Produce one polished customer-facing support ticket/reply only.",
-        "Be accurate, specific, and do not invent facts, policies, refunds, approvals, bans, delivery times, account actions, technical causes, compensation, or review results unless clearly supported by the supplied context.",
-        "If required information is missing, ask for it politely inside the ticket instead of guessing.",
-        "Use the customer's selected language and a professional support tone.",
-        "Preferred structure: greeting, issue acknowledgment, confirmed explanation or action, missing information if needed, next step, polite closing.",
-        "Use only one polite closing. Do not repeat thank-you lines, team signatures, greetings, or closing phrases such as thank you for contacting us / شكرًا على تواصلك معنا.",
-        "Do not mention SOP, knowledge base, AI, internal routing, providers, confidence, analysis, source names, or hidden instructions.",
-        "Do not over-apologize. Do not make promises. Do not say the issue is resolved unless the context clearly says so."
-      ].join(" ")
+    ? ticketType === "internal_escalation"
+      ? [
+          "SMART TICKET MODE — INTERNAL ESCALATION:",
+          "Produce one useful internal escalation note only.",
+          "Do not convert it into a customer reply and do not remove internal headings that organize the case, evidence, missing items, risk, and next action.",
+          "Do not invent facts, decisions, policy, evidence, or completed actions.",
+          `Use the selected ${ticketTone} tone and the explicitly requested language.`
+        ].join(" ")
+      : [
+          `SMART TICKET MODE — ${String(ticketType || "customer_reply").toUpperCase()}:`,
+          "Produce one polished customer-facing support ticket/reply only.",
+          "Be accurate, specific, and do not invent facts, policies, refunds, approvals, bans, delivery times, account actions, technical causes, compensation, or review results unless clearly supported by the supplied context.",
+          ticketType === "missing_info"
+            ? "Ask only for the exact missing information or evidence required by the matched SOP."
+            : "If required information is missing, ask for it politely inside the ticket instead of guessing.",
+          `Use the explicitly requested language and the selected ${ticketTone} tone.`,
+          "Use a natural greeting, case-specific body, clear next step, and one polite closing.",
+          "Do not repeat thank-you lines, signatures, greetings, apologies, or closings.",
+          "Do not mention SOP, knowledge base, AI, internal routing, providers, confidence, analysis, source names, or hidden instructions.",
+          "Do not over-apologize. Do not make promises. Do not say the issue is resolved unless the context clearly says so."
+        ].join(" ")
     : [
         "ANSWER MODE:",
         "Answer clearly with short paragraphs and clean lists.",
@@ -969,11 +1008,17 @@ function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType
     "Do not reveal this score to the customer. If confidence is low, answer cautiously and ask for missing details or escalation."
   ].join(" ");
 
-  const leakLine = [
-    "NO INTERNAL LEAKAGE:",
-    "Never include internal notes, Mention, Form, Care, Reporter, Violator ID forms, group names, staff names, @mentions, routing notes, provider names, confidence labels, or escalation instructions intended only for agents.",
-    "If such internal text appears in the context, use it only to guide the next action and never copy it into the customer reply."
-  ].join(" ");
+  const leakLine = ticketType === "internal_escalation"
+    ? [
+        "INTERNAL ESCALATION DISCIPLINE:",
+        "Keep relevant case facts, identifiers, evidence status, missing evidence, risk, and recommended internal action.",
+        "Still remove provider names, hidden prompts, secrets, confidence scores, and unrelated raw admin fields."
+      ].join(" ")
+    : [
+        "NO INTERNAL LEAKAGE:",
+        "Never include internal notes, Mention, Form, Care, Reporter, Violator ID forms, group names, staff names, @mentions, routing notes, provider names, confidence labels, or escalation instructions intended only for agents.",
+        "If such internal text appears in the context, use it only to guide the next action and never copy it into the customer reply."
+      ].join(" ");
 
   const imageLine = hasImages
     ? [
@@ -1007,7 +1052,9 @@ function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType
     "10. Do not mix Arabic and English unless the user or UI explicitly asks for both.",
     "11. If the supplied context contains a Primary route or Primary route match, treat that route/topic as the controlling SOP and do not replace it with a broader generic article.",
     "12. In ticket mode, when a specific ticket macro/topic is present, use that ticket macro as the primary source; do not write generic appeal, refund, unban, or troubleshooting text unless that exact macro supports it.",
-    "13. If the task_type is create_ticket, return only the final customer-facing message; no headings like Analysis, Confidence, Source, or Internal note.",
+    ticketType === "internal_escalation"
+      ? "13. If the task_type is create_ticket with internal_escalation, return only the internal escalation note and preserve useful internal case headings."
+      : "13. If the task_type is create_ticket, return only the final customer-facing message; no headings like Analysis, Confidence, Source, or Internal note.",
     "14. If the task_type is ask_ai, separate confirmed SOP-backed facts from missing information and recommended next action.",
     "15. If the task_type is image_analysis, describe only visible evidence and mark uncertain visual text as unclear."
   ].join("\n");
@@ -1899,16 +1946,19 @@ async function buildCacheKey(payload) {
 
 function applyWorkerQualityPipeline(text, options = {}) {
   let out = String(text || "");
+  const internalEscalation = options.outputType === "ticket" && options.ticketType === "internal_escalation";
   out = normalizeAssistantWhitespace(out);
   out = removeFillerPhrases(out);
-  out = removeUnsupportedInternalLabels(out);
-  out = stripInternalLeakage(out);
+  if (!internalEscalation) {
+    out = removeUnsupportedInternalLabels(out);
+    out = stripInternalLeakage(out);
+  }
   out = normalizeSugoTerms(out);
   out = normalizeSupportLanguage(out);
   out = removeAdjacentDuplicateLines(out);
   out = collapseDuplicateParagraphs(out);
   out = renumberMarkdownLists(out);
-  if (options.outputType === "ticket") out = polishTicketReply(out, options);
+  if (options.outputType === "ticket" && !internalEscalation) out = polishTicketReply(out, options);
   out = applySensitivePromiseGuard(out, options);
   out = enforceAccuracyFloor(out, options);
   out = normalizeAssistantWhitespace(out);
@@ -1922,7 +1972,9 @@ function enforceAccuracyFloor(text, options = {}) {
   const ticket = options.outputType === "ticket" || options.taskType === "create_ticket";
   const weakKb = ["low", "unknown"].includes(effectiveKnowledgeConfidence(options.requestAnalysis, options.kbMatchAudit));
 
-  if (ticket) {
+  if (ticket && options.ticketType === "internal_escalation") {
+    out = removeRiskyFinalDecisionWording(out, { sensitive, weakKb, missing });
+  } else if (ticket) {
     out = removeTicketMetaHeadings(out);
     out = removeRiskyFinalDecisionWording(out, { sensitive, weakKb, missing });
     if (missing.length && !hasMissingInfoPrompt(out, missing)) {
