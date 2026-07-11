@@ -1,0 +1,13 @@
+name = "sugo"
+main = "worker.js"
+compatibility_date = "2026-07-11"
+workers_dev = true
+preview_urls = false
+
+# This deploys over the existing Worker at:
+# https://sugo.dwairy101.workers.dev
+# Existing AI secrets remain attached because the same Worker name is used.
+
+[[kv_namespaces]]
+binding = "SUGO_KV"
+id = "3b5051a5b7b143afa1f4522afa0c53d4"
