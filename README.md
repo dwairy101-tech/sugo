@@ -43,3 +43,11 @@ This GitHub Pages build uses the approved desktop-only dark crimson, black, and 
 ## Designed Home Dashboard
 
 The application opens on a finished Home dashboard rather than an empty workspace. Home provides direct access to Ask AI, Create Ticket, Upload image, both original knowledge-base roots, live content counts, Recent Topics, and Favorites. Closing any active topic or workspace returns to Home without deleting drafted input or generated results.
+
+## Admin Visual Guide Manager — Build 20260712-admin-media-v2
+
+The topic editor now includes a complete **Article screenshots** manager. Administrators can add, replace, reorder, caption, and remove explanation images without editing JavaScript or uploading a new GitHub build for every image change.
+
+Uploaded image files, image order, captions, and topic overrides are stored in Cloudflare KV through the `SUGO_KV` binding. Cloudflare R2 is not required. The original bundled screenshots remain available through **Restore original images**.
+
+Run `START_CLOUDFLARE_SETUP.bat` to deploy the Worker and generate the GitHub upload package.

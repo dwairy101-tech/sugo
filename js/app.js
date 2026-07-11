@@ -203,7 +203,8 @@
     responseBranch: "",
     requestId: 0,
     kbConfidence: "",
-    kbPrimaryRoute: ""
+    kbPrimaryRoute: "",
+    topics: []
   };
   let ticketAttachedImage = null;
   const askAIWorkspaceState = {
@@ -301,6 +302,265 @@
     copy: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>',
     stop: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>'
   });
+
+  const visualGuideState = {
+    guide: null,
+    index: 0,
+    returnFocus: null
+  };
+
+  function getKnowledgeBaseMedia() {
+    return window.SUGO?.KnowledgeBaseMedia || null;
+  }
+
+  function getVisualGuidesForTopics(topics, limit = 6) {
+    const media = getKnowledgeBaseMedia();
+    if (!media?.getGuidesForTopics) return [];
+    return media.getGuidesForTopics(topics, limit);
+  }
+
+  function visualGuideCaption(image, language = "english") {
+    if (!image) return "";
+    return language === "arabic"
+      ? String(image.captionAr || image.captionEn || image.alt || "")
+      : String(image.captionEn || image.alt || "");
+  }
+
+  function ensureVisualGuideLightbox() {
+    let overlay = document.getElementById("sugoVisualGuideLightbox");
+    if (overlay) return overlay;
+
+    overlay = document.createElement("div");
+    overlay.id = "sugoVisualGuideLightbox";
+    overlay.className = "visual-guide-lightbox";
+    overlay.hidden = true;
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-labelledby", "sugoVisualGuideLightboxTitle");
+    overlay.innerHTML = `
+      <div class="visual-guide-lightbox__backdrop" data-visual-guide-close></div>
+      <section class="visual-guide-lightbox__dialog">
+        <header class="visual-guide-lightbox__header">
+          <span class="visual-guide-lightbox__heading">
+            <span class="visual-guide-lightbox__icon" aria-hidden="true">${ICONS.image}</span>
+            <span><strong id="sugoVisualGuideLightboxTitle"></strong><small id="sugoVisualGuideLightboxCounter"></small></span>
+          </span>
+          <button type="button" class="visual-guide-lightbox__close" data-visual-guide-close aria-label="Close visual guide">${ICONS.close}</button>
+        </header>
+        <div class="visual-guide-lightbox__stage">
+          <button type="button" class="visual-guide-lightbox__nav is-previous" data-visual-guide-previous aria-label="Previous screenshot">‹</button>
+          <figure class="visual-guide-lightbox__figure">
+            <img id="sugoVisualGuideLightboxImage" alt="">
+            <figcaption id="sugoVisualGuideLightboxCaption"></figcaption>
+          </figure>
+          <button type="button" class="visual-guide-lightbox__nav is-next" data-visual-guide-next aria-label="Next screenshot">›</button>
+        </div>
+      </section>
+    `;
+
+    const close = () => closeVisualGuide();
+    overlay.addEventListener("click", (event) => {
+      if (event.target.closest("[data-visual-guide-close]")) {
+        close();
+        return;
+      }
+      if (event.target.closest("[data-visual-guide-previous]")) {
+        moveVisualGuide(-1);
+        return;
+      }
+      if (event.target.closest("[data-visual-guide-next]")) moveVisualGuide(1);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (overlay.hidden) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        moveVisualGuide(-1);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        moveVisualGuide(1);
+      }
+    });
+    document.body.append(overlay);
+    return overlay;
+  }
+
+  function renderVisualGuideLightbox() {
+    const overlay = ensureVisualGuideLightbox();
+    const guide = visualGuideState.guide;
+    if (!guide || !Array.isArray(guide.images) || !guide.images.length) return false;
+    visualGuideState.index = Math.max(0, Math.min(guide.images.length - 1, visualGuideState.index));
+    const image = guide.images[visualGuideState.index];
+    const output = overlay.querySelector("#sugoVisualGuideLightboxImage");
+    output.src = image.src;
+    output.alt = image.alt || guide.title;
+    overlay.querySelector("#sugoVisualGuideLightboxTitle").textContent = guide.title;
+    overlay.querySelector("#sugoVisualGuideLightboxCounter").textContent = `${guide.category} · ${visualGuideState.index + 1} / ${guide.images.length}`;
+    overlay.querySelector("#sugoVisualGuideLightboxCaption").textContent = visualGuideCaption(image);
+    overlay.querySelectorAll(".visual-guide-lightbox__nav").forEach((button) => {
+      button.hidden = guide.images.length < 2;
+    });
+    return true;
+  }
+
+  function openVisualGuide(guideId, index = 0, trigger = null) {
+    const guide = getKnowledgeBaseMedia()?.getGuide?.(guideId);
+    if (!guide) return false;
+    visualGuideState.guide = guide;
+    visualGuideState.index = Number(index) || 0;
+    visualGuideState.returnFocus = trigger instanceof HTMLElement ? trigger : document.activeElement;
+    const overlay = ensureVisualGuideLightbox();
+    renderVisualGuideLightbox();
+    overlay.hidden = false;
+    document.body.classList.add("has-visual-guide-lightbox");
+    overlay.querySelector("[data-visual-guide-close]")?.focus();
+    return true;
+  }
+
+  function closeVisualGuide() {
+    const overlay = document.getElementById("sugoVisualGuideLightbox");
+    if (!overlay || overlay.hidden) return false;
+    overlay.hidden = true;
+    document.body.classList.remove("has-visual-guide-lightbox");
+    const focus = visualGuideState.returnFocus;
+    visualGuideState.guide = null;
+    visualGuideState.index = 0;
+    visualGuideState.returnFocus = null;
+    if (focus && typeof focus.focus === "function" && focus.isConnected) focus.focus();
+    return true;
+  }
+
+  function moveVisualGuide(delta) {
+    const guide = visualGuideState.guide;
+    if (!guide?.images?.length) return false;
+    visualGuideState.index = (visualGuideState.index + Number(delta || 0) + guide.images.length) % guide.images.length;
+    return renderVisualGuideLightbox();
+  }
+
+  function bindVisualGuideSection(section) {
+    section.addEventListener("click", (event) => {
+      const trigger = event.target.closest("[data-visual-guide-open]");
+      if (!trigger || !section.contains(trigger)) return;
+      openVisualGuide(trigger.dataset.visualGuideOpen, Number(trigger.dataset.visualGuideIndex || 0), trigger);
+    });
+    return section;
+  }
+
+  function createVisualGuidesSection(guides, options = {}) {
+    const resolved = (Array.isArray(guides) ? guides : []).filter((guide) => guide?.images?.length);
+    if (!resolved.length) return null;
+    const compact = Boolean(options.compact);
+    const section = document.createElement("section");
+    section.className = `visual-guides${compact ? " visual-guides--compact" : ""}`;
+    section.setAttribute("aria-label", options.title || "Visual guides");
+
+    const header = document.createElement("header");
+    header.className = "visual-guides__header";
+    const heading = document.createElement("div");
+    heading.className = "visual-guides__heading";
+    heading.innerHTML = `<span class="visual-guides__heading-icon" aria-hidden="true">${ICONS.image}</span><span><h2></h2><p></p></span>`;
+    heading.querySelector("h2").textContent = options.title || "Visual Reference";
+    heading.querySelector("p").textContent = options.description || (compact
+      ? "Screenshots related to the matched SOP."
+      : "Open any screenshot to inspect it at full size.");
+    const total = resolved.reduce((sum, guide) => sum + guide.images.length, 0);
+    const count = document.createElement("span");
+    count.className = "visual-guides__count";
+    count.textContent = `${total} screenshot${total === 1 ? "" : "s"}`;
+    header.append(heading, count);
+
+    const list = document.createElement("div");
+    list.className = "visual-guides__list";
+    for (const guide of resolved) {
+      const card = document.createElement("article");
+      card.className = `visual-guide-card${guide.images.length === 1 ? " is-single" : " is-sequence"}`;
+      const cardHeader = document.createElement("header");
+      cardHeader.className = "visual-guide-card__header";
+      const cardTitle = document.createElement("div");
+      cardTitle.innerHTML = `<strong></strong><span></span>`;
+      cardTitle.querySelector("strong").textContent = guide.title;
+      cardTitle.querySelector("span").textContent = `${guide.category} · ${guide.images.length === 1 ? "Visual reference" : `${guide.images.length} steps`}`;
+      const open = document.createElement("button");
+      open.type = "button";
+      open.className = "visual-guide-card__open";
+      open.dataset.visualGuideOpen = guide.id;
+      open.dataset.visualGuideIndex = "0";
+      open.innerHTML = `${ICONS.image}<span>Open</span>`;
+      cardHeader.append(cardTitle, open);
+      card.append(cardHeader);
+
+      if (compact) {
+        const preview = document.createElement("button");
+        preview.type = "button";
+        preview.className = "visual-guide-card__compact-preview";
+        preview.dataset.visualGuideOpen = guide.id;
+        preview.dataset.visualGuideIndex = "0";
+        const image = document.createElement("img");
+        image.src = guide.images[0].src;
+        image.alt = guide.images[0].alt || guide.title;
+        image.loading = "lazy";
+        image.decoding = "async";
+        const label = document.createElement("span");
+        label.textContent = guide.images.length === 1 ? "View screenshot" : `View ${guide.images.length}-step guide`;
+        preview.append(image, label);
+        card.append(preview);
+      } else if (guide.images.length === 1) {
+        const imageData = guide.images[0];
+        const figureButton = document.createElement("button");
+        figureButton.type = "button";
+        figureButton.className = "visual-guide-card__single-image";
+        figureButton.dataset.visualGuideOpen = guide.id;
+        figureButton.dataset.visualGuideIndex = "0";
+        const image = document.createElement("img");
+        image.src = imageData.src;
+        image.alt = imageData.alt || guide.title;
+        image.loading = "lazy";
+        image.decoding = "async";
+        const caption = document.createElement("span");
+        caption.textContent = visualGuideCaption(imageData);
+        figureButton.append(image, caption);
+        card.append(figureButton);
+      } else {
+        const steps = document.createElement("div");
+        steps.className = "visual-guide-steps";
+        guide.images.forEach((imageData, index) => {
+          const step = document.createElement("button");
+          step.type = "button";
+          step.className = "visual-guide-step";
+          step.dataset.visualGuideOpen = guide.id;
+          step.dataset.visualGuideIndex = String(index);
+          const badge = document.createElement("span");
+          badge.className = "visual-guide-step__number";
+          badge.textContent = String(index + 1);
+          const image = document.createElement("img");
+          image.src = imageData.src;
+          image.alt = imageData.alt || `${guide.title} step ${index + 1}`;
+          image.loading = "lazy";
+          image.decoding = "async";
+          const caption = document.createElement("span");
+          caption.className = "visual-guide-step__caption";
+          caption.textContent = visualGuideCaption(imageData);
+          step.append(badge, image, caption);
+          steps.append(step);
+        });
+        card.append(steps);
+      }
+      list.append(card);
+    }
+    section.append(header, list);
+    return bindVisualGuideSection(section);
+  }
+
+  function createRelatedVisualGuides(topics, context = "AI result") {
+    const guides = getVisualGuidesForTopics(topics, 4);
+    return createVisualGuidesSection(guides, {
+      compact: true,
+      title: "Related Visual Guides",
+      description: `Screenshots linked to this ${context}.`
+    });
+  }
 
   function readStoredTheme() {
     try {
@@ -1217,6 +1477,15 @@
       label.textContent = topic.title;
 
       topicButton.append(dot, label);
+      const media = getKnowledgeBaseMedia();
+      if (media?.hasTopic?.(topic.id)) {
+        const mediaBadge = document.createElement("span");
+        mediaBadge.className = "navigation-topic__media";
+        mediaBadge.title = `${media.getGuidesForTopic(topic.id).length} visual guide(s)`;
+        mediaBadge.setAttribute("aria-label", "Visual guide available");
+        mediaBadge.innerHTML = ICONS.image;
+        topicButton.append(mediaBadge);
+      }
       children.append(topicButton);
     }
 
@@ -2397,6 +2666,7 @@
     ticketRequestState.responseBranch = "";
     ticketRequestState.kbConfidence = "";
     ticketRequestState.kbPrimaryRoute = "";
+    ticketRequestState.topics = [];
   }
 
   function clearTicketWorkspaceState({ focus = false, source = "clear" } = {}) {
@@ -2471,6 +2741,7 @@
     ticketRequestState.responseBranch = "";
     ticketRequestState.kbConfidence = "";
     ticketRequestState.kbPrimaryRoute = "";
+    ticketRequestState.topics = [];
     ticketWorkspaceState.generatedOutput = "";
     renderTicketPreviewPanel();
 
@@ -2508,6 +2779,7 @@
       ticketRequestState.responseBranch = result.responseBranch || "";
       ticketRequestState.kbConfidence = result.kb?.confidence || "";
       ticketRequestState.kbPrimaryRoute = result.kb?.primaryRoute?.name || "";
+      ticketRequestState.topics = Array.isArray(result.kb?.topics) ? result.kb.topics.slice(0, 12) : [];
       applyGeneratedTicket({ output: result.answer }, { source: "worker" });
       ticketWorkspaceState.quickPrompt = "";
       ticketWorkspaceState.draftToPolish = "";
@@ -2519,6 +2791,7 @@
       ticketRequestState.status = "error";
       ticketRequestState.message = String(error?.message || "AI could not generate the ticket.");
       ticketRequestState.responseBranch = "";
+      ticketRequestState.topics = [];
       renderTicketPreviewPanel();
       document.dispatchEvent(new CustomEvent("sugo:ticketgenerationerror", {
         detail: {
@@ -2557,6 +2830,12 @@
     ticketWorkspaceState.generatedOutput = String(
       payload.output ?? payload.text ?? payload.ticket ?? ""
     ).trim();
+    const matchedTopics = Array.isArray(payload.topics)
+      ? payload.topics
+      : (Array.isArray(payload.kb?.topics) ? payload.kb.topics : null);
+    if (matchedTopics) {
+      ticketRequestState.topics = matchedTopics.slice(0, 12).map((topic) => ({ ...topic }));
+    }
 
     const controls = {
       caseDetails: document.getElementById("sugoTicketInput"),
@@ -2654,6 +2933,8 @@
         : snapshot.generatedOutput.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
       generatedSection.append(generatedTitle, generated);
       scroller.append(generatedSection);
+      const relatedVisualGuides = createRelatedVisualGuides(ticketRequestState.topics, "generated ticket");
+      if (relatedVisualGuides) scroller.append(relatedVisualGuides);
     }
 
     const caseValue = createTicketPreviewValue(
@@ -3089,6 +3370,8 @@
         : askAIWorkspaceState.answer.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
       scroller.append(answer);
       renderAskAISources(scroller);
+      const relatedVisualGuides = createRelatedVisualGuides(askAIRequestState.topics, "Ask AI answer");
+      if (relatedVisualGuides) scroller.append(relatedVisualGuides);
       scroller.append(createAskAIFollowup());
     } else if (askAIRequestState.status === "idle") {
       const empty = document.createElement("div");
@@ -4687,6 +4970,7 @@
       macroGrid.classList.toggle("is-single-column", visibleColumns === 1);
     }
 
+    if (view.querySelector(".visual-guides")) visibleCount += 1;
     const empty = view.querySelector(".article-filter-empty");
     if (empty) empty.hidden = visibleCount > 0;
     return true;
@@ -4871,6 +5155,12 @@
       }
       content.append(dual);
     }
+
+    const articleGuides = createVisualGuidesSection(
+      getKnowledgeBaseMedia()?.getGuidesForTopic?.(pane.id) || [],
+      { title: "Visual Reference", description: "Screenshots linked directly to this SOP topic." }
+    );
+    if (articleGuides) content.append(articleGuides);
 
     const empty = document.createElement("div");
     empty.className = "article-filter-empty";
@@ -6355,6 +6645,21 @@
       return articleViewState.activeType;
     }
   });
+  window.SUGO.VisualGuides = Object.freeze({
+    open: openVisualGuide,
+    close: closeVisualGuide,
+    previous() { return moveVisualGuide(-1); },
+    next() { return moveVisualGuide(1); },
+    forTopic(topicId) {
+      return (getKnowledgeBaseMedia()?.getGuidesForTopic?.(topicId) || []).map((guide) => ({ ...guide, images: guide.images.map((image) => ({ ...image })) }));
+    },
+    forTopics(topics, limit = 6) {
+      return getVisualGuidesForTopics(topics, limit).map((guide) => ({ ...guide, images: guide.images.map((image) => ({ ...image })) }));
+    },
+    get stats() {
+      return getKnowledgeBaseMedia()?.stats || { guideCount: 0, imageCount: 0, linkedTopicCount: 0 };
+    }
+  });
   window.SUGO.TicketBuilder = Object.freeze({
     types: TICKET_TYPES.map(({ value, label }) => ({ value, label })),
     tones: TICKET_TONES.map(({ value, label }) => ({ value, label })),
@@ -6512,6 +6817,15 @@
     refreshQuickAccess();
     searchViewState.index = null;
     window.SUGO?.KnowledgeBaseMatcher?.invalidate?.();
+    const activePane = articleViewState.paneId;
+    if (activePane && getArticlePane(activePane)) {
+      renderArticleDetail(activePane, { preserveFilter: true });
+    }
+  });
+
+  document.addEventListener("sugo:mediachange", () => {
+    closeVisualGuide();
+    renderNavigationTree();
     const activePane = articleViewState.paneId;
     if (activePane && getArticlePane(activePane)) {
       renderArticleDetail(activePane, { preserveFilter: true });

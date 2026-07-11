@@ -1,0 +1,8 @@
+هذه النسخة تستخدم الـWorker القديم المرتبط أصلًا بالذكاء الاصطناعي:
+https://sugo.dwairy101.workers.dev
+
+1) أغلق نافذة الإعداد القديمة باستخدام Ctrl + C.
+2) اضغط مرتين START_CLOUDFLARE_SETUP.bat.
+3) لا تدخل أي مفتاح ذكاء اصطناعي.
+4) انتظر ظهور SUCCESS.
+5) ارفع محتويات SUGO_GITHUB_UPLOAD_READY.zip إلى GitHub.

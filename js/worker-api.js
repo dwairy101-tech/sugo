@@ -4,6 +4,9 @@
   window.SUGO = window.SUGO || {};
 
   const DEFAULT_BASE_URL = "https://sugo.dwairy101.workers.dev";
+  function baseUrl() {
+    return String(window.SUGO_WORKER_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  }
   const REQUEST_TIMEOUT_MS = 90000;
   const VALID_RESPONSE_MODES = new Set(["brief", "detailed", "step"]);
   const VALID_OUTPUT_TYPES = new Set(["answer", "ticket"]);
@@ -644,7 +647,7 @@
     state.lastRequestBody = request.body;
     const timeout = window.setTimeout(() => controller.abort(), Number(options.timeoutMs || REQUEST_TIMEOUT_MS));
     try {
-      const response = await fetch(DEFAULT_BASE_URL, {
+      const response = await fetch(baseUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
@@ -734,7 +737,7 @@
   }
 
   window.SUGO.WorkerAPI = Object.freeze({
-    baseUrl: DEFAULT_BASE_URL,
+    get baseUrl() { return baseUrl(); },
     timeoutMs: REQUEST_TIMEOUT_MS,
     buildRequest,
     generateTicket,

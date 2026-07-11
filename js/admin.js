@@ -100,9 +100,9 @@
     };
   }
 
-  async function fetchWithTimeout(url, options = {}) {
+  async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
     const controller = new AbortController();
-    const timer = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const timer = window.setTimeout(() => controller.abort(), Math.max(1000, Number(timeoutMs) || REQUEST_TIMEOUT_MS));
     try {
       return await fetch(url, { ...options, signal: controller.signal });
     } finally {
@@ -771,6 +771,78 @@
     };
   }
 
+  function mediaApi() {
+    return window.SUGO?.KnowledgeBaseMedia || null;
+  }
+
+  const MEDIA_ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+  const MEDIA_MAX_BYTES = 8 * 1024 * 1024;
+
+  function validateMediaFile(file) {
+    if (!(file instanceof File)) throw new Error("Choose an image file first.");
+    if (!MEDIA_ALLOWED_TYPES.has(String(file.type || "").toLowerCase())) {
+      throw new Error("Only PNG, JPG, and WebP images are allowed.");
+    }
+    if (file.size > MEDIA_MAX_BYTES) throw new Error("Image size must not exceed 8 MB.");
+    return file;
+  }
+
+  async function uploadMediaFile(topicId, file, passwordValue = "") {
+    const password = resolvedPassword(passwordValue);
+    if (!password) throw new Error("Admin password is required.");
+    validateMediaFile(file);
+    const form = new FormData();
+    form.append("topicId", String(topicId || ""));
+    form.append("file", file, file.name);
+    const response = await fetchWithTimeout(`${workerUrl()}/admin/media/upload`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${password}` },
+      body: form
+    }, 60000);
+    try {
+      return await readJsonResponse(response);
+    } catch (error) {
+      if (error.status === 401) clearPassword();
+      throw error;
+    }
+  }
+
+  async function saveTopicMedia(topicId, guides, passwordValue = "") {
+    const password = resolvedPassword(passwordValue);
+    if (!password) throw new Error("Admin password is required.");
+    const response = await fetchWithTimeout(`${workerUrl()}/admin/media/topic`, {
+      method: "POST",
+      headers: authHeaders(password),
+      body: JSON.stringify({ topicId, guides })
+    }, 45000);
+    let payload;
+    try { payload = await readJsonResponse(response); }
+    catch (error) {
+      if (error.status === 401) clearPassword();
+      throw error;
+    }
+    mediaApi()?.setTopicOverride?.(topicId, payload.topic || { guides, updatedAt: payload.updatedAt });
+    return payload;
+  }
+
+  async function resetTopicMedia(topicId, passwordValue = "") {
+    const password = resolvedPassword(passwordValue);
+    if (!password) throw new Error("Admin password is required.");
+    const response = await fetchWithTimeout(`${workerUrl()}/admin/media/topic/reset`, {
+      method: "POST",
+      headers: authHeaders(password),
+      body: JSON.stringify({ topicId })
+    }, 45000);
+    let payload;
+    try { payload = await readJsonResponse(response); }
+    catch (error) {
+      if (error.status === 401) clearPassword();
+      throw error;
+    }
+    mediaApi()?.clearTopicOverride?.(topicId);
+    return payload;
+  }
+
   function resolvedPassword(value = "") {
     const password = String(value || state.adminPassword || window.__SUGO_ADMIN_PASSWORD || "");
     if (password) {
@@ -976,8 +1048,267 @@
     return row;
   }
 
+
+  function markMediaDirty(node) {
+    const section = node?.closest?.("[data-admin-media-manager]");
+    if (!section) return;
+    section.dataset.mediaDirty = "true";
+    const badge = section.querySelector("[data-admin-media-state]");
+    if (badge) {
+      badge.textContent = "Unsaved changes";
+      badge.dataset.dirty = "true";
+    }
+    updateMediaManagerCount(section);
+  }
+
+  function updateMediaManagerCount(section) {
+    if (!section) return;
+    const guides = section.querySelectorAll("[data-admin-media-guide]").length;
+    const images = section.querySelectorAll("[data-admin-media-image]").length;
+    const output = section.querySelector("[data-admin-media-count]");
+    if (output) output.textContent = `${guides} guide${guides === 1 ? "" : "s"} · ${images} image${images === 1 ? "" : "s"}`;
+  }
+
+  function setMediaPreview(row, source, label = "") {
+    const image = row.querySelector("[data-admin-media-preview]");
+    const empty = row.querySelector("[data-admin-media-empty]");
+    const name = row.querySelector("[data-admin-media-file-name]");
+    if (source) {
+      image.src = source;
+      image.hidden = false;
+      empty.hidden = true;
+    } else {
+      image.removeAttribute("src");
+      image.hidden = true;
+      empty.hidden = false;
+    }
+    if (name) name.textContent = label || "No replacement selected";
+  }
+
+  function createMediaImageRow(imageData = {}, guideTitle = "Visual Guide") {
+    const row = document.createElement("article");
+    row.className = "admin-media-image";
+    row.dataset.adminMediaImage = "true";
+    row._mediaData = clone(imageData || {});
+    row._mediaFile = null;
+    row.innerHTML = `
+      <div class="admin-media-image__preview">
+        <img data-admin-media-preview alt="" loading="lazy" decoding="async">
+        <span data-admin-media-empty>No image selected</span>
+      </div>
+      <div class="admin-media-image__content">
+        <div class="admin-media-image__meta">
+          <strong data-admin-media-file-name></strong>
+          <span>PNG, JPG or WebP · maximum 8 MB</span>
+        </div>
+        <div class="admin-media-caption-grid">
+          <label class="admin-field"><span>English caption</span><input type="text" data-admin-media-caption-en></label>
+          <label class="admin-field" dir="rtl"><span>الوصف العربي</span><input type="text" data-admin-media-caption-ar dir="rtl"></label>
+        </div>
+        <input type="file" accept="image/png,image/jpeg,image/webp" data-admin-media-file hidden>
+        <div class="admin-media-image__actions">
+          <button type="button" class="admin-secondary-button" data-admin-media-replace>Replace</button>
+          <button type="button" class="admin-icon-button" data-admin-media-up title="Move up" aria-label="Move image up">↑</button>
+          <button type="button" class="admin-icon-button" data-admin-media-down title="Move down" aria-label="Move image down">↓</button>
+          <button type="button" class="admin-remove-button" data-admin-media-delete>Delete</button>
+        </div>
+      </div>
+    `;
+
+    const captionEn = row.querySelector("[data-admin-media-caption-en]");
+    const captionAr = row.querySelector("[data-admin-media-caption-ar]");
+    captionEn.value = imageData.captionEn || imageData.alt || `Visual reference — ${guideTitle}`;
+    captionAr.value = imageData.captionAr || `مرجع مرئي — ${guideTitle}`;
+    setMediaPreview(row, imageData.src || "", imageData.fileName || imageData.alt || "Existing image");
+
+    const fileInput = row.querySelector("[data-admin-media-file]");
+    row.querySelector("[data-admin-media-replace]").addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      try {
+        validateMediaFile(file);
+      } catch (error) {
+        window.alert(error.message || "Invalid image.");
+        fileInput.value = "";
+        return;
+      }
+      if (row._mediaObjectUrl) URL.revokeObjectURL(row._mediaObjectUrl);
+      row._mediaObjectUrl = URL.createObjectURL(file);
+      row._mediaFile = file;
+      setMediaPreview(row, row._mediaObjectUrl, file.name);
+      markMediaDirty(row);
+    });
+    captionEn.addEventListener("input", () => markMediaDirty(row));
+    captionAr.addEventListener("input", () => markMediaDirty(row));
+    row.querySelector("[data-admin-media-delete]").addEventListener("click", () => {
+      if (!window.confirm("Remove this image from the visual guide? The change is applied after Save.")) return;
+      if (row._mediaObjectUrl) URL.revokeObjectURL(row._mediaObjectUrl);
+      const section = row.closest("[data-admin-media-manager]");
+      row.remove();
+      markMediaDirty(section);
+    });
+    row.querySelector("[data-admin-media-up]").addEventListener("click", () => {
+      const previous = row.previousElementSibling;
+      if (previous) {
+        row.parentElement.insertBefore(row, previous);
+        markMediaDirty(row);
+      }
+    });
+    row.querySelector("[data-admin-media-down]").addEventListener("click", () => {
+      const next = row.nextElementSibling;
+      if (next) {
+        row.parentElement.insertBefore(next, row);
+        markMediaDirty(row);
+      }
+    });
+    return row;
+  }
+
+  function createMediaGuideCard(guide = {}, pane = {}) {
+    const card = document.createElement("section");
+    card.className = "admin-media-guide";
+    card.dataset.adminMediaGuide = "true";
+    card.dataset.guideId = guide.id || `admin-${pane.id}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+    card.innerHTML = `
+      <header class="admin-media-guide__header">
+        <div class="admin-media-guide__fields">
+          <label class="admin-field"><span>Guide title</span><input type="text" data-admin-media-guide-title></label>
+          <label class="admin-field"><span>Category</span><input type="text" data-admin-media-guide-category></label>
+        </div>
+        <button type="button" class="admin-danger-button" data-admin-media-delete-guide>Delete guide</button>
+      </header>
+      <div class="admin-media-guide__images" data-admin-media-images></div>
+      <button type="button" class="admin-secondary-button admin-media-add-image" data-admin-media-add-image>+ Add image</button>
+    `;
+    const title = card.querySelector("[data-admin-media-guide-title]");
+    const category = card.querySelector("[data-admin-media-guide-category]");
+    title.value = guide.title || pane.title || "Visual Guide";
+    category.value = guide.category || pane.category || "Visual Guides";
+    const list = card.querySelector("[data-admin-media-images]");
+    for (const image of Array.isArray(guide.images) ? guide.images : []) list.append(createMediaImageRow(image, title.value));
+    title.addEventListener("input", () => markMediaDirty(card));
+    category.addEventListener("input", () => markMediaDirty(card));
+    card.querySelector("[data-admin-media-add-image]").addEventListener("click", () => {
+      const row = createMediaImageRow({}, title.value || pane.title || "Visual Guide");
+      list.append(row);
+      markMediaDirty(card);
+      row.querySelector("[data-admin-media-file]").click();
+    });
+    card.querySelector("[data-admin-media-delete-guide]").addEventListener("click", () => {
+      if (!window.confirm("Delete this complete visual guide? The change is applied after Save.")) return;
+      const section = card.closest("[data-admin-media-manager]");
+      card.querySelectorAll("[data-admin-media-image]").forEach((row) => {
+        if (row._mediaObjectUrl) URL.revokeObjectURL(row._mediaObjectUrl);
+      });
+      card.remove();
+      markMediaDirty(section);
+    });
+    return card;
+  }
+
+  function createMediaManager(pane, form) {
+    const media = mediaApi();
+    const guides = media?.getGuidesForTopic?.(pane.id) || [];
+    const hasOverride = Boolean(media?.hasTopicOverride?.(pane.id));
+    const section = document.createElement("section");
+    section.className = "admin-media-manager";
+    section.dataset.adminMediaManager = "true";
+    section.dataset.mediaDirty = "false";
+    section.innerHTML = `
+      <header class="admin-media-manager__header">
+        <div>
+          <span class="admin-media-manager__kicker">Visual Guides</span>
+          <h3>Article screenshots</h3>
+          <p>Add, replace, arrange, or remove explanation images. New files upload only when you press Save.</p>
+        </div>
+        <div class="admin-media-manager__summary">
+          <span data-admin-media-count></span>
+          <span data-admin-media-state>Saved</span>
+        </div>
+      </header>
+      <div class="admin-media-manager__toolbar">
+        <button type="button" class="admin-secondary-button" data-admin-media-add-guide>+ Add visual guide</button>
+        ${hasOverride ? '<button type="button" class="admin-danger-button" data-admin-media-reset>Restore original images</button>' : ''}
+      </div>
+      <div class="admin-media-manager__list" data-admin-media-guide-list></div>
+      <p class="admin-media-manager__note">Deleting an uploaded image removes it from this topic. Unused files are automatically deleted from Cloudflare KV after saving.</p>
+    `;
+    const list = section.querySelector("[data-admin-media-guide-list]");
+    for (const guide of guides) list.append(createMediaGuideCard(clone(guide), pane));
+    section.querySelector("[data-admin-media-add-guide]").addEventListener("click", () => {
+      const card = createMediaGuideCard({ title: pane.title, category: pane.category, images: [] }, pane);
+      list.append(card);
+      markMediaDirty(section);
+      card.querySelector("[data-admin-media-add-image]").click();
+    });
+    section.querySelector("[data-admin-media-reset]")?.addEventListener("click", async () => {
+      if (!window.confirm("Restore the original bundled screenshots for this topic? Uploaded images that are no longer used will be deleted.")) return;
+      const password = form.querySelector("[data-admin-password]").value;
+      statusMessage(form, "Restoring original visual guides…");
+      try {
+        await resetTopicMedia(pane.id, password);
+        closeDialog();
+      } catch (error) {
+        statusMessage(form, error.message || "Visual guides reset failed.", "error");
+      }
+    });
+    updateMediaManagerCount(section);
+    return section;
+  }
+
+  async function collectAndSaveMediaManager(section, topicId, password) {
+    if (!section || section.dataset.mediaDirty !== "true") return { saved: false, skipped: true };
+    const guides = [];
+    const cards = [...section.querySelectorAll("[data-admin-media-guide]")];
+    for (let guideIndex = 0; guideIndex < cards.length; guideIndex += 1) {
+      const card = cards[guideIndex];
+      const title = cleanText(card.querySelector("[data-admin-media-guide-title]")?.value || "Visual Guide", 300);
+      const category = cleanText(card.querySelector("[data-admin-media-guide-category]")?.value || "Visual Guides", 300);
+      const images = [];
+      const rows = [...card.querySelectorAll("[data-admin-media-image]")];
+      for (let imageIndex = 0; imageIndex < rows.length; imageIndex += 1) {
+        const row = rows[imageIndex];
+        let data = { ...(row._mediaData || {}) };
+        if (row._mediaFile) {
+          const upload = await uploadMediaFile(topicId, row._mediaFile, password);
+          data = { ...data, ...(upload.image || {}) };
+          row._mediaData = data;
+          row._mediaFile = null;
+        }
+        if (!data.src && !data.storageKey) continue;
+        images.push({
+          id: cleanText(data.id, 180) || `image-${imageIndex + 1}`,
+          src: cleanText(data.src, 3000),
+          storageKey: cleanText(data.storageKey, 1000),
+          mimeType: cleanText(data.mimeType, 100),
+          fileName: cleanText(data.fileName, 300),
+          alt: cleanText(data.alt, 500) || `${title} — step ${imageIndex + 1}`,
+          captionEn: cleanText(row.querySelector("[data-admin-media-caption-en]")?.value, 1200),
+          captionAr: cleanText(row.querySelector("[data-admin-media-caption-ar]")?.value, 1200),
+          step: imageIndex + 1
+        });
+      }
+      if (!images.length) continue;
+      let guideId = cleanText(card.dataset.guideId, 220);
+      if (!guideId.startsWith(`admin-${topicId}-`)) {
+        guideId = `admin-${topicId}-${guideIndex + 1}-${normalizeId(title, "guide")}`.slice(0, 220);
+      }
+      guides.push({ id: guideId, title, category, topicIds: [topicId], images });
+    }
+    const payload = await saveTopicMedia(topicId, guides, password);
+    section.dataset.mediaDirty = "false";
+    const stateBadge = section.querySelector("[data-admin-media-state]");
+    if (stateBadge) {
+      stateBadge.textContent = "Saved";
+      delete stateBadge.dataset.dirty;
+    }
+    return payload;
+  }
+
   async function openTopicEditor(paneId) {
     await loadRemoteData().catch(() => snapshot());
+    await mediaApi()?.load?.().catch(() => null);
     const pane = getPane(paneId);
     if (!pane) return false;
     state.activePaneId = pane.id;
@@ -1012,6 +1343,9 @@
       form.append(grid);
     }
 
+    const mediaManager = createMediaManager(pane, form);
+    form.append(mediaManager);
+
     const actions = document.createElement("div");
     actions.className = "admin-dialog__actions";
     actions.innerHTML = `
@@ -1039,8 +1373,10 @@
       event.preventDefault();
       const password = form.querySelector("[data-admin-password]").value;
       const edited = editablePaneFromForm(form, pane);
-      statusMessage(form, "Saving…");
+      const mediaSection = form.querySelector("[data-admin-media-manager]");
+      statusMessage(form, mediaSection?.dataset.mediaDirty === "true" ? "Uploading images and saving…" : "Saving…");
       try {
+        await collectAndSaveMediaManager(mediaSection, pane.id, password);
         await savePane(edited, password);
         closeDialog();
       } catch (error) {
@@ -1304,7 +1640,7 @@
 
   window.SUGO = window.SUGO || {};
   window.SUGO.Admin = Object.freeze({
-    version: "phase-18-admin-content-menu",
+    version: "20260712-admin-media-v2",
     load: loadRemoteData,
     getPane,
     listPanes,
@@ -1316,6 +1652,9 @@
     savePane,
     resetPane,
     saveMenu,
+    uploadMediaFile,
+    saveTopicMedia,
+    resetTopicMedia,
     closeDialog,
     serializePane,
     parseOverrideHtml,

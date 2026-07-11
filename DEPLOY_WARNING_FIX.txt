@@ -1,0 +1,3 @@
+This package fixes the Windows PowerShell NativeCommandError caused by harmless Wrangler warnings.
+
+Run START_CLOUDFLARE_SETUP.bat again. It safely reuses the same Worker, KV namespace, and existing AI secrets.

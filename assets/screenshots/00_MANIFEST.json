@@ -1,0 +1,520 @@
+{
+  "root": "SUGO_Screenshots_Corrected",
+  "items": [
+    {
+      "category": "01_Register_and_Login",
+      "title": "01_Login_and_Register_Screen",
+      "image_count": 1
+    },
+    {
+      "category": "01_Register_and_Login",
+      "title": "02_Reset_Account_Password",
+      "image_count": 4
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "01_Open_Settings_from_ME",
+      "image_count": 1
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "02_Open_Settings_Arabic",
+      "image_count": 1
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "03_Change_Avatar_Image",
+      "image_count": 1
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "04_Open_Profile_Avatar",
+      "image_count": 1
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "05_Profile_Cards_and_Tabs",
+      "image_count": 2
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "06_Edit_Profile_Avatar",
+      "image_count": 1
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "07_Open_ME_Page",
+      "image_count": 1
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "08_Change_App_Language",
+      "image_count": 3
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "09_Profile_Header",
+      "image_count": 1
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "10_Upload_App_Log",
+      "image_count": 1
+    },
+    {
+      "category": "02_Profile_and_Settings",
+      "title": "11_Upload_App_Log_Arabic",
+      "image_count": 3
+    },
+    {
+      "category": "03_Recharge_Coins_and_Diamonds",
+      "title": "01_Recharge_Balance",
+      "image_count": 1
+    },
+    {
+      "category": "03_Recharge_Coins_and_Diamonds",
+      "title": "02_Coin_Free_Draw_Options",
+      "image_count": 1
+    },
+    {
+      "category": "03_Recharge_Coins_and_Diamonds",
+      "title": "03_Dobi_Coin_Center_and_Record",
+      "image_count": 3
+    },
+    {
+      "category": "03_Recharge_Coins_and_Diamonds",
+      "title": "04_Diamonds_Menu",
+      "image_count": 1
+    },
+    {
+      "category": "03_Recharge_Coins_and_Diamonds",
+      "title": "05_General_Tools_Menu",
+      "image_count": 1
+    },
+    {
+      "category": "04_VIP_and_SVIP",
+      "title": "01_VIP_Center",
+      "image_count": 1
+    },
+    {
+      "category": "04_VIP_and_SVIP",
+      "title": "02_VIP_Recharge_Entry",
+      "image_count": 1
+    },
+    {
+      "category": "04_VIP_and_SVIP",
+      "title": "03_VIP_Reward_Page",
+      "image_count": 1
+    },
+    {
+      "category": "04_VIP_and_SVIP",
+      "title": "04_VIP_Entry_Arabic",
+      "image_count": 1
+    },
+    {
+      "category": "04_VIP_and_SVIP",
+      "title": "05_SVIP_Profile_Page",
+      "image_count": 1
+    },
+    {
+      "category": "04_VIP_and_SVIP",
+      "title": "06_SVIP_Center_Header",
+      "image_count": 1
+    },
+    {
+      "category": "04_VIP_and_SVIP",
+      "title": "07_SVIP_Level_Page",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "01_VIP_Store_Items",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "02_VIP_Store_Balance",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "03_Elite_Club_Page",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "04_Aristocracy_Profile",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "05_Aristocracy_Entry",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "06_Open_Backpack",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "07_Store_Home",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "08_Open_Store_from_ME",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "09_Open_ME_Tab",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "10_Store_Menu_Arabic",
+      "image_count": 1
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "11_Special_Effects_Settings",
+      "image_count": 3
+    },
+    {
+      "category": "05_Store_Backpack_and_Aristocracy",
+      "title": "12_Equip_Vehicle_Effect",
+      "image_count": 3
+    },
+    {
+      "category": "06_Users_Follow_and_Block",
+      "title": "01_User_Search",
+      "image_count": 1
+    },
+    {
+      "category": "06_Users_Follow_and_Block",
+      "title": "02_User_Profile_Badge",
+      "image_count": 1
+    },
+    {
+      "category": "06_Users_Follow_and_Block",
+      "title": "03_User_Profile",
+      "image_count": 1
+    },
+    {
+      "category": "06_Users_Follow_and_Block",
+      "title": "04_Unfollow_User",
+      "image_count": 1
+    },
+    {
+      "category": "06_Users_Follow_and_Block",
+      "title": "05_Report_Block_and_Unblock",
+      "image_count": 1
+    },
+    {
+      "category": "06_Users_Follow_and_Block",
+      "title": "06_Blacklist_Setting",
+      "image_count": 1
+    },
+    {
+      "category": "06_Users_Follow_and_Block",
+      "title": "07_Blacklist_Arabic",
+      "image_count": 1
+    },
+    {
+      "category": "06_Users_Follow_and_Block",
+      "title": "08_User_Profile_Card",
+      "image_count": 1
+    },
+    {
+      "category": "07_Gifts_and_Messages",
+      "title": "01_Gift_Message",
+      "image_count": 1
+    },
+    {
+      "category": "07_Gifts_and_Messages",
+      "title": "02_Transfer_Gift_to_Backpack",
+      "image_count": 1
+    },
+    {
+      "category": "08_Relationships",
+      "title": "01_Select_CP_Relationship",
+      "image_count": 1
+    },
+    {
+      "category": "08_Relationships",
+      "title": "02_Select_Friend_Relationship",
+      "image_count": 1
+    },
+    {
+      "category": "08_Relationships",
+      "title": "03_Relationship_Invitation",
+      "image_count": 1
+    },
+    {
+      "category": "08_Relationships",
+      "title": "04_Relationship_Benefits",
+      "image_count": 1
+    },
+    {
+      "category": "08_Relationships",
+      "title": "05_Relationship_Profile_Card",
+      "image_count": 1
+    },
+    {
+      "category": "08_Relationships",
+      "title": "06_Relationship_Details",
+      "image_count": 1
+    },
+    {
+      "category": "08_Relationships",
+      "title": "07_End_Relationship_Process",
+      "image_count": 3
+    },
+    {
+      "category": "08_Relationships",
+      "title": "08_Relationship_Profile",
+      "image_count": 1
+    },
+    {
+      "category": "08_Relationships",
+      "title": "09_Terminate_Relationship",
+      "image_count": 1
+    },
+    {
+      "category": "09_Guardianship",
+      "title": "01_Guardianship_Privacy_Toggle",
+      "image_count": 1
+    },
+    {
+      "category": "09_Guardianship",
+      "title": "02_Open_Guardian_from_Profile",
+      "image_count": 1
+    },
+    {
+      "category": "09_Guardianship",
+      "title": "03_Guardian_Pair_Page",
+      "image_count": 1
+    },
+    {
+      "category": "09_Guardianship",
+      "title": "04_Guard_User_Button",
+      "image_count": 1
+    },
+    {
+      "category": "09_Guardianship",
+      "title": "05_Guardian_Request_Page",
+      "image_count": 1
+    },
+    {
+      "category": "09_Guardianship",
+      "title": "06_Guardian_Profile",
+      "image_count": 1
+    },
+    {
+      "category": "09_Guardianship",
+      "title": "07_Guardian_Status_Message",
+      "image_count": 1
+    },
+    {
+      "category": "10_Family",
+      "title": "01_Open_Family",
+      "image_count": 1
+    },
+    {
+      "category": "10_Family",
+      "title": "02_Family_Page",
+      "image_count": 1
+    },
+    {
+      "category": "10_Family",
+      "title": "03_Family_Settings",
+      "image_count": 1
+    },
+    {
+      "category": "10_Family",
+      "title": "04_Family_More_Menu",
+      "image_count": 1
+    },
+    {
+      "category": "10_Family",
+      "title": "05_Family_Members_List",
+      "image_count": 2
+    },
+    {
+      "category": "10_Family",
+      "title": "06_Family_Entry_Arabic",
+      "image_count": 2
+    },
+    {
+      "category": "11_Rooms_and_Effects",
+      "title": "01_Switch_to_Video_Room",
+      "image_count": 1
+    },
+    {
+      "category": "11_Rooms_and_Effects",
+      "title": "02_Video_Room_Layouts",
+      "image_count": 2
+    },
+    {
+      "category": "11_Rooms_and_Effects",
+      "title": "03_Room_Settings_Steps",
+      "image_count": 3
+    },
+    {
+      "category": "11_Rooms_and_Effects",
+      "title": "04_Room_Main_Screen",
+      "image_count": 1
+    },
+    {
+      "category": "11_Rooms_and_Effects",
+      "title": "05_Room_Mode_Steps",
+      "image_count": 3
+    },
+    {
+      "category": "11_Rooms_and_Effects",
+      "title": "06_Room_Interface",
+      "image_count": 1
+    },
+    {
+      "category": "11_Rooms_and_Effects",
+      "title": "07_Special_Effects_Setting",
+      "image_count": 1
+    },
+    {
+      "category": "11_Rooms_and_Effects",
+      "title": "08_Apply_Room_Effects",
+      "image_count": 3
+    },
+    {
+      "category": "12_Room_Tasks",
+      "title": "01_Bronze_Silver_Gold_Room_Tags",
+      "image_count": 5
+    },
+    {
+      "category": "12_Room_Tasks",
+      "title": "02_Daily_Room_Activity_Tasks",
+      "image_count": 1
+    },
+    {
+      "category": "13_Chat_and_Host_Settings",
+      "title": "01_Quick_Greetings_Setting",
+      "image_count": 1
+    },
+    {
+      "category": "13_Chat_and_Host_Settings",
+      "title": "02_Chat_Growth_Menu",
+      "image_count": 1
+    },
+    {
+      "category": "13_Chat_and_Host_Settings",
+      "title": "03_Open_ME_for_Host_Settings",
+      "image_count": 1
+    },
+    {
+      "category": "13_Chat_and_Host_Settings",
+      "title": "04_Chat_Star",
+      "image_count": 1
+    },
+    {
+      "category": "13_Chat_and_Host_Settings",
+      "title": "05_VIP_Status_Entry",
+      "image_count": 1
+    },
+    {
+      "category": "13_Chat_and_Host_Settings",
+      "title": "06_Message_Price_Setting",
+      "image_count": 1
+    },
+    {
+      "category": "14_Agency_Management",
+      "title": "01_My_Agency_Page",
+      "image_count": 1
+    },
+    {
+      "category": "14_Agency_Management",
+      "title": "02_Invite_Hosts_to_Agency",
+      "image_count": 1
+    },
+    {
+      "category": "14_Agency_Management",
+      "title": "03_Approve_Agency_Application",
+      "image_count": 1
+    },
+    {
+      "category": "14_Agency_Management",
+      "title": "04_Agency_Dashboard",
+      "image_count": 1
+    },
+    {
+      "category": "14_Agency_Management",
+      "title": "05_Agency_Anchor_List",
+      "image_count": 1
+    },
+    {
+      "category": "14_Agency_Management",
+      "title": "06_Anchor_Rejection_Reason",
+      "image_count": 2
+    },
+    {
+      "category": "14_Agency_Management",
+      "title": "07_Invite_Sub_Agency",
+      "image_count": 3
+    },
+    {
+      "category": "14_Agency_Management",
+      "title": "08_Agency_Commission",
+      "image_count": 1
+    },
+    {
+      "category": "14_Agency_Management",
+      "title": "09_Agency_Task_Progress",
+      "image_count": 1
+    },
+    {
+      "category": "15_Games_and_Events",
+      "title": "01_Game_Home_and_Event_Screens",
+      "image_count": 3
+    },
+    {
+      "category": "15_Games_and_Events",
+      "title": "02_Castle_Upgrade_Steps",
+      "image_count": 4
+    },
+    {
+      "category": "15_Games_and_Events",
+      "title": "03_Treasure_Chest_Progress",
+      "image_count": 1
+    },
+    {
+      "category": "15_Games_and_Events",
+      "title": "04_Castle_Main_Screen",
+      "image_count": 1
+    },
+    {
+      "category": "15_Games_and_Events",
+      "title": "05_In_Game_Customer_Service",
+      "image_count": 1
+    },
+    {
+      "category": "15_Games_and_Events",
+      "title": "06_Alliance_Chest",
+      "image_count": 1
+    },
+    {
+      "category": "15_Games_and_Events",
+      "title": "07_Join_or_Create_Alliance",
+      "image_count": 1
+    },
+    {
+      "category": "15_Games_and_Events",
+      "title": "08_In_Game_Chat",
+      "image_count": 2
+    },
+    {
+      "category": "15_Games_and_Events",
+      "title": "09_Constellation_Levels",
+      "image_count": 2
+    }
+  ]
+}
