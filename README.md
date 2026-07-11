@@ -39,3 +39,7 @@ This GitHub Pages build uses the approved desktop-only dark crimson, black, and 
 
 - Preserves paragraphs, headings, numbered steps, bullets, links, and line breaks from local and KV/admin content.
 - Adds English/Arabic output-language selection to Ask AI, Create Ticket, and Upload Image.
+
+## Designed Home Dashboard
+
+The application opens on a finished Home dashboard rather than an empty workspace. Home provides direct access to Ask AI, Create Ticket, Upload image, both original knowledge-base roots, live content counts, Recent Topics, and Favorites. Closing any active topic or workspace returns to Home without deleting drafted input or generated results.

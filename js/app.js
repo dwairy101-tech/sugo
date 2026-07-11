@@ -694,6 +694,9 @@
     if (clearRecent) {
       clearRecent.disabled = recentEntries.length === 0;
     }
+    if (document.querySelector(".home-dashboard")) {
+      renderHomePreview();
+    }
   }
 
   function setQuickAccessTab(tab, { open } = {}) {
@@ -3110,6 +3113,7 @@
   }
 
   function renderAskAIWorkspace() {
+    leaveHomeView();
     const workspace = document.querySelector(".app-shell__workspace");
     if (!workspace) return;
     workspace.removeAttribute("aria-hidden");
@@ -3925,6 +3929,7 @@
   }
 
   function renderVisionWorkspace() {
+    leaveHomeView();
     const workspace = document.querySelector(".app-shell__workspace");
     if (!workspace) return;
     workspace.removeAttribute("aria-hidden");
@@ -4760,6 +4765,7 @@
   }
 
   function renderArticleDetail(paneId, { preserveFilter = false } = {}) {
+    leaveHomeView();
     const pane = getArticlePane(paneId);
     const topic = getTopicMetadata(paneId);
     const workspace = document.querySelector(".app-shell__workspace");
@@ -5408,6 +5414,7 @@
   }
 
   function renderSearchView(query = searchViewState.query) {
+    leaveHomeView();
     const workspace = document.querySelector(".app-shell__workspace");
     if (!workspace) return false;
     const rawQuery = String(query || "").trim();
@@ -5524,14 +5531,7 @@
     if (articleViewState.paneId) {
       return renderArticleDetail(articleViewState.paneId, { preserveFilter: true });
     }
-    clearWorkspaceContent();
-    const preview = document.querySelector(".app-shell__preview");
-    if (preview) {
-      preview.classList.remove("has-content");
-      preview.setAttribute("aria-hidden", "true");
-      preview.replaceChildren();
-    }
-    setBreadcrumb(["SUGO SOP"]);
+    renderHomeView({ preserveMenu: true });
     return true;
   }
 
@@ -5544,7 +5544,296 @@
     }, 90);
   }
 
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function leaveHomeView() {
+    const workspace = document.querySelector(".app-shell__workspace");
+    const preview = document.querySelector(".app-shell__preview");
+    workspace?.classList.remove("has-home");
+    preview?.classList.remove("has-home");
+  }
+
+  function createHomeWorkspaceCard({ workspace, icon, title, description, featured = false }) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `home-action-card${featured ? " home-action-card--featured" : ""}`;
+    button.dataset.homeWorkspace = workspace;
+    button.innerHTML = `
+      <span class="home-action-card__icon" aria-hidden="true">${icon}</span>
+      <span class="home-action-card__copy">
+        <strong>${escapeHtml(title)}</strong>
+        <span>${escapeHtml(description)}</span>
+      </span>
+      <span class="home-action-card__arrow" aria-hidden="true">${ICONS.chevron}</span>
+    `;
+    return button;
+  }
+
+  function createHomeLibraryCard(library, count) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "home-library-card";
+    button.dataset.homeLibrary = library.id;
+    button.innerHTML = `
+      <span class="home-library-card__icon" aria-hidden="true">${ICONS.folder}</span>
+      <span class="home-library-card__copy">
+        <strong>${escapeHtml(library.title)}</strong>
+        <span>${Number(count || 0).toLocaleString("en-US")} topics</span>
+      </span>
+      <span class="home-library-card__arrow" aria-hidden="true">${ICONS.chevron}</span>
+    `;
+    return button;
+  }
+
+  function createHomeTopicList(entries, emptyText) {
+    const list = document.createElement("div");
+    list.className = "home-topic-list";
+
+    if (!entries.length) {
+      const empty = document.createElement("div");
+      empty.className = "home-topic-list__empty";
+      empty.textContent = emptyText;
+      list.append(empty);
+      return list;
+    }
+
+    for (const topic of entries) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "home-topic-link";
+      button.dataset.homeTopic = topic.id;
+      button.innerHTML = `
+        <span class="home-topic-link__icon" aria-hidden="true">${ICONS.notes}</span>
+        <span class="home-topic-link__copy">
+          <strong>${escapeHtml(topic.title)}</strong>
+          <span>${escapeHtml(topic.section || topic.category || topic.rootTitle || "SUGO SOP")}</span>
+        </span>
+        <span class="home-topic-link__arrow" aria-hidden="true">${ICONS.chevron}</span>
+      `;
+      list.append(button);
+    }
+    return list;
+  }
+
+  function renderHomePreview() {
+    const preview = document.querySelector(".app-shell__preview");
+    if (!preview) return false;
+
+    const data = getKnowledgeBaseData();
+    const stats = data?.stats || {};
+    const favorites = getVisiblePaneEntries(STORAGE_KEY_FAVORITES, 3);
+    const recents = getVisiblePaneEntries(STORAGE_KEY_RECENT, 4);
+
+    preview.classList.remove("has-content");
+    preview.classList.add("has-home");
+    preview.removeAttribute("aria-hidden");
+
+    const panel = document.createElement("aside");
+    panel.className = "home-overview";
+    panel.setAttribute("aria-label", "SUGO SOP overview");
+    panel.innerHTML = `
+      <section class="home-overview__brand">
+        <span class="home-overview__brand-mark" aria-hidden="true">S</span>
+        <span>
+          <span class="home-overview__eyebrow">Knowledge Lounge · MENA</span>
+          <h2>SUGO SOP</h2>
+          <p>One workspace for knowledge, AI guidance, tickets, and image analysis.</p>
+        </span>
+      </section>
+
+      <section class="home-overview__stats" aria-label="Content summary">
+        <span><strong>${Number(stats.topicCount || 284).toLocaleString("en-US")}</strong><small>Topics</small></span>
+        <span><strong>${Number(stats.rootCount || 2).toLocaleString("en-US")}</strong><small>Knowledge Bases</small></span>
+        <span><strong>3</strong><small>Workspaces</small></span>
+      </section>
+
+      <section class="home-overview__section">
+        <header>
+          <span><span class="home-overview__section-icon" aria-hidden="true">${ICONS.clock}</span><strong>Recent Topics</strong></span>
+          <small>${recents.length}</small>
+        </header>
+        <div data-home-recent-list></div>
+      </section>
+
+      <section class="home-overview__section home-overview__section--compact">
+        <header>
+          <span><span class="home-overview__section-icon" aria-hidden="true">${ICONS.star}</span><strong>Favorites</strong></span>
+          <small>${favorites.length}</small>
+        </header>
+        <div data-home-favorite-list></div>
+      </section>
+    `;
+
+    panel.querySelector("[data-home-recent-list]")?.append(
+      createHomeTopicList(recents, "Open a topic and it will appear here.")
+    );
+    panel.querySelector("[data-home-favorite-list]")?.append(
+      createHomeTopicList(favorites, "Add a topic to Favorites for quick access.")
+    );
+
+    preview.replaceChildren(panel);
+    return true;
+  }
+
+  function renderHomeView({ preserveMenu = true } = {}) {
+    const workspace = document.querySelector(".app-shell__workspace");
+    if (!workspace) return false;
+
+    const data = getKnowledgeBaseData();
+    const navigation = Array.isArray(data?.navigation) ? data.navigation : [];
+    const stats = data?.stats || {};
+
+    workspace.classList.remove("has-content");
+    workspace.classList.add("has-home");
+    workspace.removeAttribute("aria-hidden");
+
+    const home = document.createElement("main");
+    home.className = "home-dashboard";
+    home.setAttribute("aria-label", "SUGO SOP home");
+
+    const hero = document.createElement("section");
+    hero.className = "home-dashboard__hero";
+    hero.innerHTML = `
+      <span class="home-dashboard__hero-glow" aria-hidden="true"></span>
+      <div class="home-dashboard__hero-content">
+        <span class="home-dashboard__hero-mark" aria-hidden="true">S</span>
+        <span class="home-dashboard__hero-copy">
+          <span class="home-dashboard__eyebrow">Knowledge Lounge · MENA</span>
+          <h1>Welcome to SUGO SOP</h1>
+          <p>Search the knowledge base, get an AI answer, prepare a customer ticket, or analyze a screenshot from one organized workspace.</p>
+        </span>
+      </div>
+      <div class="home-dashboard__hero-actions">
+        <button class="home-primary-button" type="button" data-home-workspace="${WORKSPACES.ASK_AI}">
+          <span aria-hidden="true">${ICONS.askAI}</span>
+          <strong>Ask AI</strong>
+        </button>
+        <button class="home-secondary-button" type="button" data-home-menu-open>
+          <span aria-hidden="true">${ICONS.menu}</span>
+          <strong>Browse Menu</strong>
+        </button>
+      </div>
+    `;
+
+    const actions = document.createElement("section");
+    actions.className = "home-dashboard__section";
+    actions.innerHTML = `
+      <header class="home-dashboard__section-heading">
+        <span>
+          <span class="home-dashboard__section-kicker">Workspaces</span>
+          <h2>Start a task</h2>
+        </span>
+        <p>Choose the tool that matches the support case.</p>
+      </header>
+    `;
+
+    const actionGrid = document.createElement("div");
+    actionGrid.className = "home-action-grid";
+    actionGrid.append(
+      createHomeWorkspaceCard({
+        workspace: WORKSPACES.ASK_AI,
+        icon: ICONS.askAI,
+        title: "Ask AI",
+        description: "Agent guidance, SOP checks, troubleshooting, and escalation review.",
+        featured: true
+      }),
+      createHomeWorkspaceCard({
+        workspace: WORKSPACES.CREATE_TICKET,
+        icon: ICONS.ticket,
+        title: "Create Ticket",
+        description: "Prepare a customer reply, missing-information request, or escalation note."
+      }),
+      createHomeWorkspaceCard({
+        workspace: WORKSPACES.UPLOAD_IMAGE,
+        icon: ICONS.upload,
+        title: "Upload image",
+        description: "Analyze screenshots and evidence images with knowledge-base context."
+      })
+    );
+    actions.append(actionGrid);
+
+    const libraries = document.createElement("section");
+    libraries.className = "home-dashboard__section home-dashboard__section--libraries";
+    libraries.innerHTML = `
+      <header class="home-dashboard__section-heading">
+        <span>
+          <span class="home-dashboard__section-kicker">Knowledge Bases</span>
+          <h2>Browse verified content</h2>
+        </span>
+        <p>${Number(stats.topicCount || 284).toLocaleString("en-US")} topics across the two original SUGO libraries.</p>
+      </header>
+    `;
+
+    const libraryGrid = document.createElement("div");
+    libraryGrid.className = "home-library-grid";
+    for (const library of navigation) {
+      const calculatedCount = (library.categories || []).reduce((libraryTotal, category) => {
+        return libraryTotal + (category.sections || []).reduce((categoryTotal, section) => {
+          return categoryTotal + (section.topics || []).length;
+        }, 0);
+      }, 0);
+      const count = stats.byLibrary?.[library.id]?.topics || calculatedCount;
+      libraryGrid.append(createHomeLibraryCard(library, count));
+    }
+    libraries.append(libraryGrid);
+
+    home.append(hero, actions, libraries);
+    workspace.replaceChildren(home);
+    renderHomePreview();
+    setBreadcrumb(["SUGO SOP"]);
+    if (!preserveMenu) setNavigationMenuExpanded(false);
+    syncContentCloseButton();
+    return true;
+  }
+
+  function bindHomeDashboard(shell) {
+    shell.addEventListener("click", (event) => {
+      const workspaceButton = event.target.closest("[data-home-workspace]");
+      if (workspaceButton && shell.contains(workspaceButton)) {
+        selectWorkspace(workspaceButton.dataset.homeWorkspace, { source: "home" });
+        return;
+      }
+
+      const topicButton = event.target.closest("[data-home-topic]");
+      if (topicButton && shell.contains(topicButton)) {
+        openNavigationTopic(topicButton.dataset.homeTopic, {
+          source: "home-quick-access",
+          persist: true,
+          addToRecent: true,
+          emit: true
+        });
+        return;
+      }
+
+      const libraryButton = event.target.closest("[data-home-library]");
+      if (libraryButton && shell.contains(libraryButton)) {
+        setNavigationMenuExpanded(true);
+        setLibrary(libraryButton.dataset.homeLibrary, {
+          source: "home-library",
+          reveal: true
+        });
+        document.querySelector("[data-navigation-menu-toggle]")?.scrollIntoView({ block: "nearest" });
+        return;
+      }
+
+      const menuButton = event.target.closest("[data-home-menu-open]");
+      if (menuButton && shell.contains(menuButton)) {
+        setNavigationMenuExpanded(true);
+        document.querySelector("[data-navigation-menu-toggle]")?.focus();
+      }
+    });
+  }
+
   function renderCreateTicketWorkspace() {
+    leaveHomeView();
     const workspace = document.querySelector(".app-shell__workspace");
     if (!workspace) {
       return;
@@ -5590,7 +5879,11 @@
     if (!button) return false;
     const workspace = document.querySelector(".app-shell__workspace");
     const preview = document.querySelector(".app-shell__preview");
-    const hasContent = Boolean(
+    const isHome = Boolean(
+      workspace?.querySelector(".home-dashboard") ||
+      preview?.querySelector(".home-overview")
+    );
+    const hasContent = !isHome && Boolean(
       workspace?.childElementCount ||
       preview?.childElementCount ||
       workspace?.classList.contains("has-content") ||
@@ -5643,8 +5936,7 @@
       preview.replaceChildren();
     }
 
-    setBreadcrumb(["SUGO SOP"]);
-    syncContentCloseButton();
+    renderHomeView({ preserveMenu: true });
 
     document.dispatchEvent(new CustomEvent("sugo:contentclose", {
       detail: { source }
@@ -5678,10 +5970,7 @@
       renderVisionWorkspace();
       return;
     }
-    clearWorkspaceContent();
-    setBreadcrumb(["SUGO SOP"]);
-    renderTicketPreviewPanel();
-    renderAskAIOutputPanel();
+    renderHomeView({ preserveMenu: true });
   }
 
   function getWorkspaceButton(workspace) {
@@ -5796,18 +6085,12 @@
 
     bindSidebarTools(sidebar);
     bindContentCloseButton(workspace, preview);
+    bindHomeDashboard(shell);
     renderNavigationTree();
     setNavigationMenuExpanded(false);
 
-    const lastPane = readLastPane();
-    if (lastPane && getTopicMetadata(lastPane)) {
-      openNavigationTopic(lastPane, {
-        source: "restore",
-        persist: false,
-        addToRecent: false,
-        emit: false
-      });
-    }
+    /* Always start on the designed home dashboard. Previously opened topics stay available in Recent. */
+    renderHomeView({ preserveMenu: false });
   }
 
   function setBreadcrumb(labels) {
@@ -6214,6 +6497,7 @@
     setBreadcrumb,
     selectWorkspace,
     closeContent: closeActiveContent,
+    showHome: renderHomeView,
     selectLibrary: setLibrary,
     supportedThemes: [...SUPPORTED_THEMES],
     workspaces: { ...WORKSPACES },
