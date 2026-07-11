@@ -5701,25 +5701,14 @@
 
     const hero = document.createElement("section");
     hero.className = "home-dashboard__hero";
+    hero.setAttribute("aria-labelledby", "home-dashboard-title");
     hero.innerHTML = `
       <span class="home-dashboard__hero-glow" aria-hidden="true"></span>
       <div class="home-dashboard__hero-content">
-        <span class="home-dashboard__hero-mark" aria-hidden="true">S</span>
         <span class="home-dashboard__hero-copy">
           <span class="home-dashboard__eyebrow">Knowledge Lounge · MENA</span>
-          <h1>Welcome to SUGO SOP</h1>
-          <p>Search the knowledge base, get an AI answer, prepare a customer ticket, or analyze a screenshot from one organized workspace.</p>
+          <h1 id="home-dashboard-title">Welcome to SUGO SOP</h1>
         </span>
-      </div>
-      <div class="home-dashboard__hero-actions">
-        <button class="home-primary-button" type="button" data-home-workspace="${WORKSPACES.ASK_AI}">
-          <span aria-hidden="true">${ICONS.askAI}</span>
-          <strong>Ask AI</strong>
-        </button>
-        <button class="home-secondary-button" type="button" data-home-menu-open>
-          <span aria-hidden="true">${ICONS.menu}</span>
-          <strong>Browse Menu</strong>
-        </button>
       </div>
     `;
 
