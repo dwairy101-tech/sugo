@@ -1,5 +1,5 @@
 ﻿$ErrorActionPreference = "Stop"
-$Host.UI.RawUI.WindowTitle = "SUGO Existing AI + Admin Images Setup"
+$Host.UI.RawUI.WindowTitle = "SUGO GitHub Ready + Cloudflare Setup"
 
 function Write-Step([string]$Text) {
   Write-Host ""
@@ -69,6 +69,28 @@ function Find-FirstUuid($Node) {
   return $null
 }
 
+function Get-DeployedVersionId($StatusJson) {
+  if ($null -eq $StatusJson) { return $null }
+  $versions = @()
+  try { $versions = @($StatusJson.versions) } catch {}
+  if (-not $versions -or $versions.Count -eq 0) { return $null }
+
+  $selected = $versions | Where-Object { [int]$_.percentage -eq 100 } | Select-Object -First 1
+  if (-not $selected) {
+    $selected = $versions | Sort-Object { [int]$_.percentage } -Descending | Select-Object -First 1
+  }
+
+  foreach ($candidate in @('version_id', 'versionId', 'id')) {
+    try {
+      $value = [string]$selected.$candidate
+      if ($value -match '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') {
+        return $value
+      }
+    } catch {}
+  }
+  return $null
+}
+
 function Find-KvNamespaceId($Node) {
   if ($null -eq $Node) { return $null }
   $props = @{}
@@ -107,7 +129,6 @@ function Find-KvNamespaceId($Node) {
 $WorkerDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent $WorkerDir
 $WorkerName = "sugo"
-$FallbackKvId = "3b5051a5b7b143afa1f4522afa0c53d4"
 Set-Location $WorkerDir
 
 Write-Step "1/6 Checking Node.js"
@@ -130,19 +151,27 @@ if (-not $who -or $who -match 'not authenticated') {
 
 Write-Step "3/6 Reusing your existing SUGO Worker and storage"
 $kvId = $null
+$previousVersionId = $null
 try {
   $statusText = Run-WranglerText deployments status --name $WorkerName --json
   $statusJson = $statusText | ConvertFrom-Json
-  $versionId = Find-FirstUuid $statusJson
-  if ($versionId) {
-    $viewText = Run-WranglerText versions view $versionId --name $WorkerName --json
-    $viewJson = $viewText | ConvertFrom-Json
-    $kvId = Find-KvNamespaceId $viewJson
+  $previousVersionId = Get-DeployedVersionId $statusJson
+  if (-not $previousVersionId) {
+    throw "The active production version ID could not be identified."
+  }
+
+  $viewText = Run-WranglerText versions view $previousVersionId --name $WorkerName --json
+  $viewJson = $viewText | ConvertFrom-Json
+  $kvId = Find-KvNamespaceId $viewJson
+  if (-not $kvId) {
+    throw "The active SUGO_KV binding could not be identified."
   }
 } catch {
-  Write-Host "Could not read the previous KV binding automatically. The newly created KV will be used." -ForegroundColor Yellow
+  Write-Host "SAFE STOP: Cloudflare storage could not be identified reliably." -ForegroundColor Red
+  Write-Host "No deployment was made and no KV binding was changed." -ForegroundColor Yellow
+  Write-Host $_.Exception.Message -ForegroundColor DarkYellow
+  exit 1
 }
-if (-not $kvId) { $kvId = $FallbackKvId }
 $toml = @"
 name = "$WorkerName"
 main = "worker.js"
@@ -153,11 +182,16 @@ preview_urls = false
 [[kv_namespaces]]
 binding = "SUGO_KV"
 id = "$kvId"
+
+[vars]
+DEBUG_ERRORS = "false"
+STRICT_ACCURACY_GATE = "true"
 "@
 Set-Content -Path (Join-Path $WorkerDir 'wrangler.toml') -Value $toml -Encoding UTF8
 Write-Host "Worker name: $WorkerName" -ForegroundColor Green
 Write-Host "SUGO_KV: $kvId" -ForegroundColor Green
 Write-Host "The existing AI secrets are not being replaced." -ForegroundColor Green
+Set-Content -Path (Join-Path $RootDir 'CLOUDFLARE_PREVIOUS_VERSION.txt') -Value "Previous production version: $previousVersionId`r`nSUGO_KV namespace: $kvId`r`nCaptured: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')" -Encoding UTF8
 
 Write-Step "4/6 Deploying the updated Worker"
 $deployOutput = Run-WranglerText deploy --keep-vars
@@ -206,6 +240,45 @@ if (-not $health.bindings.kv) { throw "SUGO_KV binding is not active." }
 if ($health.bindings.mediaStorage -ne 'kv') { throw "KV image storage is not active." }
 Write-Host "Article storage and image storage: OK" -ForegroundColor Green
 
+
+# The secured Worker must reject an unauthenticated diagnostics request.
+$diagStatus = 0
+try {
+  $diagResponse = Invoke-WebRequest -Uri "$workerUrl/diagnostics" -UseBasicParsing -TimeoutSec 30
+  $diagStatus = [int]$diagResponse.StatusCode
+} catch {
+  try { $diagStatus = [int]$_.Exception.Response.StatusCode.value__ } catch { $diagStatus = 0 }
+}
+if ($diagStatus -ne 401) {
+  throw "Security verification failed: /diagnostics returned HTTP $diagStatus instead of 401."
+}
+Write-Host "Diagnostics protection: OK (HTTP 401)" -ForegroundColor Green
+
+# Run one harmless AI request to confirm provider secrets survived the deployment.
+$aiPayload = @{
+  task_type = "ask_ai"
+  workspace = "ask_ai"
+  max_completion_tokens = 80
+  response_mode = "brief"
+  output_type = "answer"
+  requested_language = "english"
+  language = "english"
+  sop_mode = "hybrid"
+  strict_accuracy_gate = $false
+  cache = $false
+  stream = $false
+  messages = @(
+    @{ role = "system"; content = "Reply with exactly SUGO-CLOUDFLARE-OK." },
+    @{ role = "user"; content = "Connectivity check." }
+  )
+} | ConvertTo-Json -Depth 8 -Compress
+$aiResult = Invoke-RestMethod -Method Post -Uri "$workerUrl/" -ContentType "application/json" -Body $aiPayload -TimeoutSec 90
+$aiText = [string]$aiResult.choices[0].message.content
+if ([string]::IsNullOrWhiteSpace($aiText)) {
+  throw "AI verification failed after deployment: the response was empty."
+}
+Write-Host "AI completion after deployment: OK" -ForegroundColor Green
+
 Write-Step "6/6 Connecting the website and creating the GitHub package"
 $configJs = @"
 /* Generated automatically. Uses the existing SUGO Worker and its AI secrets. */
@@ -215,14 +288,33 @@ Set-Content -Path (Join-Path $RootDir 'js\config.js') -Value $configJs -Encoding
 
 $zipPath = Join-Path $RootDir 'SUGO_GITHUB_UPLOAD_READY.zip'
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
-$items = Get-ChildItem $RootDir -Force | Where-Object {
-  $_.Name -notin @('worker', 'START_CLOUDFLARE_SETUP.bat', 'SUGO_GITHUB_UPLOAD_READY.zip', 'ADMIN_PASSWORD_READ_ME.txt')
+
+$stageDir = Join-Path ([System.IO.Path]::GetTempPath()) ("sugo-github-" + [guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Path $stageDir | Out-Null
+try {
+  $items = Get-ChildItem $RootDir -Force | Where-Object {
+    $_.Name -notin @('.git', 'node_modules', '.wrangler', 'SUGO_GITHUB_UPLOAD_READY.zip', 'ADMIN_PASSWORD_READ_ME.txt', 'CLOUDFLARE_PREVIOUS_VERSION.txt')
+  }
+  foreach ($item in $items) {
+    Copy-Item -Path $item.FullName -Destination $stageDir -Recurse -Force
+  }
+  foreach ($generatedPath in @(
+    (Join-Path $stageDir 'worker\node_modules'),
+    (Join-Path $stageDir 'worker\.wrangler'),
+    (Join-Path $stageDir 'ADMIN_PASSWORD_READ_ME.txt'),
+    (Join-Path $stageDir 'CLOUDFLARE_PREVIOUS_VERSION.txt')
+  )) {
+    if (Test-Path $generatedPath) { Remove-Item $generatedPath -Recurse -Force }
+  }
+  $stageItems = Get-ChildItem $stageDir -Force
+  Compress-Archive -Path $stageItems.FullName -DestinationPath $zipPath -CompressionLevel Optimal
+} finally {
+  if (Test-Path $stageDir) { Remove-Item $stageDir -Recurse -Force }
 }
-Compress-Archive -Path $items.FullName -DestinationPath $zipPath -CompressionLevel Optimal
 
 Write-Host ""
 Write-Host "SUCCESS" -ForegroundColor Green
 Write-Host "Existing AI Worker kept: $workerUrl" -ForegroundColor Green
-Write-Host "GitHub upload package:" -ForegroundColor Cyan
+Write-Host "Complete GitHub repository package:" -ForegroundColor Cyan
 Write-Host $zipPath -ForegroundColor White
-Write-Host "Upload the CONTENTS of SUGO_GITHUB_UPLOAD_READY.zip to your GitHub repository." -ForegroundColor Yellow
+Write-Host "Extract the ZIP, then upload its CONTENTS to the GitHub repository root." -ForegroundColor Yellow

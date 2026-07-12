@@ -1,53 +1,108 @@
-# SUGO SOP — GitHub Pages Ready
+# SUGO SOP Portal — GitHub Ready
 
-This package places the static frontend at the repository root so GitHub Pages serves the new application instead of an older root `index.html`.
+A bilingual Arabic/English support portal with:
 
-## Required repository layout
+- 284 visible SOP topics and 73 hidden ticket macros.
+- Ask AI, Create Ticket, and image-analysis workspaces.
+- Precision routing for Arabic and English support queries.
+- 142 bundled visual-guide images.
+- Cloudflare Worker integration for AI, editable content, admin access, and KV image storage.
+- Automated validation through `npm test` and GitHub Actions.
+
+## Upload to GitHub Pages
+
+1. Extract `SUGO_GITHUB_READY_20260712.zip`.
+2. Upload **the extracted files and folders themselves** to the repository root. Do not upload the ZIP as a single file.
+3. In GitHub, open **Settings → Pages**.
+4. Choose **Deploy from a branch**, select `main`, and select `/(root)`.
+5. Save.
+
+The required root layout begins with:
 
 ```text
-index.html
+.github/
+assets/
 css/
-js/
 data/
+docs/
+js/
+tests/
 worker/
 .nojekyll
+404.html
+index.html
+package.json
 README.md
 ```
 
-Do not upload the parent ZIP as one file. Extract it first, then upload the files and folders shown above directly to the repository root.
+The `worker/` directory is source code only; GitHub Pages does not deploy it as a Cloudflare Worker.
 
-## GitHub Pages settings
+## Cloudflare Worker
 
-1. Open the repository on GitHub.
-2. Go to **Settings → Pages**.
-3. Under **Build and deployment**, select **Deploy from a branch**.
-4. Select the branch containing these files, usually `main`.
-5. Select the folder **/(root)**.
-6. Save and wait for deployment to complete.
+The frontend currently reads its Worker URL from `js/config.js`.
 
-If the repository still contains an older root `index.html`, replace or delete it before uploading this package.
+To deploy or update your own Worker on Windows, run:
 
-The Cloudflare Worker remains in `worker/` and is not deployed by GitHub Pages.
+```text
+START_CLOUDFLARE_SETUP.bat
+```
 
+The setup script:
 
-## Crimson Noir build
+- Reuses the Worker name `sugo`.
+- Reuses the existing `SUGO_KV` binding when available.
+- Keeps existing AI secrets by deploying with `--keep-vars`.
+- Creates an administrator password only when one does not already exist.
+- Updates `js/config.js` with the deployed Worker URL.
+- Creates a complete GitHub upload ZIP.
 
-This GitHub Pages build uses the approved desktop-only dark crimson, black, and gray theme. Article pages open with all available English/Arabic content and all content types visible by default.
+Required Cloudflare secrets depend on the provider you use:
 
+```text
+ADMIN_PASSWORD
+GEMINI_KEY_1        or GEMINI_API_KEY
+CEREBRAS_KEY_1      or CEREBRAS_API_KEY
+GROK_API_KEY        or XAI_API_KEY
+```
 
-## Build 20260710-crimson-format-v3
+Optional configuration is documented in `worker/env.example`.
 
-- Preserves paragraphs, headings, numbered steps, bullets, links, and line breaks from local and KV/admin content.
-- Adds English/Arabic output-language selection to Ask AI, Create Ticket, and Upload Image.
+## Validate before uploading
 
-## Designed Home Dashboard
+Node.js 20 or newer is required.
 
-The application opens on a finished Home dashboard rather than an empty workspace. Home provides direct access to Ask AI, Create Ticket, Upload image, both original knowledge-base roots, live content counts, Recent Topics, and Favorites. Closing any active topic or workspace returns to Home without deleting drafted input or generated results.
+```bash
+npm test
+```
 
-## Admin Visual Guide Manager — Build 20260712-admin-media-v2
+The validation suite checks:
 
-The topic editor now includes a complete **Article screenshots** manager. Administrators can add, replace, reorder, caption, and remove explanation images without editing JavaScript or uploading a new GitHub build for every image change.
+- JavaScript syntax.
+- Navigation/content coverage.
+- All bundled image paths.
+- Arabic precision routes such as country change, password reset, and account restriction.
+- Arabic Create Ticket request settings.
+- Duplicate-apology protection.
+- Worker health, CORS, diagnostics authentication, HTML sanitization, and safe debug behavior.
 
-Uploaded image files, image order, captions, and topic overrides are stored in Cloudflare KV through the `SUGO_KV` binding. Cloudflare R2 is not required. The original bundled screenshots remain available through **Restore original images**.
+GitHub Actions runs the same validation automatically on every push and pull request.
 
-Run `START_CLOUDFLARE_SETUP.bat` to deploy the Worker and generate the GitHub upload package.
+## Security notes
+
+- Never commit `ADMIN_PASSWORD_READ_ME.txt`, `.dev.vars`, `.env`, API keys, or generated secret files.
+- `/diagnostics` requires the administrator bearer password. `/health` remains public for deployment checks.
+- Provider failure details are hidden by default. Set `DEBUG_ERRORS=true` only temporarily during controlled troubleshooting.
+- Set `CORS_ORIGIN` to the exact GitHub Pages or custom-domain origin when possible. Multiple origins can be comma-separated.
+- The Worker includes separate rate limits for public AI requests and administrator endpoints.
+
+## Important external requirement
+
+The repository is ready to upload, but live AI generation still depends on a deployed Cloudflare Worker with valid provider secrets and an active KV binding. Those external credentials cannot be verified from the offline ZIP alone.
+
+## Documentation
+
+- Arabic upload instructions: `GITHUB_UPLOAD_AR.md`
+- Admin/media notes: `docs/admin/`
+- Previous audit records: `docs/audits/`
+- Legacy setup notes: `docs/setup/`
+- Release changes: `CHANGELOG.md`

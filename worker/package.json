@@ -1,12 +1,14 @@
 {
   "name": "sugo-existing-ai-media-manager",
   "private": true,
-  "version": "2.8.2",
+  "version": "2.9.0",
   "scripts": {
     "deploy": "wrangler deploy --keep-vars",
-    "check": "wrangler deploy --dry-run"
+    "check": "wrangler deploy --dry-run",
+    "test": "node ../tests/worker-smoke.test.js"
   },
   "devDependencies": {
     "wrangler": "4.110.0"
-  }
+  },
+  "type": "module"
 }

@@ -1,12 +1,12 @@
 /**
- * SUGO SOP AI Proxy — Super Worker v2.6.0 Full Guard Edition
+ * SUGO SOP AI Proxy — Super Worker v2.9.0 GitHub Ready
  *
  * What changed from the uploaded Worker:
  * - More tolerant environment variable names.
  * - Safer model fallback lists.
  * - Retries Gemini with and without Google Search tools.
  * - Adds xAI Chat Completions fallback in addition to xAI Responses API.
- * - Returns provider failure details when DEBUG_ERRORS is not "false".
+ * - Hides provider failure details unless DEBUG_ERRORS is explicitly "true".
  * - Keeps the same OpenAI-like response shape expected by the existing UI.
  *
  * Supported secrets / vars:
@@ -20,13 +20,26 @@
 
 export default {
   async fetch(request, env, ctx) {
-    const corsHeaders = buildCorsHeaders(env);
+    const corsHeaders = buildCorsHeaders(env, request);
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
+    const isAdministratorAttempt =
+      (request.method === "POST" && url.pathname.startsWith("/admin/")) ||
+      (request.method === "GET" && url.pathname === "/diagnostics");
+
+    if (isAdministratorAttempt) {
+      const adminRateLimit = checkRateLimit(request, env, "admin");
+      if (!adminRateLimit.ok) {
+        return jsonResponse({
+          error: "Too many administrator attempts. Please wait and try again.",
+          retryAfterSeconds: adminRateLimit.retryAfterSeconds
+        }, { ...corsHeaders, "Retry-After": String(adminRateLimit.retryAfterSeconds || 60) }, 429);
+      }
+    }
 
     if (request.method === "GET" && url.pathname === "/menu") {
       if (!env.SUGO_KV) return errorResponse("SUGO_KV binding is missing.", 500, corsHeaders);
@@ -37,7 +50,7 @@ export default {
     if (request.method === "POST" && url.pathname === "/admin/menu") {
       if (!env.SUGO_KV) return errorResponse("SUGO_KV binding is missing.", 500, corsHeaders);
       const adminPassword = getAdminPasswordFromRequest(request);
-      if (!env.ADMIN_PASSWORD || adminPassword !== env.ADMIN_PASSWORD) return errorResponse("Unauthorized.", 401, corsHeaders);
+      if (!env.ADMIN_PASSWORD || !safeSecretEqual(adminPassword, env.ADMIN_PASSWORD)) return errorResponse("Unauthorized.", 401, corsHeaders);
       let body;
       try { body = await request.json(); } catch { return errorResponse("Invalid JSON body.", 400, corsHeaders); }
       const menu = normalizeSugoIntegratedMenu(body.menu || body);
@@ -65,7 +78,7 @@ export default {
 
       const adminPassword = getAdminPasswordFromRequest(request);
 
-      if (!env.ADMIN_PASSWORD || adminPassword !== env.ADMIN_PASSWORD) {
+      if (!env.ADMIN_PASSWORD || !safeSecretEqual(adminPassword, env.ADMIN_PASSWORD)) {
         return errorResponse("Unauthorized.", 401, corsHeaders);
       }
 
@@ -93,7 +106,7 @@ export default {
         return errorResponse("SUGO_KV binding is missing.", 500, corsHeaders);
       }
       const adminPassword = getAdminPasswordFromRequest(request);
-      if (!env.ADMIN_PASSWORD || adminPassword !== env.ADMIN_PASSWORD) {
+      if (!env.ADMIN_PASSWORD || !safeSecretEqual(adminPassword, env.ADMIN_PASSWORD)) {
         return errorResponse("Unauthorized.", 401, corsHeaders);
       }
       let body;
@@ -113,7 +126,7 @@ export default {
         return errorResponse("SUGO_KV binding is missing.", 500, corsHeaders);
       }
       const adminPassword = getAdminPasswordFromRequest(request);
-      if (!env.ADMIN_PASSWORD || adminPassword !== env.ADMIN_PASSWORD) {
+      if (!env.ADMIN_PASSWORD || !safeSecretEqual(adminPassword, env.ADMIN_PASSWORD)) {
         return errorResponse("Unauthorized.", 401, corsHeaders);
       }
       let body;
@@ -153,7 +166,7 @@ export default {
     if (request.method === "POST" && url.pathname === "/admin/media/upload") {
       if (!env.SUGO_KV) return errorResponse("SUGO_KV binding is missing.", 500, corsHeaders);
       const adminPassword = getAdminPasswordFromRequest(request);
-      if (!env.ADMIN_PASSWORD || adminPassword !== env.ADMIN_PASSWORD) return errorResponse("Unauthorized.", 401, corsHeaders);
+      if (!env.ADMIN_PASSWORD || !safeSecretEqual(adminPassword, env.ADMIN_PASSWORD)) return errorResponse("Unauthorized.", 401, corsHeaders);
       let form;
       try { form = await request.formData(); }
       catch { return errorResponse("Invalid multipart form data.", 400, corsHeaders); }
@@ -192,7 +205,7 @@ export default {
     if (request.method === "POST" && url.pathname === "/admin/media/topic") {
       if (!env.SUGO_KV) return errorResponse("SUGO_KV binding is missing.", 500, corsHeaders);
       const adminPassword = getAdminPasswordFromRequest(request);
-      if (!env.ADMIN_PASSWORD || adminPassword !== env.ADMIN_PASSWORD) return errorResponse("Unauthorized.", 401, corsHeaders);
+      if (!env.ADMIN_PASSWORD || !safeSecretEqual(adminPassword, env.ADMIN_PASSWORD)) return errorResponse("Unauthorized.", 401, corsHeaders);
       let body;
       try { body = await request.json(); }
       catch { return errorResponse("Invalid JSON body.", 400, corsHeaders); }
@@ -219,7 +232,7 @@ export default {
     if (request.method === "POST" && url.pathname === "/admin/media/topic/reset") {
       if (!env.SUGO_KV) return errorResponse("SUGO_KV binding is missing.", 500, corsHeaders);
       const adminPassword = getAdminPasswordFromRequest(request);
-      if (!env.ADMIN_PASSWORD || adminPassword !== env.ADMIN_PASSWORD) return errorResponse("Unauthorized.", 401, corsHeaders);
+      if (!env.ADMIN_PASSWORD || !safeSecretEqual(adminPassword, env.ADMIN_PASSWORD)) return errorResponse("Unauthorized.", 401, corsHeaders);
       let body;
       try { body = await request.json(); }
       catch { return errorResponse("Invalid JSON body.", 400, corsHeaders); }
@@ -234,15 +247,23 @@ export default {
       return jsonResponse({ ok: true, reset: true, topicId, updatedAt: manifest.updatedAt }, corsHeaders);
     }
 
-    if (request.method === "GET" && (url.pathname === "/health" || url.pathname === "/diagnostics")) {
-      return jsonResponse(buildWorkerHealthReport(env, url.pathname === "/diagnostics"), corsHeaders);
+    if (request.method === "GET" && url.pathname === "/health") {
+      return jsonResponse(buildWorkerHealthReport(env, false), corsHeaders);
+    }
+
+    if (request.method === "GET" && url.pathname === "/diagnostics") {
+      const adminPassword = getAdminPasswordFromRequest(request);
+      if (!env.ADMIN_PASSWORD || !safeSecretEqual(adminPassword, env.ADMIN_PASSWORD)) {
+        return errorResponse("Unauthorized.", 401, corsHeaders);
+      }
+      return jsonResponse(buildWorkerHealthReport(env, true), corsHeaders);
     }
 
     if (request.method === "GET") {
       return jsonResponse({
         ok: true,
         service: "SUGO SOP AI Proxy",
-        version: "2.8.3-existing-ai-media-manager",
+        version: "2.9.0-github-ready",
         providers: providerStatus(env),
         health: "/health",
         diagnostics: "/diagnostics",
@@ -254,7 +275,7 @@ export default {
       return errorResponse("Method not allowed.", 405, corsHeaders);
     }
 
-    const rateLimit = checkRateLimit(request, env);
+    const rateLimit = checkRateLimit(request, env, "api");
     if (!rateLimit.ok) {
       return jsonResponse({
         error: "Too many requests. Please wait a few seconds and try again.",
@@ -374,14 +395,14 @@ export default {
       if (isStream) {
         const providerResp = await getStreamingProviderResponse(sharedArgs);
         if (!providerResp) {
-          return allProvidersFailedResponse(corsHeaders, attempts, true);
+          return allProvidersFailedResponse(corsHeaders, attempts, true, env);
         }
         return streamProviderAsOpenAI(providerResp.provider, providerResp.response, corsHeaders);
       }
 
       const result = await getTextCompletion(sharedArgs);
       if (!result?.text) {
-        return allProvidersFailedResponse(corsHeaders, attempts, false);
+        return allProvidersFailedResponse(corsHeaders, attempts, false, env);
       }
 
       const finalText = applyWorkerQualityPipeline(result.text, { outputType, responseMode, sopMode, taskType, needsWebSearch, requestAnalysis, kbMatchAudit, routeProfile, hasImages });
@@ -443,7 +464,7 @@ export default {
       return jsonResponse(responseBody, corsHeaders);
     } catch (err) {
       logWorkerEvent(env, "error", { requestId, error: safeErrorMessage(err), attempts: attempts.length });
-      return errorResponse(`Worker error: ${safeErrorMessage(err)}`, 500, corsHeaders, debugPayload(env, attempts));
+      return errorResponse(debugEnabled(env) ? `Worker error: ${safeErrorMessage(err)}` : "The AI service could not complete the request.", 500, corsHeaders, debugPayload(env, attempts));
     }
   }
 };
@@ -452,14 +473,27 @@ export default {
 // Request / security helpers
 // ─────────────────────────────────────────────────────────────
 
-function buildCorsHeaders(env) {
-  const origin = env.CORS_ORIGIN || "*";
-  return {
+function buildCorsHeaders(env, request) {
+  const configured = String(env.CORS_ORIGIN || "*")
+    .split(",")
+    .map(value => value.trim())
+    .filter(Boolean);
+  const requestOrigin = request?.headers?.get("Origin") || "";
+  const allowAny = !configured.length || configured.includes("*");
+  const origin = allowAny
+    ? "*"
+    : (requestOrigin && configured.includes(requestOrigin) ? requestOrigin : configured[0]);
+  const headers = {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-SUGO-Client",
-    "Access-Control-Max-Age": "86400"
+    "Access-Control-Max-Age": "86400",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
   };
+  if (!allowAny) headers["Vary"] = "Origin";
+  return headers;
 }
 
 function validateIncoming(incoming, env) {
@@ -599,7 +633,7 @@ function safeErrorMessage(err) {
 }
 
 function debugEnabled(env) {
-  return String(env.DEBUG_ERRORS || "true").toLowerCase() !== "false";
+  return String(env.DEBUG_ERRORS || "false").toLowerCase() === "true";
 }
 
 function debugPayload(env, attempts) {
@@ -612,14 +646,12 @@ function debugPayload(env, attempts) {
   };
 }
 
-function allProvidersFailedResponse(corsHeaders, attempts, stream) {
+function allProvidersFailedResponse(corsHeaders, attempts, stream, env) {
   return jsonResponse({
     error: "All AI providers failed.",
     stream,
-    debug: {
-      attempts: attempts.slice(-24),
-      note: "Check API keys, model names, billing/quota, and provider status. No secret values are included here."
-    }
+    ...(debugEnabled(env) ? { debug: { attempts: attempts.slice(-24) } } : {}),
+    note: "Check API keys, model names, billing/quota, and provider status. No secret values are included here."
   }, corsHeaders, 503);
 }
 
@@ -803,7 +835,7 @@ function buildWorkerHealthReport(env, diagnostics = false) {
   const report = {
     ok: true,
     service: "SUGO SOP AI Proxy",
-    version: "2.8.3-existing-ai-media-manager",
+    version: "2.9.0-github-ready",
     timestamp: new Date().toISOString(),
     bindings: {
       kv: Boolean(env.SUGO_KV),
@@ -1209,12 +1241,17 @@ function getClientKey(request) {
   return `${client}:${String(ip).split(",")[0].trim()}`;
 }
 
-function checkRateLimit(request, env) {
-  const limit = clampNumber(env.RATE_LIMIT_PER_MINUTE, 5, 600, 90);
-  const windowSec = clampNumber(env.RATE_LIMIT_WINDOW_SECONDS, 10, 300, 60);
+function checkRateLimit(request, env, scope = "api") {
+  const isAdmin = scope === "admin";
+  const limit = isAdmin
+    ? clampNumber(env.ADMIN_RATE_LIMIT_PER_MINUTE, 3, 120, 20)
+    : clampNumber(env.RATE_LIMIT_PER_MINUTE, 5, 600, 90);
+  const windowSec = isAdmin
+    ? clampNumber(env.ADMIN_RATE_LIMIT_WINDOW_SECONDS, 30, 900, 300)
+    : clampNumber(env.RATE_LIMIT_WINDOW_SECONDS, 10, 300, 60);
   const now = Date.now();
   const windowMs = windowSec * 1000;
-  const key = getClientKey(request);
+  const key = `${scope}:${getClientKey(request)}`;
   const current = SUGO_RATE_LIMIT_BUCKETS.get(key) || { count: 0, resetAt: now + windowMs };
   if (now > current.resetAt) {
     current.count = 0;
@@ -2338,7 +2375,7 @@ function hasMissingInfoPrompt(text, missingInfo) {
 function jsonResponse(data, corsHeaders, status = 200) {
   return new Response(JSON.stringify(data, null, 0), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders }
+    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...corsHeaders }
   });
 }
 
@@ -2457,6 +2494,17 @@ function getAdminPasswordFromRequest(request) {
   return "";
 }
 
+function safeSecretEqual(left, right) {
+  const a = new TextEncoder().encode(String(left || ""));
+  const b = new TextEncoder().encode(String(right || ""));
+  const length = Math.max(a.length, b.length);
+  let difference = a.length ^ b.length;
+  for (let index = 0; index < length; index += 1) {
+    difference |= (a[index] || 0) ^ (b[index] || 0);
+  }
+  return difference === 0;
+}
+
 async function getSugoEditableContent(env) {
   const fallback = {
     version: 1,
@@ -2540,10 +2588,11 @@ function cleanEditableText(value, maxLength) {
 function cleanEditableHtml(value, maxLength) {
   return String(value || "")
     .replace(/\u0000/g, "")
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
-    .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "")
-    .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "")
+    .replace(/<(script|iframe|object|embed|link|meta|base|form)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "")
+    .replace(/<(script|iframe|object|embed|link|meta|base|form)\b[^>]*\/?\s*>/gi, "")
+    .replace(/\s(?:on[a-z]+|srcdoc)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/\s(?:href|src|xlink:href)\s*=\s*(["'])\s*(?:javascript:|data:text\/html)[\s\S]*?\1/gi, "")
+    .replace(/\sstyle\s*=\s*(["'])[^"']*(?:expression\s*\(|url\s*\(\s*['"]?javascript:)[^"']*\1/gi, "")
     .slice(0, maxLength);
 }
 
