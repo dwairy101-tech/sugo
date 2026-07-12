@@ -7128,3 +7128,106 @@ textarea::placeholder {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========================================================================== 
+   Create Ticket — apology selector and organized action buttons
+   ========================================================================== */
+.ticket-apology-field {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.34fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.ticket-apology-field__label {
+  display: grid;
+  gap: 0.2rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1.25;
+}
+
+.ticket-apology-field__label strong {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.ticket-apology-field__label small {
+  color: var(--color-text-faint);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-regular);
+}
+
+.ticket-apology-control {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.ticket-apology-button {
+  min-inline-size: 0;
+  min-block-size: 2.45rem;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  background: var(--color-surface-subtle);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  white-space: nowrap;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.ticket-apology-button:hover,
+.ticket-apology-button:focus-visible {
+  border-color: #7f1d31;
+  color: var(--color-text);
+}
+
+.ticket-apology-button.is-selected {
+  border-color: #9e243d;
+  color: #ffd8df;
+  background: linear-gradient(180deg, #3b0d16 0%, #26090f 100%);
+  box-shadow: inset 0 0 0 1px rgba(196, 45, 72, 0.28);
+}
+
+.ticket-apology-button:active {
+  transform: translateY(1px);
+}
+
+/* The primary action gets a full row. Copy and Clear share a clean second row. */
+.ticket-preview-panel__actions,
+.ticket-preview-panel__actions.has-copy {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.ticket-preview-panel__generate {
+  grid-column: 1 / -1;
+  min-block-size: 2.9rem;
+}
+
+.ticket-preview-panel__actions:not(.has-copy) .ticket-preview-panel__clear {
+  grid-column: 1 / -1;
+}
+
+.ticket-preview-panel__copy,
+.ticket-preview-panel__clear {
+  min-block-size: 2.55rem;
+}
+
+@media (max-width: 1180px) {
+  .ticket-apology-field {
+    grid-template-columns: 1fr;
+  }
+}

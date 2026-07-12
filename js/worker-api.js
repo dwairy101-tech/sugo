@@ -12,6 +12,7 @@
   const VALID_OUTPUT_TYPES = new Set(["answer", "ticket"]);
   const VALID_TICKET_TYPES = new Set(["customer_reply", "missing_info", "internal_escalation", "policy_sensitive"]);
   const VALID_TICKET_TONES = new Set(["professional", "empathetic", "firm"]);
+  const VALID_APOLOGY_STYLES = new Set(["without_apology", "with_apology"]);
   const state = {
     controller: null,
     pending: false,
@@ -152,6 +153,132 @@
     return output;
   }
 
+  function normalizeApologyStyle(value) {
+    return VALID_APOLOGY_STYLES.has(value) ? value : "without_apology";
+  }
+
+  const ENGLISH_APOLOGY_DETECTOR = /\b(?:apolog(?:y|ies|ize|ise|ized|ised|izing|ising|etic)|sorry|regret(?:ful|fully)?|pardon)\b/i;
+  const ARABIC_APOLOGY_DETECTOR = /(?:نعتذر|أعتذر|اعتذر|اعتذار(?:نا|ي|كم|اتنا)?|اعتذارات(?:نا|ي)?|نأسف|ناسف|آسف|اسف|آسفون|اسفون|آسفين|اسفين|يؤسفنا|ياسفنا|المعذرة|معذرة|سامحنا|اعذرنا|أعذرنا)/i;
+
+  function containsApologyWording(value) {
+    const text = String(value || "");
+    return ENGLISH_APOLOGY_DETECTOR.test(text) || ARABIC_APOLOGY_DETECTOR.test(text);
+  }
+
+  function capitalizeTicketRemainder(value, language) {
+    let text = String(value || "").trim().replace(/^[,،;؛:.!؟\-–—\s]+/, "");
+    if (!text) return "";
+    if (language !== "arabic") text = text.charAt(0).toUpperCase() + text.slice(1);
+    return text;
+  }
+
+  function preserveTerminalPunctuation(source, value, language) {
+    const text = String(value || "").trim();
+    if (!text || /[.!?؟]$/.test(text)) return text;
+    const terminal = String(source || "").trim().match(/[.!?؟]$/)?.[0];
+    return terminal ? `${text}${terminal}` : `${text}${language === "arabic" ? "." : "."}`;
+  }
+
+  function normalizeRetainedApologyClause(value, language) {
+    let text = String(value || "").trim();
+    if (language === "arabic") {
+      text = text.replace(/^(?:ولكن|لكن)\s+/i, "");
+      return capitalizeTicketRemainder(text, "arabic");
+    }
+    text = text.replace(/^(?:and|but|however|therefore|so)\s+/i, "");
+    return capitalizeTicketRemainder(text, "english");
+  }
+
+  function isCustomerGreetingParagraph(value) {
+    const text = String(value || "").trim();
+    return /^(?:hello|hi|welcome|dear\s+customer)\b/i.test(text)
+      || /^(?:مرحبا|مرحباً|مرحبًا|اهلا|أهلا|عزيزي\s+العميل)/.test(text);
+  }
+
+  function rewriteApologyLeadIn(unit, language) {
+    let text = String(unit || "").trim();
+    if (!text) return "";
+
+    const EnglishInform = text.match(/^\s*(?:(?:we|i)\s+(?:(?:sincerely|deeply|truly|really)\s+)?(?:regret|(?:am|are|'m|'re)\s+(?:very\s+)?sorry)\s+to\s+(?:inform|advise|tell|let)\s+you(?:\s+know)?(?:\s+that)?|(?:it\s+is\s+with\s+(?:deep\s+)?regret\s+that))\s+(.+)$/i);
+    if (EnglishInform && !containsApologyWording(EnglishInform[1])) {
+      return preserveTerminalPunctuation(text, capitalizeTicketRemainder(EnglishInform[1], "english"), "english");
+    }
+
+    const ArabicInform = text.match(/^\s*(?:يؤسفنا|ياسفنا|نأسف|ناسف)\s+(?:أن\s+)?(?:نبلغك(?:م)?|نخبرك(?:م)?|إبلاغك(?:م)?|ابلاغك(?:م)?|إخبارك(?:م)?|اخبارك(?:م)?)(?:\s+(?:بأن|بان|أن|ان))?\s+(.+)$/i);
+    if (ArabicInform && !containsApologyWording(ArabicInform[1])) {
+      return preserveTerminalPunctuation(text, capitalizeTicketRemainder(ArabicInform[1], "arabic"), "arabic");
+    }
+
+    if (!containsApologyWording(text)) return text;
+
+    const punctuationClauses = text
+      .split(/\s*(?:,|،|;|؛|\s[—–]\s|\s-\s)\s*/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+    if (punctuationClauses.length > 1) {
+      const retained = punctuationClauses
+        .filter((part) => !containsApologyWording(part))
+        .map((part) => normalizeRetainedApologyClause(part, language))
+        .filter(Boolean);
+      if (retained.length) {
+        const separator = language === "arabic" ? "، " : ", ";
+        return preserveTerminalPunctuation(text, retained.join(separator), language);
+      }
+    }
+
+    const EnglishConnector = text.match(/^(.{0,220}?)\b(?:and|but|however|therefore|so)\b\s+(.+)$/i);
+    if (EnglishConnector && containsApologyWording(EnglishConnector[1]) && !containsApologyWording(EnglishConnector[2])) {
+      return preserveTerminalPunctuation(text, capitalizeTicketRemainder(EnglishConnector[2], "english"), "english");
+    }
+
+    const ArabicConnector = text.match(/^(.{0,220}?)(ولكن|لكن|وتم|وقد|وسيتم|وسوف|ونود|ونؤكد|ونرجو|ونشكرك(?:م)?|ونقدر|لذلك)\s+(.+)$/i);
+    if (ArabicConnector && containsApologyWording(ArabicConnector[1]) && !containsApologyWording(ArabicConnector[3])) {
+      const connector = ArabicConnector[2].replace(/^و/, "");
+      const connectorPrefix = /^(تم|قد|سيتم|سوف|نود|نؤكد|نرجو|نشكرك(?:م)?|نقدر)$/.test(connector) ? `${connector} ` : "";
+      return preserveTerminalPunctuation(text, capitalizeTicketRemainder(`${connectorPrefix}${ArabicConnector[3]}`, "arabic"), "arabic");
+    }
+
+    // Last safety gate: any unit that still contains apology wording is removed.
+    // This guarantees that the final formatter can add at most one canonical apology.
+    return "";
+  }
+
+  function removeApologyContent(text, language) {
+    const paragraphs = String(text || "")
+      .replace(/\r\n?/g, "\n")
+      .replace(/\u00a0/g, " ")
+      .split(/\n{2,}/)
+      .map((paragraph) => paragraph
+        .split(/(?<=[.!?؟])\s+|\n+/)
+        .map((unit) => rewriteApologyLeadIn(unit, language))
+        .filter(Boolean)
+        .join(" ")
+        .trim())
+      .filter(Boolean);
+    return paragraphs.join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
+  }
+
+  function applyTicketApologyStyle(text, language, style, ticketType) {
+    const normalizedStyle = normalizeApologyStyle(style);
+    const cleaned = removeApologyContent(text, language);
+
+    // Internal escalation is never customer-facing and must never contain an apology.
+    if (ticketType === "internal_escalation" || normalizedStyle === "without_apology") return cleaned;
+
+    const apology = language === "arabic"
+      ? "نعتذر لك عن الإزعاج الذي واجهته."
+      : "We apologize for the inconvenience you experienced.";
+    if (!cleaned) return apology;
+
+    const paragraphs = cleaned.split(/\n{2,}/).filter(Boolean);
+    const insertAt = paragraphs.length && isCustomerGreetingParagraph(paragraphs[0]) ? 1 : 0;
+    paragraphs.splice(insertAt, 0, apology);
+
+    // Deterministic invariant: all generated apologies were removed above,
+    // then exactly one canonical apology was inserted here.
+    return paragraphs.join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
+  }
+
   function renderMarkdown(markdown) {
     const lines = String(markdown || "").replace(/\u00a0/g, " ").split(/\r?\n/);
     let html = "";
@@ -277,7 +404,8 @@
     if (evidence) parts.push(`Evidence / internal notes:\n${evidence}`);
     if (draftToPolish) parts.push(`Existing draft to rewrite:\n${draftToPolish}`);
     if (quickPrompt) parts.push(`Selected quick action:\n${quickPrompt}`);
-    parts.push(`Ticket request profile: ${input.type || "customer_reply"} · ${input.tone || "professional"} tone.`);
+    const apologyStyle = normalizeApologyStyle(input.apologyStyle);
+    parts.push(`Ticket request profile: ${input.type || "customer_reply"} · ${input.tone || "professional"} tone · ${apologyStyle === "with_apology" ? "include one apology" : "no apology"}.`);
     return parts.filter(Boolean).join("\n\n").trim();
   }
 
@@ -292,6 +420,7 @@
   function ticketInstruction(input) {
     const ticketType = normalizeTicketType(input.type);
     const ticketTone = normalizeTicketTone(input.tone);
+    const apologyStyle = normalizeApologyStyle(input.apologyStyle);
     const typeRules = {
       customer_reply: "Create one ready-to-send customer-facing support reply. Include only verified case-specific information, the correct action or result, any exact missing information, and a natural closing.",
       missing_info: "Create one ready-to-send customer-facing request for missing information. Ask only for the exact details or evidence required by the matched SOP, and do not promise a resolution before review.",
@@ -305,10 +434,16 @@
     };
     const quickPrompt = String(input.quickPrompt || "").trim();
     const draftToPolish = String(input.draftToPolish || "").trim();
+    const apologyRule = ticketType === "internal_escalation"
+      ? "This is an internal escalation note, so do not include a customer apology."
+      : apologyStyle === "with_apology"
+        ? "Include exactly one brief and sincere apology paragraph in the selected output language. Do not repeat or exaggerate the apology."
+        : "Do not include apology wording. Avoid sorry, apologize, regret, inconvenience apologies, نعتذر، نأسف، آسف، or any equivalent apology sentence.";
     return [
       "This request comes from the dedicated Create Ticket workspace.",
       typeRules[ticketType],
       toneRules[ticketTone],
+      apologyRule,
       quickPrompt ? `Execute this selected quick action exactly: ${quickPrompt}` : "",
       draftToPolish ? "Rewrite the supplied existing draft instead of ignoring it, while correcting it against the matched SOP." : "",
       "Do not add fake ticket IDs, dates, agent names, amounts, outcomes, SLA promises, refunds, compensation, approvals, or policy claims.",
@@ -508,7 +643,8 @@
     const language = input.language === "arabic" ? "arabic" : "english";
     const ticketType = outputType === "ticket" ? normalizeTicketType(input.type) : "customer_reply";
     const ticketTone = outputType === "ticket" ? normalizeTicketTone(input.tone) : "professional";
-    const normalizedInput = { ...input, type: ticketType, tone: ticketTone };
+    const apologyStyle = outputType === "ticket" ? normalizeApologyStyle(input.apologyStyle) : "without_apology";
+    const normalizedInput = { ...input, type: ticketType, tone: ticketTone, apologyStyle };
     const strictSop = input.sopMode !== "hybrid";
     const images = normalizeImagePayload(input.images);
     const hasImage = Boolean(images?.length);
@@ -571,6 +707,7 @@
       output_type: outputType,
       ticket_type: ticketType,
       ticket_tone: ticketTone,
+      apology_style: apologyStyle,
       requested_language: language,
       primary_ticket_macro_id: localTicketMacro?.id || null,
       language,
@@ -590,7 +727,7 @@
     };
     return {
       body, kb, query: finalQuery, lookupQuery, kbHasContent,
-      localTicketMacro, ticketType, ticketTone,
+      localTicketMacro, ticketType, ticketTone, apologyStyle,
       originalInput: normalizedInput
     };
   }
@@ -671,8 +808,10 @@
       if (!isRequestedLanguage(answer, request.body.language) || !isTicketTypeCompliant(answer, request)) {
         answer = buildLanguageSafeFallback(request);
       }
-      if (isTicket && !isInternalEscalation) {
-        answer = applyCustomerReplyEnvelope(answer, request.body.language, true, true);
+      if (isTicket) {
+        if (!isInternalEscalation) answer = applyCustomerReplyEnvelope(answer, request.body.language, true, true);
+        answer = applyTicketApologyStyle(answer, request.body.language, request.apologyStyle, request.ticketType);
+        if (!isInternalEscalation) answer = removeDuplicateCustomerOpeningsAndClosings(answer);
       }
       const result = {
         answer,
@@ -685,14 +824,16 @@
         lookupQuery: request.lookupQuery,
         usedLocalTicketMacro: Boolean(request.localTicketMacro),
         ticketType: request.ticketType,
-        ticketTone: request.ticketTone
+        ticketTone: request.ticketTone,
+        apologyStyle: request.apologyStyle
       };
       state.lastResponseMeta = {
         branch: parsed.branch,
         at: Date.now(),
         kbConfidence: request.kb?.confidence || "low",
         macroId: request.localTicketMacro?.id || null,
-        ticketType: request.ticketType
+        ticketType: request.ticketType,
+        apologyStyle: request.apologyStyle
       };
       return result;
     } catch (error) {
@@ -748,6 +889,9 @@
     stripPreamble,
     stripLatexNotation,
     applyCustomerReplyEnvelope,
+    applyTicketApologyStyle,
+    removeApologyContent,
+    containsApologyWording,
     WorkerRequestError,
     get pending() { return state.pending; },
     get lastRequestBody() { return state.lastRequestBody ? structuredClone(state.lastRequestBody) : null; },

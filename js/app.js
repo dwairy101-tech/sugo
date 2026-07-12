@@ -46,6 +46,10 @@
     Object.freeze({ value: "empathetic", label: "Empathy" }),
     Object.freeze({ value: "firm", label: "Firm" })
   ]);
+  const TICKET_APOLOGY_STYLES = Object.freeze([
+    Object.freeze({ value: "without_apology", label: "Without Apology" }),
+    Object.freeze({ value: "with_apology", label: "With Apology" })
+  ]);
   const TICKET_OUTPUT_TYPE_TEXT = Object.freeze({
     customer_reply: "clean customer-facing ticket",
     missing_info: "missing-information request",
@@ -188,6 +192,7 @@
   const ticketWorkspaceState = {
     type: "customer_reply",
     tone: "professional",
+    apologyStyle: "without_apology",
     language: "english",
     caseDetails: "",
     userId: "",
@@ -2141,6 +2146,7 @@
         field,
         type: ticketWorkspaceState.type,
         tone: ticketWorkspaceState.tone,
+        apologyStyle: ticketWorkspaceState.apologyStyle,
         userId: ticketWorkspaceState.userId,
         orderId: ticketWorkspaceState.orderId,
         evidence: ticketWorkspaceState.evidence
@@ -2166,6 +2172,26 @@
     if (emit) {
       emitTicketDetailsChange("tone");
     }
+    return selected;
+  }
+
+  function getTicketApologyStyle(value = ticketWorkspaceState.apologyStyle) {
+    return TICKET_APOLOGY_STYLES.find((item) => item.value === value) || TICKET_APOLOGY_STYLES[0];
+  }
+
+  function updateTicketApologySelection(container, value, { focus = false, emit = true } = {}) {
+    const selected = getTicketApologyStyle(value);
+    ticketWorkspaceState.apologyStyle = selected.value;
+
+    container.querySelectorAll(".ticket-apology-button[data-ticket-apology]").forEach((button) => {
+      const isSelected = button.dataset.ticketApology === selected.value;
+      button.classList.toggle("is-selected", isSelected);
+      button.setAttribute("aria-pressed", String(isSelected));
+      button.tabIndex = isSelected ? 0 : -1;
+      if (isSelected && focus) button.focus();
+    });
+
+    if (emit) emitTicketDetailsChange("apologyStyle");
     return selected;
   }
 
@@ -2288,7 +2314,27 @@
       languageControl.append(button);
     });
 
-    section.append(heading, form, tone, language);
+    const apology = document.createElement("div");
+    apology.className = "ticket-apology-field";
+    apology.innerHTML = `
+      <span class="ticket-apology-field__label" id="ticketApologyLabel">
+        <strong>Apology style</strong>
+        <small>Customer-facing tickets only</small>
+      </span>
+      <div class="ticket-apology-control" role="group" aria-labelledby="ticketApologyLabel"></div>
+    `;
+    const apologyControl = apology.querySelector(".ticket-apology-control");
+    TICKET_APOLOGY_STYLES.forEach((item) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "ticket-apology-button";
+      button.dataset.ticketApology = item.value;
+      button.setAttribute("aria-pressed", "false");
+      button.textContent = item.label;
+      apologyControl.append(button);
+    });
+
+    section.append(heading, form, tone, language, apology);
 
     form.addEventListener("input", (event) => {
       const control = event.target.closest("[data-ticket-detail]");
@@ -2309,6 +2355,26 @@
         return;
       }
       updateTicketToneSelection(tone, button.dataset.ticketTone);
+    });
+
+    apologyControl.addEventListener("click", (event) => {
+      const button = event.target.closest(".ticket-apology-button[data-ticket-apology]");
+      if (!button || !apologyControl.contains(button)) return;
+      updateTicketApologySelection(apology, button.dataset.ticketApology);
+    });
+
+    apologyControl.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      const buttons = [...apologyControl.querySelectorAll(".ticket-apology-button[data-ticket-apology]")];
+      if (!buttons.length) return;
+      const currentIndex = Math.max(0, buttons.findIndex((button) => button.getAttribute("aria-pressed") === "true"));
+      let nextIndex = currentIndex;
+      if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = buttons.length - 1;
+      else if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % buttons.length;
+      else nextIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+      event.preventDefault();
+      updateTicketApologySelection(apology, buttons[nextIndex].dataset.ticketApology, { focus: true });
     });
 
     toneControl.addEventListener("keydown", (event) => {
@@ -2335,6 +2401,7 @@
     });
 
     updateTicketToneSelection(tone, ticketWorkspaceState.tone, { emit: false });
+    updateTicketApologySelection(apology, ticketWorkspaceState.apologyStyle, { emit: false });
     return section;
   }
 
@@ -2614,6 +2681,7 @@
   function getTicketPreviewSnapshot() {
     const type = getTicketType(ticketWorkspaceState.type);
     const tone = getTicketTone(ticketWorkspaceState.tone);
+    const apologyStyle = getTicketApologyStyle(ticketWorkspaceState.apologyStyle);
     return {
       type: type.value,
       typeLabel: type.label,
@@ -2621,6 +2689,8 @@
       tone: tone.value,
       toneLabel: tone.label,
       toneText: TICKET_OUTPUT_TONE_TEXT[tone.value] || "professional",
+      apologyStyle: apologyStyle.value,
+      apologyStyleText: apologyStyle.label,
       language: ticketWorkspaceState.language,
       languageText: getOutputLanguage(ticketWorkspaceState.language).label,
       knowledgeMode: "SOP Only",
@@ -2752,6 +2822,7 @@
       const result = await workerAPI.generateTicket({
         type: ticketWorkspaceState.type,
         tone: ticketWorkspaceState.tone,
+        apologyStyle: ticketWorkspaceState.apologyStyle,
         caseDetails: ticketWorkspaceState.caseDetails,
         userId: ticketWorkspaceState.userId,
         orderId: ticketWorkspaceState.orderId,
@@ -2822,6 +2893,13 @@
       const detailsSection = document.querySelector(".ticket-details-section");
       if (detailsSection) {
         updateTicketToneSelection(detailsSection, ticketWorkspaceState.tone, { emit: false });
+      }
+    }
+    if (Object.prototype.hasOwnProperty.call(payload, "apologyStyle")) {
+      ticketWorkspaceState.apologyStyle = getTicketApologyStyle(payload.apologyStyle).value;
+      const detailsSection = document.querySelector(".ticket-details-section");
+      if (detailsSection) {
+        updateTicketApologySelection(detailsSection, ticketWorkspaceState.apologyStyle, { emit: false });
       }
     }
 
@@ -2928,7 +3006,7 @@
     const summary = document.createElement("div");
     summary.className = "ticket-preview-panel__summary";
     summary.innerHTML = "<strong>Output:</strong> ";
-    summary.append(`${snapshot.typeText} · ${snapshot.toneText} · ${snapshot.languageText} · ${snapshot.knowledgeMode}.`);
+    summary.append(`${snapshot.typeText} · ${snapshot.toneText} · ${snapshot.apologyStyleText} · ${snapshot.languageText} · ${snapshot.knowledgeMode}.`);
 
     scroller.append(header, summary);
 
@@ -3021,6 +3099,15 @@
     const actions = document.createElement("div");
     actions.className = `ticket-preview-panel__actions${snapshot.generatedOutput ? " has-copy" : ""}`;
 
+    const generate = document.createElement("button");
+    generate.type = "button";
+    generate.id = "sugoTicketSubmit";
+    generate.className = "ticket-preview-panel__generate";
+    generate.disabled = ticketRequestState.status === "loading";
+    generate.textContent = ticketRequestState.status === "loading" ? "Generating…" : "Generate Ticket";
+    generate.addEventListener("click", () => void requestTicketGeneration("preview"));
+    actions.append(generate);
+
     if (snapshot.generatedOutput) {
       const copy = document.createElement("button");
       copy.type = "button";
@@ -3036,16 +3123,7 @@
     clear.textContent = "Clear";
     clear.disabled = ticketRequestState.status === "loading";
     clear.addEventListener("click", () => clearTicketWorkspaceState({ focus: true }));
-
-    const generate = document.createElement("button");
-    generate.type = "button";
-    generate.id = "sugoTicketSubmit";
-    generate.className = "ticket-preview-panel__generate";
-    generate.disabled = ticketRequestState.status === "loading";
-    generate.textContent = ticketRequestState.status === "loading" ? "Generating…" : "Generate Ticket";
-    generate.addEventListener("click", () => void requestTicketGeneration("preview"));
-
-    actions.append(clear, generate);
+    actions.append(clear);
     panel.append(scroller, actions);
     preview.classList.add("has-content");
     preview.replaceChildren(panel);
@@ -6713,6 +6791,7 @@
   window.SUGO.TicketBuilder = Object.freeze({
     types: TICKET_TYPES.map(({ value, label }) => ({ value, label })),
     tones: TICKET_TONES.map(({ value, label }) => ({ value, label })),
+    apologyStyles: TICKET_APOLOGY_STYLES.map(({ value, label }) => ({ value, label })),
     selectType(value) {
       const section = document.querySelector(".ticket-type-section");
       if (!section) {
@@ -6728,6 +6807,14 @@
         return getTicketTone(value);
       }
       return updateTicketToneSelection(section, value);
+    },
+    selectApologyStyle(value) {
+      const section = document.querySelector(".ticket-details-section");
+      if (!section) {
+        ticketWorkspaceState.apologyStyle = getTicketApologyStyle(value).value;
+        return getTicketApologyStyle(value);
+      }
+      return updateTicketApologySelection(section, value);
     },
     setCaseDetails(value) {
       ticketWorkspaceState.caseDetails = String(value ?? "");
@@ -6802,6 +6889,9 @@
       if (Object.prototype.hasOwnProperty.call(details, "language")) {
         ticketWorkspaceState.language = getOutputLanguage(details.language).value;
       }
+      if (Object.prototype.hasOwnProperty.call(details, "apologyStyle")) {
+        ticketWorkspaceState.apologyStyle = getTicketApologyStyle(details.apologyStyle).value;
+      }
       if (document.querySelector(".ticket-details-section")) {
         renderCreateTicketWorkspace();
       }
@@ -6813,6 +6903,7 @@
       ticketWorkspaceState.orderId = "";
       ticketWorkspaceState.evidence = "";
       ticketWorkspaceState.tone = "professional";
+      ticketWorkspaceState.apologyStyle = "without_apology";
       if (document.querySelector(".ticket-details-section")) {
         renderCreateTicketWorkspace();
       }
@@ -6846,6 +6937,7 @@
         orderId: ticketWorkspaceState.orderId,
         evidence: ticketWorkspaceState.evidence,
         tone: ticketWorkspaceState.tone,
+        apologyStyle: ticketWorkspaceState.apologyStyle,
         language: ticketWorkspaceState.language
       };
     }
