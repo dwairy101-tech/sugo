@@ -68,6 +68,47 @@ assert.equal(mediaRefs.length, 142, "The bundled visual guide count changed unex
 assert.equal(new Set(mediaRefs).size, mediaRefs.length, "Visual guide file paths must not be duplicated.");
 
 const matcher = SUGO.KnowledgeBaseMatcher;
+
+const mediaRelevanceCases = [
+  {
+    query: "Customer Service Greeting",
+    expectedGuides: []
+  },
+  {
+    query: "اريد تغيير البلد",
+    expectedGuides: []
+  },
+  {
+    query: "الحساب مقيد وما بقدر اسجل دخول",
+    expectedGuides: []
+  },
+  {
+    query: "نسيت كلمة المرور",
+    expectedGuides: ["Reset Account Password"]
+  }
+];
+
+for (const test of mediaRelevanceCases) {
+  const result = matcher.match(test.query, 14, 4200, null, {
+    outputType: "ticket",
+    preferTicketTopics: true,
+    smartTicket: true
+  });
+  const guideTitles = SUGO.KnowledgeBaseMedia.getGuidesForTopics(result.topics, 4).map((guide) => guide.title);
+  assert.deepEqual(guideTitles, test.expectedGuides, `Visual guides are not strictly relevant for: ${test.query}`);
+}
+
+const weakMediaResult = matcher.match("hello support", 14, 4200, null, {
+  outputType: "ticket",
+  preferTicketTopics: true,
+  smartTicket: true
+});
+assert.deepEqual(
+  SUGO.KnowledgeBaseMedia.getGuidesForTopics(weakMediaResult.topics, 4),
+  [],
+  "Weak or ambiguous matches must not display visual guides."
+);
+
 const routingCases = [
   {
     query: "اريد تغيير البلد",
@@ -139,6 +180,7 @@ for (const file of syntaxFiles) {
 
 console.log("PASS — content/navigation coverage");
 console.log("PASS — all 142 visual guides exist with no duplicate paths");
+console.log("PASS — visual guides use only decisive, high-confidence topic matches");
 console.log("PASS — Arabic/English precision routes");
 console.log("PASS — Arabic Create Ticket request contract");
 console.log("PASS — HTML asset references");

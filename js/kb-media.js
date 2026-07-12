@@ -2203,12 +2203,50 @@
     return (guidesByTopic[normalizeTopicId(topicId)] || []).slice();
   }
 
-  function getGuidesForTopics(topics, limit = 6) {
+  function selectRelevantTopicIds(topics, { allowSecondary = false } = {}) {
+    const source = Array.isArray(topics) ? topics : [];
+    const candidates = source.map((topic, index) => {
+      const isObject = Boolean(topic && typeof topic === "object");
+      return {
+        id: normalizeTopicId(topic),
+        index,
+        isObject,
+        primary: Boolean(isObject && topic.primary),
+        selected: Boolean(isObject && topic.selected),
+        confidence: isObject ? String(topic.confidence || "").toLowerCase() : "direct",
+        score: isObject && Number.isFinite(Number(topic.score)) ? Number(topic.score) : null
+      };
+    }).filter((topic) => topic.id);
+
+    if (!candidates.length) return [];
+
+    // A string topic ID is used by direct SOP/article contexts, so it is already exact.
+    if (candidates.every((topic) => !topic.isObject)) {
+      return [...new Set((allowSecondary ? candidates : candidates.slice(0, 1)).map((topic) => topic.id))];
+    }
+
+    // AI/matcher results can contain up to a dozen secondary suggestions. Those suggestions
+    // must never contribute screenshots because a weak lower-ranked match can be unrelated.
+    const decisive = candidates.filter((topic) => topic.primary || topic.selected);
+    if (decisive.length) {
+      return [...new Set(decisive.map((topic) => topic.id))];
+    }
+
+    const best = candidates[0];
+    const isReliableBest = best.confidence === "high"
+      && (best.score === null || best.score >= 42);
+    if (isReliableBest) return [best.id];
+
+    return allowSecondary
+      ? [...new Set(candidates.filter((topic) => topic.confidence === "high" && (topic.score === null || topic.score >= 42)).map((topic) => topic.id))]
+      : [];
+  }
+
+  function getGuidesForTopics(topics, limit = 6, options = {}) {
     const output = [];
     const seen = new Set();
-    for (const topic of Array.isArray(topics) ? topics : []) {
-      const id = normalizeTopicId(topic);
-      if (!id) continue;
+    const topicIds = selectRelevantTopicIds(topics, options);
+    for (const id of topicIds) {
       for (const guide of guidesByTopic[id] || []) {
         if (seen.has(guide.id)) continue;
         seen.add(guide.id);
@@ -2306,11 +2344,12 @@
 
   window.SUGO = window.SUGO || {};
   window.SUGO.KnowledgeBaseMedia = Object.freeze({
-    version: "20260712-admin-media-v2",
+    version: "20260712-media-relevance-v3",
     get guides() { return effectiveGuides.slice(); },
     get stats() { return Object.freeze(snapshot()); },
     getGuide,
     getGuidesForTopic,
+    selectRelevantTopicIds,
     getGuidesForTopics,
     hasTopic,
     hasTopicOverride,

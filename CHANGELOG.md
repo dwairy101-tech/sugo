@@ -64,3 +64,11 @@
 - Added a safe GitHub Pages 404 redirect.
 - Added Arabic upload instructions and reorganized historical documentation.
 - Updated the Cloudflare setup packager to include the complete repository source.
+
+## 2026-07-12 — Visual guide relevance fix
+
+- Related screenshots now use only decisive topic matches (`primary` / `selected`) from the knowledge-base matcher.
+- Low-confidence and lower-ranked secondary topic suggestions can no longer inject unrelated images.
+- Ambiguous queries display no visual guide instead of showing a misleading screenshot.
+- Direct SOP article image mappings remain available.
+- Added regression tests for greeting, country change, account restriction, password reset, and ambiguous support queries.
