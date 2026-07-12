@@ -78,6 +78,86 @@
       .toLowerCase();
   }
 
+  function isStandaloneTicketApology(value, normalized = "") {
+    const text = String(value || "").trim();
+    const s = normalized || normalizeTicketPiece(text)
+      .replace(/[إأآٱا]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه");
+    if (!s) return false;
+    const hasActionableRemainder = /\b(?:but|however|please|must|cannot|can't|need|provide|send|check|review|contact|according|because|due|within|after|before|will|should|to inform|to advise|to tell)\b/i.test(s)
+      || /(?:لكن|ولكن|يرجي|يجب|لا يمكن|نحتاج|تزويد|ارسال|تحقق|مراجعه|تواصل|وفقا|بسبب|خلال|بعد|قبل|سيتم|سوف|نود افادت|نبلغك|نخبرك)/.test(s);
+    if (hasActionableRemainder) return false;
+    return /^(?:(?:we|i)\s+(?:(?:sincerely|deeply|truly|really)\s+)?(?:apolog(?:ize|ise)|(?:am|are|'m|'re)\s+(?:very\s+)?sorry)|(?:our\s+)?(?:sincere\s+)?apolog(?:y|ies)|sorry|we\s+regret)\b/i.test(s)
+      || /^(?:نعتذر|اعتذر|نأسف|ناسف|آسف|اسف|نكرر اعتذارنا|نتقدم باعتذارنا|المعذره|معذره)(?:\s|$)/.test(s);
+  }
+
+  function isStandaloneTicketClosing(value, normalized = "") {
+    const s = normalized || normalizeTicketPiece(value)
+      .replace(/[إأآٱا]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه");
+    if (!s) return false;
+    if (/^(?:best regards|regards|sincerely)$/.test(s) || /^(?:مع خالص التحيه|تحياتنا)$/.test(s)) return true;
+    if (/^(?:thank you|thanks|we thank you)\b/i.test(s)
+      && /(?:contacting|reaching out|patience|understanding|cooperation|your time|your support|sugo|wonderful day|great day|happy day)/i.test(s)) return true;
+    if (/^(?:شكرا|نشكرك|نشكركم)(?:\s|$)/.test(s)
+      && /(?:لتواصلك|لتواصلكم|علي تواصلك|صبرك|صبركم|تفهمك|تفهمكم|تعاونك|تعاونكم|سوجو|يوما رائعا|يوما سعيدا)/.test(s)) return true;
+    const hasInstruction = /\b(?:please|provide|send|check|review|must|need|will|should|next|then)\b/i.test(s)
+      || /(?:يرجي|تزويد|ارسال|تحقق|مراجعه|يجب|نحتاج|سيتم|الخطوه التاليه)/.test(s);
+    if (hasInstruction) return false;
+    return /^(?:thank you|thanks|we thank you)\b/i.test(s)
+      || /^(?:شكرا|نشكرك|نشكركم)(?:\s|$)/.test(s)
+      || /wish you (?:a )?.*day/i.test(s)
+      || /نتمني لك(?:م)? .*يوما/.test(s);
+  }
+
+  function ticketSemanticKind(value) {
+    const normalized = normalizeTicketPiece(value)
+      .replace(/[إأآٱا]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه");
+    if (!normalized) return "";
+    if (/^(welcome to (the )?sugo|hello|hi|dear customer|we are very happy|we are happy|this is sugo customer service)/i.test(normalized)
+      || /^(مرحبا|اهلا|عزيزي العميل|عزيزتي العميله|يسعدنا|يشرفنا|انت تتواصل مع خدمه عملاء)/.test(normalized)) return "greeting";
+    if (/how can (we|i) (assist|help) you/i.test(normalized)
+      || /(كيف يمكننا مساعدتك|كيف يمكنني مساعدتك|كيف نساعدك)/.test(normalized)) return "help";
+    if (isStandaloneTicketApology(value, normalized)) return "apology";
+    if (isStandaloneTicketClosing(value, normalized)) return "closing";
+    if (/^(sugo )?(customer service team|customer support team|support team)$/i.test(normalized)
+      || /^فريق (خدمه عملاء سوجو|دعم سوجو|الدعم)$/.test(normalized)) return "signature";
+    return "";
+  }
+
+  function removeSemanticTicketDuplicates(text) {
+    const seenKinds = new Set();
+    const lines = [];
+    let previousNormalized = "";
+    String(text || "").replace(/\r\n?/g, "\n").split("\n").forEach((line) => {
+      const normalized = normalizeTicketPiece(line);
+      if (!normalized) {
+        if (lines.length && lines[lines.length - 1] !== "") lines.push("");
+        previousNormalized = "";
+        return;
+      }
+      const kind = ticketSemanticKind(line);
+      if (kind && seenKinds.has(kind)) return;
+      if (!kind && normalized === previousNormalized) return;
+      if (kind) seenKinds.add(kind);
+      lines.push(line.trim());
+      previousNormalized = normalized;
+    });
+    while (lines.length && lines[lines.length - 1] === "") lines.pop();
+    const seenParagraphs = new Set();
+    return lines.join("\n").split(/\n{2,}/).map((paragraph) => paragraph.trim()).filter((paragraph) => {
+      if (!paragraph) return false;
+      const normalized = normalizeTicketPiece(paragraph);
+      if (normalized && seenParagraphs.has(normalized)) return false;
+      if (normalized) seenParagraphs.add(normalized);
+      return true;
+    }).join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
+  }
+
   function removeDuplicateCustomerOpeningsAndClosings(text) {
     let output = String(text || "").replace(/\r\n?/g, "\n").replace(/\u00a0/g, " ").trim();
     if (!output) return output;
@@ -112,7 +192,7 @@
       if (closingKind) seenClosingKinds.add(closingKind);
       finalLines.push(line);
     });
-    return finalLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+    return removeSemanticTicketDuplicates(finalLines.join("\n").replace(/\n{3,}/g, "\n\n").trim());
   }
 
   function ticketOrdinalWord(index, language) {
@@ -452,19 +532,34 @@
     ].filter(Boolean).join(" ");
   }
 
+  function supportMacroFieldText(pane, language, fieldName = "ticket") {
+    if (!pane || pane.format !== "support_macro") return "";
+    const block = pane[language === "arabic" ? "arabic" : "english"];
+    const fields = Array.isArray(block?.fields) ? block.fields : [];
+    const wanted = String(fieldName || "ticket").toLowerCase();
+    const aliases = wanted === "ticket"
+      ? ["ticket", "التذكرة", "تذكرة"]
+      : ["answer", "الإجابة", "اجابة", "إجابة"];
+    const field = fields.find((item) => aliases.includes(String(item?.label || "").toLowerCase()));
+    return String(field?.text || "").trim();
+  }
+
   function getPrimaryTicketMacro(kb, language) {
-    const macros = window.SUGO?.TicketMacros;
-    if (!macros?.getTicketText) return null;
-    const bestTopic = kb?.bestTopic || null;
-    const bestIsMacro = Boolean(bestTopic && (bestTopic.ticketMacro || String(bestTopic.id || "").startsWith("sv-tickets-")));
-    const topic = bestIsMacro
-      ? bestTopic
-      : (Array.isArray(kb?.topics)
-          ? kb.topics.find((item) => Boolean(item?.primary) && (item.ticketMacro || String(item.id || "").startsWith("sv-tickets-")))
-          : null);
-    if (!topic?.id) return null;
-    const text = String(macros.getTicketText(topic.id, language) || "").trim();
-    return text ? { id: topic.id, text } : null;
+    const contentSource = window.SUGO?.Admin?.getPane ? window.SUGO.Admin : window.SUGO?.KnowledgeBaseContent;
+    const ticketSource = window.SUGO?.TicketMacros;
+    const candidates = [kb?.bestTopic, ...(Array.isArray(kb?.topics) ? kb.topics : [])]
+      .filter((topic, index, rows) => topic?.id && rows.findIndex((item) => item?.id === topic.id) === index);
+
+    for (const topic of candidates) {
+      const contentPane = contentSource?.getPane?.(topic.id);
+      const contentText = supportMacroFieldText(contentPane, language, "ticket")
+        || supportMacroFieldText(contentPane, language, "answer");
+      if (contentText) return { id: topic.id, text: contentText, source: "content" };
+
+      const ticketText = String(ticketSource?.getTicketText?.(topic.id, language) || "").trim();
+      if (ticketText) return { id: topic.id, text: ticketText, source: "ticket-macro" };
+    }
+    return null;
   }
 
   function isRequestedLanguage(text, language) {
@@ -507,7 +602,7 @@
       return internalMarker.test(text) && !customerMarker.test(text);
     }
     if (["customer_reply", "policy_sensitive"].includes(request.ticketType) && request.localTicketMacro?.text) {
-      return groundingOverlapScore(text, request.localTicketMacro.text) >= 0.08;
+      return groundingOverlapScore(text, request.localTicketMacro.text) >= 0.16;
     }
     return true;
   }
@@ -550,19 +645,19 @@
 
     if (language === "arabic") {
       return [
-        "مرحباً بك في عائلة سوجو!",
-        "حتى نتمكن من مراجعة حالتك بدقة ومساعدتك بالشكل الصحيح، يرجى تزويدنا بوصف واضح للمشكلة، ومعرّف الحساب، وأي معرّف مرتبط بالعملية، بالإضافة إلى صورة أو فيديو شاشة يوضح المشكلة إن أمكن.",
-        "بعد استلام المعلومات المطلوبة، سيتم التحقق من الحالة وفق الإجراءات المعتمدة.",
-        "شكراً لتواصلك مع سوجو، يسعدنا دائماً خدمتك.",
+        "مرحبًا بك في عائلة سوجو!",
+        "لم نتمكن من تحديد الإجراء الصحيح من العنوان أو الوصف المختصر وحده. يرجى إرسال وصف كامل لما حدث، ومعرّف الحساب، وأي رقم عملية أو غرفة مرتبط، وصورة أو تسجيل شاشة يوضح المشكلة إن أمكن.",
+        "بعد استلام التفاصيل الكافية، سيتم تحديد الإجراء المطابق ومراجعة الحالة دون افتراضات.",
+        "شكرًا لتواصلك مع سوجو.",
         "فريق خدمة عملاء سوجو"
       ].join("\n\n");
     }
     return [
       "Welcome to the SUGO family!",
-      "To review your case accurately and assist you correctly, please provide a clear description of the issue, your account ID, any related transaction or room ID, and a screenshot or screen recording showing the issue when possible.",
-      "Once the required information is received, the case will be reviewed according to the approved procedures.",
-      "Thank you for contacting SUGO. We are always happy to assist you.",
-      "SUGO Customer Support Team"
+      "We could not identify the correct procedure from the title or short description alone. Please send a complete description of what happened, the account ID, any related transaction or room ID, and a screenshot or screen recording when possible.",
+      "Once enough details are provided, the matching procedure can be identified and the case can be reviewed without guessing.",
+      "Thank you for contacting SUGO.",
+      "SUGO Customer Service Team"
     ].join("\n\n");
   }
 
@@ -669,16 +764,36 @@
       compactPrompt: false,
       completeAnswer: true
     });
-    const localTicketMacro = outputType === "ticket" ? getPrimaryTicketMacro(kb, language) : null;
     const kbHasContent = Boolean(kb.hasMeaningfulMatch && String(kb.text || "").trim().length > 100);
-    if (strictSop && !kbHasContent && !hasImage) {
+    const kbReliable = Boolean(
+      kb.exactTitleMatch
+      || kb.primaryRoute
+      || (kbHasContent && !kb.ambiguous && (kb.confidence === "high" || Number(kb.confidenceScore || 0) >= 42))
+    );
+    const candidateTicketMacro = outputType === "ticket" ? getPrimaryTicketMacro(kb, language) : null;
+    const localTicketMacro = kbReliable ? candidateTicketMacro : null;
+    const forceClarificationFallback = Boolean(outputType === "ticket" && strictSop && !hasImage && !kbReliable);
+    if (strictSop && !kbReliable && !hasImage && outputType !== "ticket") {
       throw new WorkerRequestError(
-        outputType === "ticket"
-          ? "No clear SOP match found. SOP Only mode will not generate a guessed ticket."
-          : "No clear SOP match found. SOP Only mode will not generate a guessed answer outside the local knowledge base.",
+        "No clear SOP match found. SOP Only mode will not generate a guessed answer outside the local knowledge base.",
         { name: "SopMatchError", code: "NO_SOP_MATCH" }
       );
     }
+    const hasTicketExtras = Boolean(
+      String(input.userId || "").trim()
+      || String(input.orderId || "").trim()
+      || String(input.evidence || "").trim()
+      || String(input.quickPrompt || "").trim()
+      || String(input.draftToPolish || "").trim()
+      || hasImage
+    );
+    const useExactMacroDirectly = Boolean(
+      outputType === "ticket"
+      && kb.exactTitleMatch
+      && localTicketMacro?.text
+      && !hasTicketExtras
+      && ["customer_reply", "policy_sensitive"].includes(ticketType)
+    );
 
     const askInstruction = String(input.askToolInstruction || ticketInstruction(normalizedInput)).trim();
     const systemPrompt = buildSystemPrompt({
@@ -717,6 +832,9 @@
       kb_confidence_score: Math.round((kb.confidenceScore || 0) * 10) / 10,
       kb_ambiguous: Boolean(kb.ambiguous),
       kb_primary_route: kb.primaryRoute ? kb.primaryRoute.name : null,
+      kb_exact_title_match: Boolean(kb.exactTitleMatch),
+      kb_exact_title_topic_id: kb.exactTitleTopicId || null,
+      kb_reliable: kbReliable,
       kb_query_intents: kb.queryIntents || [],
       has_image: hasImage,
       images,
@@ -726,8 +844,9 @@
       messages
     };
     return {
-      body, kb, query: finalQuery, lookupQuery, kbHasContent,
+      body, kb, query: finalQuery, lookupQuery, kbHasContent, kbReliable,
       localTicketMacro, ticketType, ticketTone, apologyStyle,
+      forceClarificationFallback, useExactMacroDirectly,
       originalInput: normalizedInput
     };
   }
@@ -776,12 +895,58 @@
     return { answer, responseData: data, branch: "json" };
   }
 
+  function finalizeTicketAnswer(answer, request) {
+    let output = stripLatexNotation(stripPreamble(answer));
+    const isTicket = request.body.output_type === "ticket";
+    const isInternalEscalation = isTicket && request.ticketType === "internal_escalation";
+    if (!isTicket) return output;
+    if (!isInternalEscalation) output = applyCustomerReplyEnvelope(output, request.body.language, true, true);
+    output = applyTicketApologyStyle(output, request.body.language, request.apologyStyle, request.ticketType);
+    if (!isInternalEscalation) output = removeDuplicateCustomerOpeningsAndClosings(output);
+    return removeSemanticTicketDuplicates(output);
+  }
+
+  function buildLocalCompletionResult(request, sourceText, branch, options = {}) {
+    const answer = finalizeTicketAnswer(sourceText, request);
+    if (typeof options.onProgress === "function") options.onProgress({ text: answer, html: renderMarkdown(answer) });
+    state.lastResponseMeta = {
+      branch,
+      at: Date.now(),
+      kbConfidence: request.kb?.confidence || "low",
+      macroId: request.localTicketMacro?.id || null,
+      ticketType: request.ticketType,
+      apologyStyle: request.apologyStyle
+    };
+    return {
+      answer,
+      html: renderMarkdown(answer),
+      raw: null,
+      responseBranch: branch,
+      kb: request.kb,
+      requestBody: request.body,
+      query: request.query,
+      lookupQuery: request.lookupQuery,
+      usedLocalTicketMacro: Boolean(request.localTicketMacro),
+      ticketType: request.ticketType,
+      ticketTone: request.ticketTone,
+      apologyStyle: request.apologyStyle
+    };
+  }
+
   async function requestCompletion(request, options = {}) {
     abort();
+    state.lastRequestBody = request.body;
+    if (request.useExactMacroDirectly && request.localTicketMacro?.text) {
+      state.pending = false;
+      return buildLocalCompletionResult(request, request.localTicketMacro.text, "local-exact-macro", options);
+    }
+    if (request.forceClarificationFallback) {
+      state.pending = false;
+      return buildLocalCompletionResult(request, buildLanguageSafeFallback(request), "local-clarification", options);
+    }
     const controller = new AbortController();
     state.controller = controller;
     state.pending = true;
-    state.lastRequestBody = request.body;
     const timeout = window.setTimeout(() => controller.abort(), Number(options.timeoutMs || REQUEST_TIMEOUT_MS));
     try {
       const response = await fetch(baseUrl(), {
@@ -803,16 +968,10 @@
           })
         : await parseJsonResponse(response);
       let answer = stripLatexNotation(stripPreamble(parsed.answer));
-      const isTicket = request.body.output_type === "ticket";
-      const isInternalEscalation = isTicket && request.ticketType === "internal_escalation";
       if (!isRequestedLanguage(answer, request.body.language) || !isTicketTypeCompliant(answer, request)) {
         answer = buildLanguageSafeFallback(request);
       }
-      if (isTicket) {
-        if (!isInternalEscalation) answer = applyCustomerReplyEnvelope(answer, request.body.language, true, true);
-        answer = applyTicketApologyStyle(answer, request.body.language, request.apologyStyle, request.ticketType);
-        if (!isInternalEscalation) answer = removeDuplicateCustomerOpeningsAndClosings(answer);
-      }
+      answer = finalizeTicketAnswer(answer, request);
       const result = {
         answer,
         html: renderMarkdown(answer),
@@ -891,6 +1050,8 @@
     applyCustomerReplyEnvelope,
     applyTicketApologyStyle,
     removeApologyContent,
+    removeSemanticTicketDuplicates,
+    ticketSemanticKind,
     containsApologyWording,
     WorkerRequestError,
     get pending() { return state.pending; },

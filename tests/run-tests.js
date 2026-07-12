@@ -6,6 +6,7 @@ const path = require("node:path");
 const tests = [
   "project-integrity.test.js",
   "apology-guard.test.js",
+  "accuracy-dedup.test.js",
   "worker-smoke.test.js"
 ];
 

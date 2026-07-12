@@ -1,5 +1,5 @@
 /**
- * SUGO SOP AI Proxy — Super Worker v2.9.0 GitHub Ready
+ * SUGO SOP AI Proxy — Super Worker v3.0.0 Accuracy & Deduplication
  *
  * What changed from the uploaded Worker:
  * - More tolerant environment variable names.
@@ -263,7 +263,7 @@ export default {
       return jsonResponse({
         ok: true,
         service: "SUGO SOP AI Proxy",
-        version: "2.9.0-github-ready",
+        version: "3.0.0-accuracy-dedup",
         providers: providerStatus(env),
         health: "/health",
         diagnostics: "/diagnostics",
@@ -315,6 +315,9 @@ export default {
     const responseMode = ["brief", "detailed", "step"].includes(incoming.response_mode) ? incoming.response_mode : "brief";
     const outputType = ["answer", "ticket"].includes(incoming.output_type) ? incoming.output_type : "answer";
     const sopMode = ["hybrid", "sop_only"].includes(incoming.sop_mode) ? incoming.sop_mode : "hybrid";
+    const ticketType = normalizeTicketType(incoming.ticket_type);
+    const apologyStyle = normalizeApologyStyle(incoming.apology_style);
+    const requestedLanguage = normalizeRequestedLanguage(incoming.requested_language || incoming.language);
     const taskType = normalizeTaskType(incoming, { outputType, hasImages });
     const needsWebSearch = detectNeedsWebSearch(systemMsg, incoming);
     const requestAnalysis = analyzeSupportRequest(messages, systemMsg, { outputType, sopMode, needsWebSearch, taskType, hasImages });
@@ -327,7 +330,7 @@ export default {
     if (strictGateResponse) {
       return jsonResponse(strictGateResponse, corsHeaders);
     }
-    const workerAddendum = buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages });
+    const workerAddendum = buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType, ticketType, apologyStyle, requestedLanguage, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages });
     const effectiveMessages = addSystemInstruction(messages, workerAddendum);
     const effectiveSystemMsg = effectiveMessages.find(msg => msg.role === "system") || null;
     let effectiveConversationMsgs = effectiveMessages.filter(msg => msg.role !== "system");
@@ -361,7 +364,7 @@ export default {
     const cacheTtl = selectCacheTtl(env, { incoming, needsWebSearch, outputType, sopMode, taskType, routeProfile, requestAnalysis, kbMatchAudit, hasImages });
     const cacheEnabled = Boolean(cache) && !isStream && !hasImages && cacheTtl > 0 && incoming.cache !== false;
     const cacheKey = cacheEnabled
-      ? await buildCacheKey(buildSmartCachePayload({ messages: effectiveMessages, maxTokens, responseMode, outputType, sopMode, taskType, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit }))
+      ? await buildCacheKey(buildSmartCachePayload({ messages: effectiveMessages, maxTokens, responseMode, outputType, sopMode, taskType, ticketType, apologyStyle, requestedLanguage, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit }))
       : null;
 
     if (cacheEnabled) {
@@ -383,6 +386,9 @@ export default {
         outputType,
         sopMode,
         taskType,
+        ticketType,
+        apologyStyle,
+        requestedLanguage,
         needsWebSearch,
         routeProfile,
         requestAnalysis,
@@ -405,8 +411,8 @@ export default {
         return allProvidersFailedResponse(corsHeaders, attempts, false, env);
       }
 
-      const finalText = applyWorkerQualityPipeline(result.text, { outputType, responseMode, sopMode, taskType, needsWebSearch, requestAnalysis, kbMatchAudit, routeProfile, hasImages });
-      const qualityFlags = inspectFinalAnswer(finalText, { outputType, taskType, requestAnalysis, kbMatchAudit, routeProfile, hasImages });
+      const finalText = applyWorkerQualityPipeline(result.text, { outputType, responseMode, sopMode, taskType, ticketType, apologyStyle, requestedLanguage, needsWebSearch, requestAnalysis, kbMatchAudit, routeProfile, hasImages });
+      const qualityFlags = inspectFinalAnswer(finalText, { outputType, taskType, ticketType, apologyStyle, requestedLanguage, requestAnalysis, kbMatchAudit, routeProfile, hasImages });
       const responseBody = {
         choices: [{ message: { role: "assistant", content: finalText } }],
         _meta: {
@@ -418,6 +424,9 @@ export default {
           outputType,
           sopMode,
           taskType,
+          ticketType,
+          apologyStyle,
+          requestedLanguage,
           route: routeProfile.name,
           requestId,
           strictAccuracy: true,
@@ -803,6 +812,25 @@ function detectNeedsWebSearch(systemMsg, incoming) {
 
 const SUGO_ALLOWED_TASK_TYPES = new Set(["ask_ai", "create_ticket", "image_analysis"]);
 
+const SUGO_ALLOWED_TICKET_TYPES = new Set(["customer_reply", "missing_info", "internal_escalation", "policy_sensitive"]);
+const SUGO_ALLOWED_APOLOGY_STYLES = new Set(["without_apology", "with_apology"]);
+
+function normalizeTicketType(value) {
+  const normalized = String(value || "customer_reply").toLowerCase().replace(/[\s-]+/g, "_").trim();
+  return SUGO_ALLOWED_TICKET_TYPES.has(normalized) ? normalized : "customer_reply";
+}
+
+function normalizeApologyStyle(value) {
+  const normalized = String(value || "without_apology").toLowerCase().replace(/[\s-]+/g, "_").trim();
+  return SUGO_ALLOWED_APOLOGY_STYLES.has(normalized) ? normalized : "without_apology";
+}
+
+function normalizeRequestedLanguage(value) {
+  const normalized = String(value || "english").toLowerCase().trim();
+  return normalized === "arabic" || normalized === "ar" ? "arabic" : "english";
+}
+
+
 function normalizeTaskType(incoming = {}, { outputType = "answer", hasImages = false } = {}) {
   const raw = String(incoming.task_type || incoming.taskType || incoming.workspace || incoming.sugo_task || "")
     .toLowerCase()
@@ -835,7 +863,7 @@ function buildWorkerHealthReport(env, diagnostics = false) {
   const report = {
     ok: true,
     service: "SUGO SOP AI Proxy",
-    version: "2.9.0-github-ready",
+    version: "3.0.0-accuracy-dedup",
     timestamp: new Date().toISOString(),
     bindings: {
       kv: Boolean(env.SUGO_KV),
@@ -1012,7 +1040,7 @@ function addSystemInstruction(messages, addendum) {
   return out;
 }
 
-function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages }) {
+function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType, ticketType, apologyStyle, requestedLanguage, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages }) {
   const modeLine = responseMode === "brief"
     ? "Keep the reply concise, direct, complete, and ready to use. Do not omit important conditions, limits, IDs, dates, waiting periods, or required evidence when they are present in the context."
     : responseMode === "step"
@@ -1043,16 +1071,35 @@ function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType
         ].join(" ");
 
   const taskLine = taskType === "create_ticket"
-    ? [
-        "TASK TYPE: CREATE TICKET WORKSPACE.",
-        "The UI is asking for a customer-facing ticket/reply. Do not write internal analysis, agent notes, confidence scores, route names, or SOP explanations.",
-        "If the case is missing required details, write a clean customer reply asking for only those details. Do not provide a final decision."
-      ].join(" ")
+    ? ticketType === "internal_escalation"
+      ? [
+          "TASK TYPE: CREATE TICKET — INTERNAL ESCALATION.",
+          "Return one internal escalation note for the support team, not a customer reply.",
+          "Include a concise case summary, matched category, identifiers, available evidence, missing evidence, risk or policy sensitivity, and the recommended next team/action.",
+          "Do not add a customer greeting, apology, thank-you closing, or customer-service signature."
+        ].join(" ")
+      : ticketType === "missing_info"
+        ? [
+            "TASK TYPE: CREATE TICKET — MISSING INFORMATION REQUEST.",
+            "Return one customer-facing message asking only for the exact missing details or evidence required by the matched SOP.",
+            "Do not invent a result or promise resolution before review."
+          ].join(" ")
+        : ticketType === "policy_sensitive"
+          ? [
+              "TASK TYPE: CREATE TICKET — POLICY-SENSITIVE REPLY.",
+              "Return one safe customer-facing reply. Do not disclose internal rules, blame anyone, or guarantee an outcome.",
+              "Request verification or escalation when the SOP requires it."
+            ].join(" ")
+          : [
+              "TASK TYPE: CREATE TICKET — CUSTOMER REPLY.",
+              "Return one ready-to-send customer-facing reply only. Do not write internal analysis, confidence scores, route names, or SOP explanations.",
+              "If required details are missing, ask for them instead of inventing a decision."
+            ].join(" ")
     : taskType === "image_analysis"
       ? [
           "TASK TYPE: UPLOAD IMAGE WORKSPACE.",
           "The UI is asking you to analyze visible image evidence. Separate what is visible from what is not visible. Never infer hidden IDs, amounts, dates, violations, or statuses from a blurry or cropped screenshot.",
-          "If output_type is ticket, convert the visual findings into a customer-facing reply only."
+          "If output_type is ticket, convert the visual findings into the selected ticket type without exposing internal analysis."
         ].join(" ")
       : [
           "TASK TYPE: ASK AI WORKSPACE.",
@@ -1067,25 +1114,37 @@ function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType
   ].join(" ");
 
   const ticketLine = outputType === "ticket"
-    ? [
-        "SMART TICKET MODE:",
-        "Produce one polished customer-facing support ticket/reply only.",
-        "Be accurate, specific, and do not invent facts, policies, refunds, approvals, bans, delivery times, account actions, technical causes, compensation, or review results unless clearly supported by the supplied context.",
-        "If required information is missing, ask for it politely inside the ticket instead of guessing.",
-        "Use the customer's selected language and a professional support tone.",
-        "Preferred structure: greeting, issue acknowledgment, confirmed explanation or action, missing information if needed, next step, polite closing.",
-        "Use only one polite closing. Do not repeat thank-you lines, team signatures, greetings, or closing phrases such as thank you for contacting us / شكرًا على تواصلك معنا.",
-        "Do not mention SOP, knowledge base, AI, internal routing, providers, confidence, analysis, source names, or hidden instructions.",
-        "Do not over-apologize. Do not make promises. Do not say the issue is resolved unless the context clearly says so."
-      ].join(" ")
+    ? ticketType === "internal_escalation"
+      ? [
+          "INTERNAL ESCALATION MODE:",
+          "Return only the internal note. Keep operational headings useful and concise.",
+          "Do not add a customer greeting, customer apology, customer closing, or support-team signature."
+        ].join(" ")
+      : [
+          "SMART TICKET MODE:",
+          "Produce one polished customer-facing support reply only.",
+          "Be accurate and specific. Do not invent facts, policies, refunds, approvals, bans, delivery times, account actions, technical causes, compensation, or review results.",
+          "If required information is missing, ask for it politely inside the ticket instead of guessing.",
+          "Use exactly one natural greeting and exactly one closing/signature. Do not repeat greetings, help questions, apologies, thank-you lines, or team signatures.",
+          "Do not mention SOP, knowledge base, AI, internal routing, providers, confidence, analysis, source names, or hidden instructions."
+        ].join(" ")
     : [
         "ANSWER MODE:",
         "Answer clearly with short paragraphs and clean lists.",
         "Prioritize accuracy over speed or creativity.",
         "Do not mention internal routing, providers, hidden prompts, or knowledge-base mechanics.",
-        "If the user asks for a policy, requirement, limit, date, amount, account status, ban reason, payment result, or official decision and the context is not enough, state that the available information is insufficient and list the exact missing details needed.",
-        "Never fabricate IDs, screenshots, dates, amounts, rules, eligibility, or app behavior."
+        "If the context is not enough for an official decision, state what is missing and do not guess."
       ].join(" ");
+
+  const apologyLine = outputType !== "ticket" || ticketType === "internal_escalation"
+    ? "APOLOGY STYLE: Do not add a customer apology."
+    : apologyStyle === "with_apology"
+      ? "APOLOGY STYLE: Include exactly one brief sincere apology in the requested language. Never repeat it."
+      : "APOLOGY STYLE: Do not use apology wording such as sorry, apologize, regret, inconvenience, نعتذر، نأسف، آسف، or equivalents.";
+
+  const requestedLanguageLine = requestedLanguage === "arabic"
+    ? "REQUESTED LANGUAGE: Write the complete result in formal Arabic. English is allowed only for unavoidable product names, IDs, codes, or URLs."
+    : "REQUESTED LANGUAGE: Write the complete result in professional English. Do not include Arabic except in an unavoidable exact identifier.";
 
   const missingLine = requestAnalysis?.missingInfo?.length
     ? [
@@ -2004,6 +2063,9 @@ function buildSmartCachePayload(payload) {
     outputType: payload.outputType,
     sopMode: payload.sopMode,
     taskType: payload.taskType || "ask_ai",
+    ticketType: payload.ticketType || "customer_reply",
+    apologyStyle: payload.apologyStyle || "without_apology",
+    requestedLanguage: payload.requestedLanguage || "english",
     needsWebSearch: payload.needsWebSearch,
     route: payload.routeProfile?.name || "default",
     sopConfidence: payload.requestAnalysis?.sopConfidence || "unknown",
@@ -2054,9 +2116,14 @@ function applyWorkerQualityPipeline(text, options = {}) {
   out = removeAdjacentDuplicateLines(out);
   out = collapseDuplicateParagraphs(out);
   out = renumberMarkdownLists(out);
-  if (options.outputType === "ticket") out = polishTicketReply(out, options);
+  if (options.outputType === "ticket") {
+    out = polishTicketReply(out, options);
+    out = enforceTicketApologyStyle(out, options);
+    out = removeSemanticTicketDuplicates(out);
+  }
   out = applySensitivePromiseGuard(out, options);
   out = enforceAccuracyFloor(out, options);
+  if (options.outputType === "ticket") out = removeSemanticTicketDuplicates(out);
   out = normalizeAssistantWhitespace(out);
   return out.trim();
 }
@@ -2307,8 +2374,108 @@ function removeDuplicateSupportClosings(text) {
   return finalLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
+function normalizeTicketSemanticText(value) {
+  return normalizeForDetection(value)
+    .replace(/[\u064B-\u065F\u0670]/g, "")
+    .replace(/[إأآٱا]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ة/g, "ه")
+    .replace(/[^a-z0-9\u0600-\u06ff]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isStandaloneTicketApology(value, normalized = "") {
+  const s = normalized || normalizeTicketSemanticText(value);
+  if (!s) return false;
+  const hasActionableRemainder = /\b(?:but|however|please|must|cannot|can't|need|provide|send|check|review|contact|according|because|due|within|after|before|will|should|to inform|to advise|to tell)\b/.test(s)
+    || /(?:لكن|ولكن|يرجي|يجب|لا يمكن|نحتاج|تزويد|ارسال|تحقق|مراجعه|تواصل|وفقا|بسبب|خلال|بعد|قبل|سيتم|سوف|نود افادت|نبلغك|نخبرك)/.test(s);
+  if (hasActionableRemainder) return false;
+  return /^(?:(?:we|i)\s+(?:(?:sincerely|deeply|truly|really)\s+)?(?:apolog(?:ize|ise)|(?:am|are|'m|'re)\s+(?:very\s+)?sorry)|(?:our\s+)?(?:sincere\s+)?apolog(?:y|ies)|sorry|we\s+regret)\b/.test(s)
+    || /^(?:نعتذر|اعتذر|نأسف|ناسف|آسف|اسف|نكرر اعتذارنا|نتقدم باعتذارنا|المعذره|معذره)(?:\s|$)/.test(s);
+}
+
+function isStandaloneTicketClosing(value, normalized = "") {
+  const s = normalized || normalizeTicketSemanticText(value);
+  if (!s) return false;
+  if (/^(?:best regards|regards|sincerely)$/.test(s) || /^(?:مع خالص التحيه|تحياتنا)$/.test(s)) return true;
+  if (/^(?:thank you|thanks|we thank you)\b/.test(s)
+    && /(?:contacting|reaching out|patience|understanding|cooperation|your time|your support|sugo|wonderful day|great day|happy day)/.test(s)) return true;
+  if (/^(?:شكرا|نشكرك|نشكركم)(?:\s|$)/.test(s)
+    && /(?:لتواصلك|لتواصلكم|علي تواصلك|صبرك|صبركم|تفهمك|تفهمكم|تعاونك|تعاونكم|سوجو|يوما رائعا|يوما سعيدا)/.test(s)) return true;
+  const hasInstruction = /\b(?:please|provide|send|check|review|must|need|will|should|next|then)\b/.test(s)
+    || /(?:يرجي|تزويد|ارسال|تحقق|مراجعه|يجب|نحتاج|سيتم|الخطوه التاليه)/.test(s);
+  if (hasInstruction) return false;
+  return /^(?:thank you|thanks|we thank you)\b/.test(s)
+    || /^(?:شكرا|نشكرك|نشكركم)(?:\s|$)/.test(s)
+    || /wish you (?:a )?.*day/.test(s)
+    || /نتمني لك(?:م)? .*يوما/.test(s);
+}
+
+function ticketSemanticKind(value) {
+  const s = normalizeTicketSemanticText(value);
+  if (!s) return "";
+  if (/^(welcome to (the )?sugo|hello|hi|dear customer|we are very happy|we are happy|this is sugo customer service)/.test(s)
+    || /^(مرحبا|اهلا|عزيزي العميل|عزيزتي العميله|يسعدنا|يشرفنا|انت تتواصل مع خدمه عملاء)/.test(s)) return "greeting";
+  if (/how can (we|i) (assist|help) you/.test(s) || /(كيف يمكننا مساعدتك|كيف يمكنني مساعدتك|كيف نساعدك)/.test(s)) return "help";
+  if (isStandaloneTicketApology(value, s)) return "apology";
+  if (isStandaloneTicketClosing(value, s)) return "closing";
+  if (/^(sugo )?(customer service team|customer support team|support team)$/.test(s)
+    || /^فريق (خدمه عملاء سوجو|دعم سوجو|الدعم)$/.test(s)) return "signature";
+  return "";
+}
+
+function removeSemanticTicketDuplicates(text) {
+  const seenKinds = new Set();
+  const out = [];
+  let previousNormalized = "";
+  for (const line of String(text || "").replace(/\r\n?/g, "\n").split("\n")) {
+    const normalized = normalizeTicketSemanticText(line);
+    if (!normalized) {
+      if (out.length && out[out.length - 1] !== "") out.push("");
+      previousNormalized = "";
+      continue;
+    }
+    const kind = ticketSemanticKind(line);
+    if (kind && seenKinds.has(kind)) continue;
+    if (!kind && normalized === previousNormalized) continue;
+    if (kind) seenKinds.add(kind);
+    out.push(line.trim());
+    previousNormalized = normalized;
+  }
+  while (out.length && out[out.length - 1] === "") out.pop();
+  return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function stripTicketApologyLines(text) {
+  const out = [];
+  for (const line of String(text || "").split("\n")) {
+    if (ticketSemanticKind(line) === "apology") continue;
+    out.push(line);
+  }
+  return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function enforceTicketApologyStyle(text, options = {}) {
+  const ticketType = normalizeTicketType(options.ticketType);
+  const style = normalizeApologyStyle(options.apologyStyle);
+  let out = stripTicketApologyLines(text);
+  if (ticketType === "internal_escalation" || style === "without_apology") return out;
+  const language = normalizeRequestedLanguage(options.requestedLanguage);
+  const apology = language === "arabic"
+    ? "نعتذر لك عن الإزعاج الذي واجهته."
+    : "We apologize for the inconvenience you experienced.";
+  const paragraphs = out.split(/\n{2,}/).filter(Boolean);
+  const firstKind = paragraphs.length ? ticketSemanticKind(paragraphs[0].split("\n")[0]) : "";
+  paragraphs.splice(firstKind === "greeting" ? 1 : 0, 0, apology);
+  return paragraphs.join("\n\n").trim();
+}
+
 function polishTicketReply(text, options = {}) {
   let out = String(text || "");
+  if (normalizeTicketType(options.ticketType) === "internal_escalation") {
+    return removeSemanticTicketDuplicates(stripTicketApologyLines(out));
+  }
   out = out
     .replace(/^\s*(issue|cause|analysis|internal note|confidence|source|kb match|best match)\s*:\s*.*$/gim, "")
     .replace(/\b(knowledge base|SOP article|internal KB)\b/gi, "support information")
@@ -2354,6 +2521,9 @@ function inspectFinalAnswer(text, options = {}) {
     sensitive,
     weakKb,
     taskType: options.taskType || "ask_ai",
+    ticketType: options.ticketType || "customer_reply",
+    apologyStyle: options.apologyStyle || "without_apology",
+    requestedLanguage: options.requestedLanguage || "english",
     imageAnalysis: Boolean(options.hasImages),
     length: String(text || "").length
   };

@@ -30,7 +30,7 @@ class MemoryKV {
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("access-control-allow-origin"), "https://owner.github.io");
   assert.equal(response.headers.get("x-content-type-options"), "nosniff");
-  assert.equal((await response.json()).version, "2.9.0-github-ready");
+  assert.equal((await response.json()).version, "3.0.0-accuracy-dedup");
 
   response = await worker.fetch(
     new Request("https://worker.example/diagnostics"),

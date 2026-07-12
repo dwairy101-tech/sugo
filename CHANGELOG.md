@@ -1,5 +1,31 @@
 # Changelog
 
+## 3.0.0 — 2026-07-12
+
+### Create Ticket accuracy
+
+- Added exact Arabic/English title and alias matching before broad keyword routing.
+- Exact support-macro titles now return the matching local ticket directly instead of allowing an unrelated AI guess.
+- Short or ambiguous SOP-only requests now ask for the missing case details instead of returning an unrelated policy response.
+- Removed the unconditional hidden-ticket score bonus that could select an arbitrary macro.
+- Search indexing now uses substantive Answer content and excludes generic greeting/closing boilerplate.
+
+### Arabic/English text consistency
+
+- Audited visible support macros and hidden ticket macros in both languages.
+- Removed repeated greetings, help questions, apologies, thank-you lines, and support-team signatures.
+- Corrected mixed Arabic/English ticket bodies in recharge-agent macros.
+- Preserved substantive policy lines, repeated agent names attached to different IDs, and intentional checklist labels.
+- Removed internal staff mentions from customer-facing reporting tickets.
+- Corrected several inaccurate or malformed ticket bodies, including sub-agency conversion, issue reporting, and live-smoking ban text.
+
+### Worker and validation
+
+- The Worker now respects ticket type, apology style, and requested language in its prompt and final cleanup.
+- Added semantic duplicate protection in both the frontend and Worker.
+- Added regression tests for exact-title routing, local deterministic tickets, safe clarification fallback, data-wide duplicate checks, internal-leak prevention, and policy-line preservation.
+- Added the missing GitHub Actions validation workflow.
+
 ## 2.9.1 — 2026-07-12
 
 ### Cloudflare deployment safety

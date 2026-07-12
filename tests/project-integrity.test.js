@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
+const crypto = require("node:crypto");
 
 const ROOT = path.resolve(__dirname, "..");
 
@@ -41,6 +42,19 @@ assert.deepEqual(coverage.missingContentIds, [], "No visible topic may be missin
 assert.equal(SUGO.KnowledgeBaseData.stats.topicCount, 284);
 assert.equal(SUGO.KnowledgeBaseContent.stats.visiblePaneCount, 284);
 assert.equal(SUGO.TicketMacros.count, 73);
+
+const contentSourceText = fs.readFileSync(path.join(ROOT, "js/kb-content.js"), "utf8");
+const contentMarker = "const panesById = ";
+const contentStart = contentSourceText.indexOf(contentMarker) + contentMarker.length;
+assert.ok(contentStart >= contentMarker.length, "Knowledge-base content payload marker is missing.");
+const contentTail = contentSourceText.slice(contentStart);
+const statsHash = SUGO.KnowledgeBaseContent.stats.activeContentSha256;
+const auditHash = JSON.parse(fs.readFileSync(path.join(ROOT, "data/content-audit.json"), "utf8")).activeContentSha256;
+// The generated file stores the pane object as one compact JSON literal before `;\n  const stats`.
+const contentJson = contentTail.slice(0, contentTail.indexOf(";\n  const stats"));
+const actualContentHash = crypto.createHash("sha256").update(contentJson).digest("hex");
+assert.equal(actualContentHash, statsHash, "Knowledge-base stats hash is stale.");
+assert.equal(actualContentHash, auditHash, "Content audit hash is stale.");
 
 const mediaRefs = [];
 for (const guide of SUGO.KnowledgeBaseMedia.guides) {

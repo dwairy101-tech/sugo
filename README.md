@@ -11,7 +11,7 @@ A bilingual Arabic/English support portal with:
 
 ## Upload to GitHub Pages
 
-1. Extract `SUGO_GITHUB_READY_20260712.zip`.
+1. Extract `SUGO_GITHUB_UPLOAD_READY_FIXED_20260712.zip`.
 2. Upload **the extracted files and folders themselves** to the repository root. Do not upload the ZIP as a single file.
 3. In GitHub, open **Settings → Pages**.
 4. Choose **Deploy from a branch**, select `main`, and select `/(root)`.
@@ -82,7 +82,9 @@ The validation suite checks:
 - All bundled image paths.
 - Arabic precision routes such as country change, password reset, and account restriction.
 - Arabic Create Ticket request settings.
-- Duplicate-apology protection.
+- Data-wide Arabic/English duplicate-text protection.
+- Exact-title Create Ticket routing and safe ambiguity fallback.
+- Customer-ticket internal-routing leak protection.
 - Worker health, CORS, diagnostics authentication, HTML sanitization, and safe debug behavior.
 
 GitHub Actions runs the same validation automatically on every push and pull request.
