@@ -708,7 +708,9 @@
       isTicket ? toneInstructions[ticketTone] : "",
       askToolInstruction ? `Selected workspace instruction: ${String(askToolInstruction).trim().slice(0, 1600)}` : "",
       "## ACCURACY RULES",
-      "Use the strongest primary route first. If an sv-tickets macro matches, treat its Ticket field as the authoritative reply template.",
+      isTicket
+        ? "Use the strongest primary route first. Use an sv-tickets macro only when it is the exact, direct, or primary ticket match; its Ticket field is the authoritative customer template."
+        : "Use the strongest visible SOP article first. Hidden ticket macros are not valid Ask AI sources.",
       "Never invent IDs, amounts, dates, actions already completed, approvals, refunds, compensation, bans, unbans, or resolution guarantees.",
       "Remove irrelevant SOP content and preserve all case-specific requirements, links, time limits, and evidence requests.",
       isInternalEscalation ? "Keep internal escalation fields visible and useful." : "Do not mention the knowledge base, internal routing, confidence, or admin fields to the customer.",

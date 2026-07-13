@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.1.0 — 2026-07-13
+
+### Ask AI and Create Ticket accuracy
+
+- Separated Ask AI sources from hidden `sv-tickets-*` macros; Ask AI now searches visible SOP articles only.
+- Preserved hidden ticket macros for Create Ticket, but only promotes them for exact, direct, or primary route matches.
+- Removed the weak ticket-macro force threshold that could place an unrelated template above a stronger SOP match.
+- Preserved declared primary-route order so the correct ticket macro is first in Create Ticket and the best visible article is first in Ask AI.
+- Added specific routing for sexual pictures/content in messages, general account restrictions, and general login failures.
+- Added colloquial Arabic normalization for phrases such as `بدي افتح وكالة`, `ما بقدر أفوت حسابي`, `انحظر حسابي`, and `ما وصلني الشحن`.
+- Corrected confidence handling so an ambiguous result cannot simultaneously be reported as High confidence.
+- Updated browser cache versions to ensure GitHub Pages loads the corrected matcher immediately.
+
+### Worker prompt alignment
+
+- Ask AI now explicitly instructs the model to use visible SOP articles and reject hidden ticket macros as answer sources.
+- Create Ticket still uses the authoritative Ticket field when a macro is a reliable primary match.
+- Worker release identifier updated to `3.1.0-mode-aware-accuracy`.
+
 ## 3.0.0 — 2026-07-12
 
 ### Create Ticket accuracy

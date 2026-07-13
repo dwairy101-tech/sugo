@@ -4,14 +4,14 @@ A bilingual Arabic/English support portal with:
 
 - 284 visible SOP topics and 73 hidden ticket macros.
 - Ask AI, Create Ticket, and image-analysis workspaces.
-- Precision routing for Arabic and English support queries.
+- Mode-aware precision routing: Ask AI uses visible SOP articles, while Create Ticket uses reliable ticket macros.
 - 142 bundled visual-guide images.
 - Cloudflare Worker integration for AI, editable content, admin access, and KV image storage.
 - Automated validation through `npm test` and GitHub Actions.
 
 ## Upload to GitHub Pages
 
-1. Extract `SUGO_GITHUB_UPLOAD_READY_FIXED_20260712.zip`.
+1. Extract `SUGO_GITHUB_UPLOAD_READY_ACCURACY_FIXED_20260713.zip`.
 2. Upload **the extracted files and folders themselves** to the repository root. Do not upload the ZIP as a single file.
 3. In GitHub, open **Settings → Pages**.
 4. Choose **Deploy from a branch**, select `main`, and select `/(root)`.
@@ -80,7 +80,7 @@ The validation suite checks:
 - JavaScript syntax.
 - Navigation/content coverage.
 - All bundled image paths.
-- Arabic precision routes such as country change, password reset, and account restriction.
+- Arabic precision routes such as agency creation, login failure, account restriction, password reset, missing recharge, and sexual-content cases.
 - Arabic Create Ticket request settings.
 - Data-wide Arabic/English duplicate-text protection.
 - Exact-title Create Ticket routing and safe ambiguity fallback.

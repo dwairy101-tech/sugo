@@ -3,11 +3,14 @@
 
   window.SUGO = window.SUGO || {};
 
-  const VERSION = "5.0-exact-title+clean-search-index";
+  const VERSION = "6.0-mode-aware-precision-routing";
   const ACCURACY_SYNONYMS = Object.freeze({"ban":["حظر","محظور","باند","موقوف","ايقاف","إيقاف","تقييد","مقيد","مقيّد","مقيده","مقيّدة","تقييد الحساب","account restricted","account restriction","ban","banned","blocked","restriction","restricted","suspend","suspended"],"unban":["فك حظر","رفع الحظر","الغاء الحظر","إلغاء الحظر","استئناف","مراجعة","اعتذار","appeal","unban","review","restore","apology"],"reason":["سبب","بسبب","ليش","لماذا","reason","because","due"],"message":["رساله","رسالة","رسائل","محادثه","محادثة","دردشه","دردشة","شات","خاص","chat","message","messages","conversation","dm","inbox"],"sexual":["جنسي","جنسية","كلام جنسي","رسائل جنسية","محتوى جنسي","الفاظ جنسية","إيحاء","ايحاء","إباحي","اباحي","عري","تعري","عضو","sexual","sex","explicit","sexually","porn","nudity","nude","private part"],"picture":["صوره","صورة","صور","لقطه","لقطة","سكرين","photo","picture","image","screenshot"],"video":["فيديو","مقطع","تسجيل","video","recording","clip"],"moments":["لحظات","منشور","بوست","moment","moments","post","feed"],"live":["لايف","بث","الغرفه","الغرفة","غرفه","غرفة","live","room","broadcast"],"telegram":["تليجرام","تلجرام","تيليجرام","telegram","tg"],"phone":["رقم هاتف","رقم الهاتف","هاتف","جوال","موبايل","phone","phone number","mobile"],"underage":["قاصر","تحت السن","اقل من 18","أقل من 18","طفل","اطفال","أطفال","minor","underage","under age","child","children"],"maleFemale":["ذكر بحساب انثى","ذكر بحساب أنثى","ولد بحساب بنت","شاب بحساب بنت","male using female","female account","wrong gender"],"smoking":["تدخين","يدخن","سيجار","سيجاره","سيجارة","smoking","smoke","cigarette"],"drug":["مخدر","مخدرات","حشيش","تعاطي","drug","drugs","narcotic","weed"],"weapon":["سلاح","اسلحه","أسلحة","مسدس","سكين","weapon","gun","knife"],"insult":["سب","شتم","اساءه","إساءة","اهانه","إهانة","insult","abuse","curse","swear"],"management":["اداره","إدارة","الادارة","الإدارة","مشرف","مسؤول","admin","management","moderator","official"],"coinSeller":["بائع كوينز","بائع كوين","بيع كوينز","coin seller","sell coins","seller"],"promote":["ترويج","اعلان","إعلان","منصه اخرى","منصة أخرى","تطبيق اخر","تطبيق آخر","promote","promotion","advertise","other app","platform"],"vpn":["vpn","في بي ان","فى بى ان","محاكي","محاكى","simulator","region","منطقه","منطقة"],"refund":["استرداد","رد المبلغ","ترجيع","refund","chargeback"],"rejected":["رفض","مرفوض","تم رفض","reject","rejected","declined"],"abnormalDevice":["جهاز غير طبيعي","جهاز غير طبيعى","abnormal device","device abnormal"],"country":["دوله","دولة","بلد","country"],"religion":["دين","اديان","أديان","religion","religions"],"childPorn":["استغلال اطفال","استغلال أطفال","اباحيه اطفال","إباحية أطفال","child porn","csam"],"recharge":["شحن","رصيد","كوينز","كوين","ذهب","شراء","دفع","recharge","charge","coins","coin","gold","payment","purchase"],"invoice":["فاتوره","فاتورة","ايصال","إيصال","وصل","رقم العمليه","رقم العملية","invoice","receipt","transaction"],"visa":["فيزا","visa","card","بطاقه","بطاقة"],"agency":["وكاله","وكالة","اجنسي","agency","agent"],"host":["مضيف","مضيفه","مذيع","مذيعه","host","anchor"],"withdrawal":["سحب","السحب","طلب سحب","طلب السحب","راتب","مستحقات","ماسات","تحويل","withdraw","withdrawal","salary","payout","diamonds"],"cancel":["الغاء","إلغاء","cancel"],"add":["اضافه","إضافة","اضف","add"],"remove":["حذف","ازاله","إزالة","remove","delete"],"game":["لعبه","لعبة","العاب","ألعاب","game","games"],"info":["معلومات","تفاصيل","شرح","info","information","details"],"crash":["تعطل التطبيق","التطبيق لا يعمل","كراش","مشكله تطبيق","مشكلة تطبيق","crash","app crash","app not working"],"microphone":["ميكروفون","المايك","مايك","الميكروفون","microphone","mic"],"audio":["لا يوجد صوت","ما في صوت","الصوت لا يعمل","لا اسمع","لا أسمع","no sound","cannot hear","cant hear","audio"],"deleteAccount":["حذف حسابي","حذف الحساب","اغلاق الحساب","إغلاق الحساب","delete account","account deletion","close account"],"location":["موقع","مسافه","مسافة","اخفاء المسافة","إخفاء المسافة","location","distance"],"disappear":["اختفي","اختفى","مختفي","اختفاء","disappear","missing"],"task":["مهمه","مهمة","مهام","تاسك","task","tasks","daily","family"],"match":["تطابق","مطابقه","مطابقة","match","matching"],"password":["باسورد","كلمة السر","كلمة السر","كلمه مرور","كلمة مرور","password","reset password"],"binding":["ربط","توثيق","تحقق","ملكيه","ملكية","binding","bind","verification","verify","ownership"],"change":["تغيير","تعديل","نقل","change","transfer"],"whatsapp":["واتساب","واتس","whatsapp","wa"],"create":["انشاء","إنشاء","فتح","create","open"],"notReceived":["ما وصل","ما وصلت","لم يصل","لم تصل","لم استلم","لم يستلم","not received","missing"],"account":["حساب","حسابي","حسابك","الحساب","اكونت","account","profile"]});
   const ACCURACY_ROUTES = Object.freeze([{"name":"ban-sexual-messages","all":[["ban"],["sexual"],["message"]],"any":[],"ticketTopicIds":["sv-tickets-ban-sexual-messages"],"topicIds":["sv-refined-ban-sexual-messages","sv-refined-ban-sexual-content-in-messages"]},{"name":"ban-sexual-picture","all":[["ban"],["sexual"],["picture"]],"any":[],"ticketTopicIds":["sv-tickets-ban-sexual-picture"],"topicIds":["sv-refined-ban-sexual-picture"]},{"name":"ban-sexual-video","all":[["ban"],["sexual"],["video"]],"any":[],"ticketTopicIds":["sv-tickets-ban-sexual-video"],"topicIds":["sv-refined-ban-sexual-video"]},{"name":"ban-sexual-moments","all":[["ban"],["sexual"],["moments"]],"any":[],"ticketTopicIds":["sv-tickets-ban-sexual-moments"],"topicIds":["sv-refined-ban-sexual-moments"]},{"name":"ban-sexual-commerce","all":[["ban"],["sexual"]],"any":[["coinSeller"],["recharge"]],"ticketTopicIds":["sv-tickets-ban-sexual-commerce"],"topicIds":["sv-refined-ban-sexual-commerce"]},{"name":"ban-sexual-offer","all":[["ban"],["sexual"]],"any":[["عرض","طلب علاقه","طلب علاقة","offer"]],"ticketTopicIds":["sv-tickets-ban-sexual-offer"],"topicIds":["sv-refined-ban-sexual-offer"]},{"name":"ban-private-part-lr","all":[["ban"],["sexual"]],"any":[["private part","عضو"]],"ticketTopicIds":["sv-tickets-ban-private-part-lr"],"topicIds":[]},{"name":"ban-telegram","all":[["ban"],["telegram"]],"any":[],"ticketTopicIds":["sv-tickets-ban-telegram"],"topicIds":["sv-refined-ban-external-contact-telegram"]},{"name":"ban-phone-number","all":[["ban"],["phone"]],"any":[],"ticketTopicIds":["sv-tickets-ban-ph-num"],"topicIds":["sv-refined-ban-external-contact-phone-number"]},{"name":"ban-underage","all":[["ban"],["underage"]],"any":[],"ticketTopicIds":["sv-tickets-ban-underage-video","sv-tickets-ban-underage"],"topicIds":["sv-refined-unban-review-underage-verification-video-sent","sv-refined-ban-underage-suspicion"]},{"name":"ban-male-female","all":[["ban"],["maleFemale"]],"any":[],"ticketTopicIds":["sv-tickets-ban-male-female-unban-video","sv-tickets-ban-male-female-reason"],"topicIds":["sv-refined-unban-review-male-using-female-account-video-sent","sv-refined-ban-male-using-female-account"]},{"name":"ban-smoking-live","all":[["ban"],["smoking"],["live"]],"any":[],"ticketTopicIds":["sv-tickets-ban-smoking-live"],"topicIds":["sv-refined-ban-smoking-during-live"]},{"name":"ban-smoking-image","all":[["ban"],["smoking"],["picture"]],"any":[],"ticketTopicIds":["sv-tickets-ban-smoking-image"],"topicIds":["sv-refined-ban-smoking-image"]},{"name":"ban-drug-live","all":[["ban"],["drug"],["live"]],"any":[],"ticketTopicIds":["sv-tickets-ban-drug-live"],"topicIds":["sv-refined-ban-drug-use-during-live"]},{"name":"ban-drug-image","all":[["ban"],["drug"],["picture"]],"any":[],"ticketTopicIds":["sv-tickets-ban-drug-image"],"topicIds":["sv-refined-ban-drug-use-image"]},{"name":"ban-weapon-live","all":[["ban"],["weapon"],["live"]],"any":[],"ticketTopicIds":["sv-tickets-ban-weapon-live"],"topicIds":["sv-refined-ban-weapon-during-live"]},{"name":"ban-weapon-image","all":[["ban"],["weapon"],["picture"]],"any":[],"ticketTopicIds":["sv-tickets-ban-weapon-image"],"topicIds":["sv-refined-ban-weapon-image"]},{"name":"ban-insulting","all":[["ban"],["insult"]],"any":[],"ticketTopicIds":["sv-tickets-ban-insulting"],"topicIds":["sv-refined-ban-insulting-another-user"]},{"name":"ban-pretend-management","all":[["ban"],["management"]],"any":[["انتحال","يدعي","يتظاهر","pretend"]],"ticketTopicIds":["sv-tickets-ban-pretend-management"],"topicIds":["sv-refined-ban-pretending-to-be-management"]},{"name":"ban-pretend-coin-seller","all":[["ban"],["coinSeller"]],"any":[["انتحال","يدعي","يتظاهر","pretend"]],"ticketTopicIds":["sv-tickets-ban-pretend-coin-seller"],"topicIds":["sv-refined-ban-pretending-to-be-a-coin-seller"]},{"name":"ban-promoting-app","all":[["ban"],["promote"]],"any":[],"ticketTopicIds":["sv-tickets-ban-promoting-app"],"topicIds":["sv-refined-ban-promoting-other-platforms"]},{"name":"ban-vpn-simulator","all":[["ban"],["vpn"]],"any":[],"ticketTopicIds":["sv-tickets-ban-simulator-vpn"],"topicIds":["sv-refined-ban-vpn-region-violation"]},{"name":"ban-refund","all":[["ban"],["refund"]],"any":[],"ticketTopicIds":["sv-tickets-ban-refund"],"topicIds":[]},{"name":"ban-rejected-unban","all":[["ban"],["rejected"],["unban"]],"any":[],"ticketTopicIds":["sv-tickets-ban-rejected-unban"],"topicIds":[]},{"name":"ban-abnormal-device","all":[["ban"],["abnormalDevice"]],"any":[],"ticketTopicIds":["sv-tickets-ban-abnormal-device"],"topicIds":[]},{"name":"ban-insulted-country","all":[["ban"],["country"],["insult"]],"any":[],"ticketTopicIds":["sv-tickets-ban-insulted-country"],"topicIds":[]},{"name":"ban-insulted-religions","all":[["ban"],["religion"],["insult"]],"any":[],"ticketTopicIds":["sv-tickets-ban-insulted-religions"],"topicIds":[]},{"name":"ban-child-porn","all":[["ban"],["childPorn"]],"any":[],"ticketTopicIds":["sv-tickets-ban-child-porn"],"topicIds":[]},{"name":"ban-request-unban","all":[["ban"],["unban"]],"any":[],"ticketTopicIds":["sv-tickets-ban-request-unban"],"topicIds":["sv-refined-request-unban-apology","account-ban-unban"]},{"name":"coins-not-received","all":[["recharge"],["notReceived"]],"any":[],"ticketTopicIds":["sv-tickets-coins-not-received"],"topicIds":["sv-refined-coins-not-received","payment-recharge-missing-coins"]},{"name":"recharge-invoice","all":[["recharge"],["invoice"]],"any":[],"ticketTopicIds":["sv-tickets-recharge-ticket-1","sv-tickets-recharge-ticket-2"],"topicIds":["sv-refined-request-recharge-invoice"]},{"name":"recharge-link","all":[["recharge"],["رابط","link"]],"any":[],"ticketTopicIds":["sv-tickets-recharge-link"],"topicIds":["sv-refined-recharge-link"]},{"name":"recharge-first-charge","all":[["recharge"],["اول","أول","first"]],"any":[],"ticketTopicIds":["sv-tickets-recharge-first-charge"],"topicIds":["sv-refined-first-recharge-requirement"]},{"name":"recharge-visa","all":[["recharge"],["visa"]],"any":[],"ticketTopicIds":["sv-tickets-recharge-visa"],"topicIds":["sv-refined-recharge-through-visa"]},{"name":"recharge-agency","all":[["recharge"],["agency"]],"any":[],"ticketTopicIds":["sv-tickets-recharge-agency-eg","sv-tickets-recharge-agency-sa","sv-tickets-recharge-agency-sy","sv-tickets-recharge-agency-iq","sv-tickets-recharge-agency-ae"],"topicIds":["sv-refined-recharge-through-agency-egypt","sv-refined-recharge-through-agency-saudi-arabia","sv-refined-recharge-through-agency-syria","sv-refined-recharge-through-agency-iraq","sv-refined-recharge-through-agency-uae"]},{"name":"withdrawal-success-not-received","all":[["withdrawal"],["notReceived"]],"any":[],"ticketTopicIds":["sv-tickets-withdrawal-success-not-received"],"topicIds":["sv-refined-withdrawal-successful-but-not-received"]},{"name":"withdrawal-cancel","all":[["withdrawal"],["cancel"]],"any":[],"ticketTopicIds":["sv-tickets-withdrawal-cancel"],"topicIds":["sv-refined-cancel-withdrawal-request"]},{"name":"withdrawal-add-remove","all":[["withdrawal"]],"any":[["add"],["remove"]],"ticketTopicIds":["sv-tickets-withdrawal-add-remove"],"topicIds":["sv-refined-add-remove-withdrawal-option"]},{"name":"binding-verification","all":[["binding"]],"any":[["account"],["verification"]],"ticketTopicIds":["sv-tickets-binding-verification"],"topicIds":["sv-refined-account-ownership-verification"]},{"name":"password-reset","all":[["password"]],"any":[],"ticketTopicIds":["sv-tickets-binding-request-reset-password"],"topicIds":["sv-refined-password-reset-request-submitted","account-security-reset"]},{"name":"phone-change","all":[["phone"],["change"]],"any":[],"ticketTopicIds":["sv-tickets-binding-request-change-ph"],"topicIds":["sv-refined-phone-binding-request-submitted","account-login-phone"]},{"name":"agency-create","all":[["agency"],["create"]],"any":[],"ticketTopicIds":["sv-tickets-agency-create"],"topicIds":["sv-refined-create-host-agency","sv-refined-apply-to-open-host-agency"]},{"name":"agency-change-anchor","all":[["agency"],["host"],["change"]],"any":[],"ticketTopicIds":["sv-tickets-agency-change-anchor"],"topicIds":["sv-refined-change-agency-for-anchor"]},{"name":"agency-sub-create","all":[["agency"],["sub","فرعيه","فرعية"],["create"]],"any":[],"ticketTopicIds":["sv-tickets-agency-create-sub"],"topicIds":["sv-refined-create-sub-agency"]},{"name":"agency-admin-whatsapp","all":[["agency"],["whatsapp"]],"any":[],"ticketTopicIds":["sv-tickets-agency-admin-whatsapp-group"],"topicIds":["sv-refined-agency-admin-whatsapp-group-requirements"]},{"name":"games-add","all":[["game"],["add"]],"any":[],"ticketTopicIds":["sv-tickets-games-add"],"topicIds":["sv-refined-add-game-request","sv-refined-add-games-request"]},{"name":"games-remove","all":[["game"],["remove"]],"any":[],"ticketTopicIds":["sv-tickets-games-remove"],"topicIds":["sv-refined-remove-game-request","sv-refined-remove-games-request"]},{"name":"games-info","all":[["game"],["info"]],"any":[],"ticketTopicIds":["sv-tickets-games-info","sv-tickets-games-info-3"],"topicIds":["sv-refined-game-access-information","sv-refined-games-access-conditions"]},{"name":"app-crash","all":[["crash"]],"any":[],"ticketTopicIds":["sv-tickets-crash-1","sv-tickets-crash-2"],"topicIds":["sv-refined-app-crash-refresh-steps","sv-refined-app-crash-upload-log","function-games-crashing"]},{"name":"country-change","all":[["country"],["change"]],"any":[],"ticketTopicIds":["sv-tickets-country-1","sv-tickets-country-2"],"topicIds":["sv-refined-change-country","sv-refined-change-country-follow-up"]},{"name":"location-disappear","all":[["location"],["disappear"]],"any":[],"ticketTopicIds":["sv-tickets-location-disappear"],"topicIds":["sv-refined-location-disappeared"]},{"name":"location-close-distance","all":[["location"]],"any":[["اخفاء","إخفاء","close"],["distance","مسافه","مسافة"]],"ticketTopicIds":["sv-tickets-location-close"],"topicIds":["sv-refined-close-location-hide-distance"]},{"name":"tasks-daily-family","all":[["task"]],"any":[["daily","يومي"],["family","عائله","عائلة"]],"ticketTopicIds":["sv-tickets-tasks-daily-family"],"topicIds":["sv-refined-daily-and-family-tasks"]},{"name":"tasks-match","all":[["match"]],"any":[],"ticketTopicIds":["sv-tickets-tasks-match1","sv-tickets-tasks-match2","sv-tickets-tasks-match3"],"topicIds":["sv-refined-matching-issue-1","sv-refined-matching-issue-2","sv-refined-matching-issue-3"]}]);
 
   const EXTRA_ACCURACY_ROUTES = Object.freeze([
+    { name:"sexual-picture-in-messages", all:[["sexual"],["picture"],["message"]], any:[], ticketTopicIds:["sv-tickets-ban-sexual-picture"], topicIds:["sv-refined-ban-sexual-content-in-messages","sv-refined-ban-sexual-picture"] },
+    { name:"sexual-messages-context", all:[["sexual"],["message"]], any:[], ticketTopicIds:["sv-tickets-ban-sexual-messages"], topicIds:["sv-refined-ban-sexual-content-in-messages","sv-refined-ban-sexual-messages"] },
+    { name:"login-issue-general", all:[["login","دخول","لا يدخل","تسجيل دخول","افوت","ادخل"],["account"]], any:[], ticketTopicIds:[], topicIds:["account-login-issues","account-support-optimized"] },
     { name:"delete-account", all:[["deleteAccount"]], any:[], ticketTopicIds:[], topicIds:["account-ban-deletion"] },
     { name:"account-restriction-general", all:[["ban"],["account"]], any:[], ticketTopicIds:[], topicIds:["account-ban-reasons","account-ban-unban","account-login-issues"] },
     { name:"microphone-not-heard", all:[["microphone"]], any:[["لا يسمع","لا يسمعوني","لا يسمعني","cannot hear","cant hear","not heard","room","غرفة","الغرفه"]], ticketTopicIds:[], topicIds:["function-room-mic-on-not-heard"] },
@@ -20,11 +23,11 @@
 
   const GROUPS = Object.freeze({
     password: ["password","pass","باسورد","باسوورد","كلمة السر","كلمه مرور","كلمة مرور","نسيت الباسورد","استرجاع كلمة السر","reset password","password reset","recovery","recover"],
-    login: ["login","sign in","signin","تسجيل دخول","دخول","لا يدخل","ما بيفتح","account login","login issue"],
+    login: ["login","sign in","signin","تسجيل دخول","دخول","لا يدخل","ما بيفتح","ما بقدر افوت","مش قادر ادخل","افوت حسابي","ادخل حسابي","لا استطيع الدخول","cannot access account","cant access account","account login","login issue"],
     phone: ["phone","mobile","number","رقم","هاتف","موبايل","رقم الهاتف","ربط رقم","تغيير رقم","linked phone","binding phone","bind phone","unbind phone"],
     sms: ["sms","otp","code","verification code","رساله تحقق","رسالة تحقق","كود","رمز","رمز التحقق","كود التحقق","ما وصلني الكود"],
     binding: ["binding","bind","linked","unlink","ربط","فك ربط","تغيير الربط","ربط الحساب","phone binding"],
-    ban: ["ban","banned","blocked","restriction","restricted","suspended","حظر","محظور","باند","موقوف","ايقاف","إيقاف","تقييد"],
+    ban: ["ban","banned","blocked","restriction","restricted","suspended","حظر","محظور","انحظر","انحظرت","حسابي محظور","باند","موقوف","ايقاف","إيقاف","تقييد"],
     unban: ["unban","appeal","review ban","restore account","فك حظر","رفع الحظر","الغاء الحظر","إلغاء الحظر","استئناف","مراجعه الحظر","مراجعة الحظر"],
     report: ["report","abuse","complaint","violator","evidence","بلاغ","ابلاغ","شكوى","اساءه","إساءة","مخالف","دليل","سكرين","لقطه","لقطة","فيديو"],
     sexual: ["sexual","sex","porn","nudity","nude","explicit","جنسي","جنسية","إباحي","اباحي","عري","تعري","ايحاء","إيحاء"],
@@ -82,6 +85,12 @@
       .replace(/چ/g, "ج")
       .replace(/ڤ/g, "ف")
       .replace(/ـ/g, "")
+      .replace(/\b(ما|مش) بقدر (افوت|ادخل|دخل)\b/g, "لا يدخل")
+      .replace(/\b(مش قادر|مو قادر) (افوت|ادخل|دخل)\b/g, "لا يدخل")
+      .replace(/\b(افتح|افتحلي|افتحها)\b/g, "فتح")
+      .replace(/\b(انحظر|انحظرت|انحظرلي)\b/g, "حظر")
+      .replace(/\b(افوت|ادخل)\b/g, "دخول")
+      .replace(/\bما وصلني\b/g, "ما وصل")
       .replace(/\bpass\s*word\b/g, "password")
       .replace(/\bsign\s*in\b/g, "login")
       .replace(/\blog\s*in\b/g, "login")
@@ -92,6 +101,13 @@
       .replace(/\bsub\s*agency\b/g, "subagency")
       .replace(/\bmain\s*agency\b/g, "mainagency")
       .replace(/[^\p{L}\p{N}\s]/gu, " ")
+      .replace(/\s+/g, " ")
+      .replace(/(^|\s)(ما|مش) بقدر (افوت|ادخل|دخل)(?=\s|$)/g, "$1لا يدخل")
+      .replace(/(^|\s)(مش قادر|مو قادر) (افوت|ادخل|دخل)(?=\s|$)/g, "$1لا يدخل")
+      .replace(/(^|\s)(افتح|افتحلي|افتحها)(?=\s|$)/g, "$1فتح")
+      .replace(/(^|\s)(انحظر|انحظرت|انحظرلي)(?=\s|$)/g, "$1حظر")
+      .replace(/(^|\s)(افوت|ادخل)(?=\s|$)/g, "$1دخول")
+      .replace(/(^|\s)ما وصلني(?=\s|$)/g, "$1ما وصل")
       .replace(/\s+/g, " ")
       .trim();
   }
@@ -195,17 +211,49 @@
       const route = EXTRA_ACCURACY_ROUTES.find((item) => item.name === "withdrawal-rejected");
       if (route) explicit.push(route);
     }
-    const detected = [...EXTRA_ACCURACY_ROUTES, ...ACCURACY_ROUTES].filter((route) => {
-      if (route.all && !route.all.every((group) => accHasAny(raw, group))) return false;
-      if (route.any && route.any.length && !route.any.some((group) => accHasAny(raw, group))) return false;
-      return true;
-    });
+    const detected = [...EXTRA_ACCURACY_ROUTES, ...ACCURACY_ROUTES]
+      .map((route, index) => ({ route, index }))
+      .filter(({ route }) => {
+        if (route.all && !route.all.every((group) => accHasAny(raw, group))) return false;
+        if (route.any && route.any.length && !route.any.some((group) => accHasAny(raw, group))) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        const aSpecificity = (a.route.all?.length || 0) * 10 + (a.route.any?.length ? 1 : 0);
+        const bSpecificity = (b.route.all?.length || 0) * 10 + (b.route.any?.length ? 1 : 0);
+        return bSpecificity - aSpecificity || a.index - b.index;
+      })
+      .map(({ route }) => route);
+
     return [...explicit, ...detected]
       .filter((route, index, rows) => rows.findIndex((item) => item.name === route.name) === index)
       .map((route) => ({
         ...route,
-        topicIds: [...new Set([...(route.ticketTopicIds || []), ...(route.topicIds || [])])]
+        ticketTopicIds: [...new Set(route.ticketTopicIds || [])],
+        topicIds: [...new Set(route.topicIds || [])],
+        topicIdsFromRule: [...new Set(route.topicIdsFromRule || [])]
       }));
+  }
+
+  function routeFamily(route) {
+    const name = String(route?.name || "");
+    if (/^(ban-|sexual-|account-restriction)/.test(name)) return "moderation";
+    if (/^(login-|password-|phone-|binding-)/.test(name)) return "account-access";
+    if (/^(coins-|recharge-)/.test(name)) return "recharge";
+    if (/^withdrawal-/.test(name)) return "withdrawal";
+    if (/^agency-/.test(name)) return "agency";
+    if (/^games-/.test(name)) return "games";
+    if (/^(app-|microphone-|room-)/.test(name)) return "technical";
+    if (/^(country-|location-)/.test(name)) return "location";
+    if (/^tasks-/.test(name)) return "tasks";
+    if (/^delete-account/.test(name)) return "account-deletion";
+    return name.split("-")[0] || "other";
+  }
+
+  function hasConflictingRoutes(routes) {
+    if (!Array.isArray(routes) || routes.length < 2) return false;
+    const firstFamily = routeFamily(routes[0]);
+    return routes.slice(1, 3).some((route) => routeFamily(route) !== firstFamily);
   }
 
   function inferTags(topic) {
@@ -349,10 +397,28 @@
     return topicCache;
   }
 
-  function findExactTitleTopic(query) {
+  function isTicketMode(options = {}) {
+    return Boolean(options.outputType === "ticket" || options.preferTicketTopics || options.smartTicket);
+  }
+
+  function topicAllowedForOutput(topic, options = {}) {
+    if (!topic) return false;
+    if (!isTicketMode(options) && (topic.isTicketMacro || String(topic.id || "").startsWith("sv-tickets-"))) return false;
+    return true;
+  }
+
+  function routeTopicIds(route, options = {}) {
+    if (!route) return [];
+    const visibleIds = [...(route.topicIds || []), ...(route.topicIdsFromRule || [])];
+    const ids = isTicketMode(options) ? [...(route.ticketTopicIds || []), ...visibleIds] : visibleIds;
+    return [...new Set(ids.filter(Boolean))];
+  }
+
+  function findExactTitleTopic(query, options = {}) {
     const wanted = normalize(query);
     if (!wanted) return null;
     return buildTopics()
+      .filter((topic) => topicAllowedForOutput(topic, options))
       .filter((topic) => topic.idNorm === wanted || (topic.titleAliasesNorm || []).includes(wanted))
       .sort((a, b) => {
         if (Boolean(a.visible) !== Boolean(b.visible)) return a.visible ? -1 : 1;
@@ -383,6 +449,10 @@
   }
 
   function scoreTopic(topic, queryInfo, options, routes, selectedPaneId) {
+    if (!topicAllowedForOutput(topic, options)) {
+      return { ...topic, score:0, hits:[], reasons:["excluded-for-output"], coverage:0, primary:false, selected:false };
+    }
+
     let score = 0;
     const hits = [];
     const reasons = [];
@@ -401,21 +471,19 @@
     const selected = Boolean(selectedPaneId && id === selectedPaneId);
     const exactTitle = (topic.titleAliasesNorm || []).includes(query) || topic.idNorm === query;
     let primary = exactTitle;
-    const preferTicket = Boolean(options?.preferTicketTopics || options?.outputType === "ticket" || options?.smartTicket);
+    const preferTicket = isTicketMode(options);
     const primaryTopicIds = [];
 
     routes.forEach((route, index) => {
-      const ids = [...(route.ticketTopicIds || []), ...(route.topicIds || []), ...(route.topicIdsFromRule || [])];
+      const ids = routeTopicIds(route, options);
       ids.forEach((value) => !primaryTopicIds.includes(value) && primaryTopicIds.push(value));
-      const ticketHit = (route.ticketTopicIds || []).includes(id);
-      const topicHit = (route.topicIds || []).includes(id);
-      if (ticketHit || topicHit) {
-        primary = index === 0 || primary;
-        const base = index === 0 ? 170 : 90;
-        score += ticketHit ? base + (preferTicket ? 75 : 25) : base;
-        hits.push(route.name || "route");
-        reasons.push("exact-route");
-      }
+      if (!ids.includes(id)) return;
+      const ticketHit = preferTicket && (route.ticketTopicIds || []).includes(id);
+      primary = index === 0 || primary;
+      const base = index === 0 ? 170 : 90;
+      score += ticketHit ? base + 70 : base;
+      hits.push(route.name || "route");
+      reasons.push("exact-route");
     });
 
     if (exactTitle) { score += 620; hits.push("exact-title"); reasons.push("exact-title"); }
@@ -468,8 +536,8 @@
     else if (cov >= 0.55) score += 7;
     else if (original.length >= 3 && cov < 0.34 && !primary && !selected) score -= 10;
 
-    if (preferTicket && score > 0 && id.startsWith("sv-tickets-")) score += 14;
-    else if (preferTicket && score > 0 && (id.startsWith("sv-clean-") || id.startsWith("sv-refined-"))) score += 4;
+    if (preferTicket && score > 0 && id.startsWith("sv-tickets-") && (primary || exactTitle || cov >= 0.45)) score += 8;
+    else if (preferTicket && score > 0 && (id.startsWith("sv-clean-") || id.startsWith("sv-refined-"))) score += 3;
     score -= categoryPenalty(groups, topic, primaryTopicIds, groups.includes("unban"));
     score = Math.max(0, score);
 
@@ -490,12 +558,13 @@
     if (!best) return { confidence:"low", label:"Low", score:0, gap:0, ambiguous:false, reason:"no-match" };
     const score = best.score || 0;
     const gap = second ? score - (second.score || 0) : score;
-    const ambiguous = Boolean(second && gap <= Math.max(8, score * 0.12) && score >= 28 && !selectedPaneId && !primaryRoute);
+    const routeResolved = Boolean(primaryRoute && best.primary);
+    const ambiguous = Boolean(second && gap <= Math.max(10, score * 0.14) && score >= 28 && !selectedPaneId && !routeResolved);
     let confidence = "low";
-    if (selectedPaneId || best.primary || primaryRoute) confidence = ambiguous ? "medium" : "high";
-    else if (score >= 58 && best.coverage >= 0.45 && !ambiguous) confidence = "high";
-    else if (score >= 24 && best.coverage >= 0.25) confidence = ambiguous ? "low" : "medium";
-    else if (score >= 15 && info.groups.length) confidence = "medium";
+    if (selectedPaneId || routeResolved) confidence = "high";
+    else if (!ambiguous && score >= 70 && best.coverage >= 0.45 && gap >= 12) confidence = "high";
+    else if (!ambiguous && score >= 28 && best.coverage >= 0.25) confidence = "medium";
+    else if (!ambiguous && score >= 18 && info.groups.length) confidence = "medium";
     return {
       confidence,
       label: confidence === "high" ? "High" : confidence === "medium" ? "Medium" : "Low",
@@ -519,18 +588,32 @@
   function precisionMatch(query, maxTopics, maxCharsPerTopic, preferredPaneId, options) {
     const resolvedOptions = options || {};
     const queryInfo = expandQuery(query);
-    const exactTitleTopic = findExactTitleTopic(query);
+    const exactTitleTopic = findExactTitleTopic(query, resolvedOptions);
     const routes = exactTitleTopic ? [] : detectAccuracyRoutes(query);
+    const routeConflict = hasConflictingRoutes(routes);
+    const scoringRoutes = routeConflict ? [] : routes;
     const selectedPaneId = String(preferredPaneId || resolvedOptions.preferredPaneId || exactTitleTopic?.id || "").trim();
-    const ranked = buildTopics().map((topic) => scoreTopic(topic, queryInfo, resolvedOptions, routes, selectedPaneId))
+    const eligibleTopics = buildTopics().filter((topic) => topicAllowedForOutput(topic, resolvedOptions));
+    const ranked = eligibleTopics.map((topic) => scoreTopic(topic, queryInfo, resolvedOptions, scoringRoutes, selectedPaneId))
       .filter((topic) => topic.score > 0)
-      .sort((a, b) => b.score - a.score || (a.primary !== b.primary ? (a.primary ? -1 : 1) : 0) || (a.selected !== b.selected ? (a.selected ? -1 : 1) : 0) || (a.title || "").length - (b.title || "").length || String(a.id).localeCompare(String(b.id)));
+      .sort((a, b) => {
+        if (Boolean(a.primary) !== Boolean(b.primary)) return a.primary ? -1 : 1;
+        if (Boolean(a.selected) !== Boolean(b.selected)) return a.selected ? -1 : 1;
+        return b.score - a.score || (a.title || "").length - (b.title || "").length || String(a.id).localeCompare(String(b.id));
+      });
 
-    const primaryRoute = routes[0] || null;
+    const conflictRoute = routeConflict
+      ? (routes.find((route) => route.name === "account-restriction-general") || routes[0] || null)
+      : null;
+    const primaryRoute = conflictRoute || (routes.find((route) => routeTopicIds(route, resolvedOptions).some((id) => ranked.some((topic) => topic.id === id))) || null);
     const primaryIds = exactTitleTopic
       ? [exactTitleTopic.id]
-      : (primaryRoute ? [...new Set([...(primaryRoute.ticketTopicIds || []), ...(primaryRoute.topicIds || [])])] : []);
+      : (!routeConflict && primaryRoute ? routeTopicIds(primaryRoute, resolvedOptions) : []);
     let top = ranked.slice(0, maxTopics);
+    if (routeConflict && primaryRoute) {
+      const preferred = routeTopicIds(primaryRoute, resolvedOptions).map((id) => ranked.find((topic) => topic.id === id)).filter(Boolean);
+      top = [...preferred, ...top.filter((topic) => !preferred.some((candidate) => candidate.id === topic.id))].slice(0, maxTopics);
+    }
     if (primaryIds.length) {
       const forced = primaryIds.map((id) => ranked.find((topic) => topic.id === id)).filter(Boolean);
       forced.forEach((topic) => { topic.primary = true; if (!topic.hits.includes("primary-route")) topic.hits.unshift("primary-route"); });
@@ -552,8 +635,11 @@
       confidenceLabel: confidence.label,
       confidenceScore: confidence.score,
       confidenceGap: confidence.gap,
-      ambiguous: confidence.ambiguous,
+      ambiguous: routeConflict || confidence.ambiguous,
+      routeConflict,
+      detectedRoutes: routes.map((route) => route.name),
       queryIntents: queryInfo.groups,
+      outputType: isTicketMode(resolvedOptions) ? "ticket" : "answer",
       hasMeaningfulMatch: top.length > 0 && (confidence.score >= 12 || Boolean(primaryRoute) || Boolean(selectedPaneId))
     };
   }
@@ -627,26 +713,31 @@
       [/\bوكاله\b/g, "وكالة"], [/\bوكالة\b/g, "وكاله"],
       [/\bانشا\b/g, "انشاء"], [/\bإنشاء\b/g, "انشاء"],
       [/\bفتح\b/g, "انشاء"], [/\bopen\b/g, "create"], [/\bapply\b/g, "create"],
-      [/\bمضيفات\b/g, "host"], [/\bمضيفه\b/g, "host"], [/\bمذيعه\b/g, "anchor"]
+      [/\bمضيفات\b/g, "host"], [/\bمضيفه\b/g, "host"], [/\bمذيعه\b/g, "anchor"],
+      [/\bحظر حسابي\b/g, "account ban"], [/\bلا يدخل حسابي\b/g, "account login issue"],
+      [/\bما وصل\b/g, "not received"]
     ].forEach(([pattern, replacement]) => aliases.add(value.replace(pattern, replacement)));
     return [...aliases].filter(Boolean);
   }
 
-  function directSentenceRoute(query) {
+  function directSentenceRoute(query, options = {}) {
     const value = normalize(query);
     if (!value) return null;
+    const ticketMode = isTicketMode(options);
+    const choose = (ticketId, articleId, reason) => ({ id: ticketMode ? ticketId : articleId, reason });
     const hasAgency = /(وكاله|وكالة|agency|agent|host|anchor|مضيف|مضيفه|مذيع|مذيعه)/.test(value);
     if (!hasAgency) return null;
-    if (/(شحن|recharge|top up|topup|coins|كوين|دفع|payment)/.test(value)) return { id:"sv-tickets-agency-create-recharge", reason:"direct: recharge agency" };
-    if (/(فرعي|فرعيه|فرعية|sub agency|subagency)/.test(value) && /(تحويل|ترقيه|ترقية|main|اساسي|اساسية)/.test(value)) return { id:"sv-tickets-agency-change-sub-to-main", reason:"direct: sub to main agency" };
-    if (/(فرعي|فرعيه|فرعية|sub agency|subagency)/.test(value)) return { id:"sv-tickets-agency-create-sub", reason:"direct: sub agency" };
-    if (/(واتساب|whatsapp|جروب|قروب|اداري|ادارة|management group)/.test(value)) return { id:"sv-tickets-agency-admin-whatsapp-group", reason:"direct: agency whatsapp group" };
-    if (/(نقل|تحويل|تغيير|change|transfer)/.test(value) && /(مضيف|مضيفه|anchor|host|وكاله|وكالة|agency)/.test(value)) return { id:"sv-tickets-agency-change-anchor", reason:"direct: change agency anchor" };
-    if (/(انشاء|انشا|فتح|تقديم|طلب|create|open|apply|new)/.test(value)) return { id:"sv-tickets-agency-create", reason:"direct: create agency" };
+    if (/(شحن|recharge|top up|topup|coins|كوين|دفع|payment)/.test(value)) return choose("sv-tickets-agency-create-recharge", "sv-refined-create-recharge-agency", "direct: recharge agency");
+    if (/(فرعي|فرعيه|فرعية|sub agency|subagency)/.test(value) && /(تحويل|ترقيه|ترقية|main|اساسي|اساسية)/.test(value)) return choose("sv-tickets-agency-change-sub-to-main", "sv-refined-change-sub-agency-to-main-agency", "direct: sub to main agency");
+    if (/(فرعي|فرعيه|فرعية|sub agency|subagency)/.test(value)) return choose("sv-tickets-agency-create-sub", "sv-refined-create-sub-agency", "direct: sub agency");
+    if (/(واتساب|whatsapp|جروب|قروب|اداري|ادارة|management group)/.test(value)) return choose("sv-tickets-agency-admin-whatsapp-group", "sv-refined-agency-admin-whatsapp-group-requirements", "direct: agency whatsapp group");
+    if (/(نقل|تحويل|تغيير|change|transfer)/.test(value) && /(مضيف|مضيفه|anchor|host|وكاله|وكالة|agency)/.test(value)) return choose("sv-tickets-agency-change-anchor", "sv-refined-change-agency-for-anchor", "direct: change agency anchor");
+    if (/(انشاء|انشا|فتح|تقديم|طلب|create|open|apply|new)/.test(value)) return choose("sv-tickets-agency-create", "sv-refined-create-host-agency", "direct: create agency");
     return null;
   }
 
-  function scoreSentenceEntry(entry, query) {
+  function scoreSentenceEntry(entry, query, options = {}) {
+    if (!topicAllowedForOutput(entry, options)) return null;
     const normalizedQuery = normalize(query);
     if (!normalizedQuery) return null;
     const aliases = queryAliases(query);
@@ -690,19 +781,25 @@
 
     const id = String(entry.id || "").toLowerCase();
     if (/(agency|وكاله|وكالة)/.test(normalizedQuery) && !/(agency|وكاله|وكالة|host|anchor)/.test(`${entry.allNorm} ${id}`)) score -= 30;
-    if (/(انشاء|انشا|فتح|create|open|apply)/.test(normalizedQuery) && id.startsWith("sv-tickets-")) score += 9;
-    if (score > 0 && id.startsWith("sv-tickets-") && !hits.includes("exact-title")) score += 4;
+    if (isTicketMode(options) && score >= 24 && id.startsWith("sv-tickets-") && !hits.includes("exact-title")) score += 5;
     score = Math.max(0, score);
     return score > 0 ? { id:entry.id, entry, score:Math.round(score * 10) / 10, hits:[...new Set(hits)].slice(0, 12), primary:false } : null;
   }
 
-  function rankSentence(query, limit = 12) {
+  function rankSentence(query, limit = 12, options = {}) {
     const lexicon = buildSentenceLexicon();
-    const exact = findExactTitleTopic(query);
-    const direct = exact ? { id: exact.id, reason: "direct: exact title" } : directSentenceRoute(query);
-    let ranked = lexicon.entries.map((entry) => scoreSentenceEntry(entry, query)).filter(Boolean)
-      .sort((a, b) => b.score - a.score || (a.id.startsWith("sv-tickets-") !== b.id.startsWith("sv-tickets-") ? (a.id.startsWith("sv-tickets-") ? -1 : 1) : 0) || String(a.id).localeCompare(String(b.id)));
-    if (direct && lexicon.byId[direct.id]) {
+    const exact = findExactTitleTopic(query, options);
+    const direct = exact ? { id: exact.id, reason: "direct: exact title" } : directSentenceRoute(query, options);
+    let ranked = lexicon.entries
+      .filter((entry) => topicAllowedForOutput(entry, options))
+      .map((entry) => scoreSentenceEntry(entry, query, options)).filter(Boolean)
+      .sort((a, b) => {
+        const scoreGap = b.score - a.score;
+        if (scoreGap) return scoreGap;
+        if (isTicketMode(options) && a.id.startsWith("sv-tickets-") !== b.id.startsWith("sv-tickets-")) return a.id.startsWith("sv-tickets-") ? -1 : 1;
+        return String(a.id).localeCompare(String(b.id));
+      });
+    if (direct && lexicon.byId[direct.id] && topicAllowedForOutput(lexicon.byId[direct.id], options)) {
       const existing = ranked.find((item) => item.id === direct.id);
       if (existing) { existing.score = Math.max(existing.score, 999); existing.primary = true; existing.hits.unshift(direct.reason); }
       else ranked.unshift({ id:direct.id, entry:lexicon.byId[direct.id], score:999, hits:[direct.reason], primary:true });
@@ -755,7 +852,10 @@
     const resolvedLimit = Math.max(Number(maxCharsPerTopic || 0), 2200);
     const audit = topics.slice(0, 8).map((topic, index) => `${index + 1}. ${topic.id} | title: ${topic.title || topic.label || ""} | score: ${Math.round((topic.score || 0) * 10) / 10} | hits: ${(topic.hits || []).slice(0, 8).join(", ") || "sentence-lexicon"}`).join("\n");
     const routeLine = result?.primaryRoute ? `Primary route: ${result.primaryRoute.name}\nPrimary topic IDs: ${(result.primaryTopicIds || []).join(", ")}` : "Primary route: none";
-    result.text = `${routeLine}\nSentence lexicon: enabled — extracted from every SOP content sentence. Use exact matched Ticket macro before broad articles.\nMatch audit:\n${audit}\n\n` + topics.map((topic, index) => {
+    const searchPolicy = result?.outputType === "ticket"
+      ? "Ticket search: hidden ticket macros are eligible only for exact, direct, or strong route matches."
+      : "Ask AI search: hidden ticket macros are excluded; visible SOP articles are authoritative.";
+    result.text = `${routeLine}\n${searchPolicy}\nMatch audit:\n${audit}\n\n` + topics.map((topic, index) => {
       const priority = topic.primary || index < 3;
       const enLimit = priority ? Math.max(resolvedLimit, 7600) : resolvedLimit;
       const arLimit = priority ? Math.max(Math.floor(resolvedLimit * 0.92), 6800) : Math.floor(resolvedLimit * 0.85);
@@ -774,9 +874,27 @@
     result.topicIds = topics.map((topic) => topic.id);
     result.bestTopic = topics[0] || null;
     const bestScore = topics[0] ? Number(topics[0].score || 0) : 0;
-    result.confidence = bestScore >= 70 || topics[0]?.primary ? "high" : bestScore >= 28 ? "medium" : result.confidence || "low";
-    result.confidenceLabel = result.confidence === "high" ? "High" : result.confidence === "medium" ? "Medium" : "Low";
-    result.confidenceScore = Math.max(Number(result.confidenceScore || 0), Math.round(bestScore * 10) / 10);
+    const secondScore = topics[1] ? Number(topics[1].score || 0) : 0;
+    const gap = topics[1] ? bestScore - secondScore : bestScore;
+    const routeResolved = Boolean(result.primaryRoute && topics[0]?.primary);
+    const exactResolved = Boolean(result.exactTitleMatch && topics[0]?.id === result.exactTitleTopicId);
+    const finalAmbiguous = Boolean(
+      result.routeConflict
+      || (topics[1]
+      && !routeResolved
+      && !exactResolved
+      && gap <= Math.max(10, bestScore * 0.14)
+      && bestScore >= 28)
+    );
+    let finalConfidence = "low";
+    if (routeResolved || exactResolved || topics[0]?.primary) finalConfidence = "high";
+    else if (!finalAmbiguous && bestScore >= 78 && gap >= 14) finalConfidence = "high";
+    else if (!finalAmbiguous && bestScore >= 30 && gap >= 8) finalConfidence = "medium";
+    result.ambiguous = finalAmbiguous;
+    result.confidence = finalConfidence;
+    result.confidenceLabel = finalConfidence === "high" ? "High" : finalConfidence === "medium" ? "Medium" : "Low";
+    result.confidenceScore = Math.round(bestScore * 10) / 10;
+    result.confidenceGap = Math.round(gap * 10) / 10;
     result.hasMeaningfulMatch = Boolean(topics.length && (topics[0]?.primary || bestScore >= 24));
     result.sentenceLexiconEnabled = true;
     return result;
@@ -787,25 +905,41 @@
     const resolvedMaxTopics = Math.max(Number(maxTopics || 0), resolvedOptions.completeAnswer ? 12 : 8);
     const resolvedChars = Math.max(Number(maxCharsPerTopic || 0), resolvedOptions.completeAnswer ? 3200 : 1800);
     const base = precisionMatch(query, resolvedMaxTopics, resolvedChars, preferredPaneId, resolvedOptions);
-    const baseTopics = Array.isArray(base.topics) ? base.topics.slice(0, resolvedMaxTopics) : [];
-    const lexRank = rankSentence(query, Math.max(resolvedMaxTopics, 12));
+    const baseTopics = Array.isArray(base.topics) ? base.topics.filter((topic) => topicAllowedForOutput(topic, resolvedOptions)).slice(0, resolvedMaxTopics) : [];
+    const lexRank = rankSentence(query, Math.max(resolvedMaxTopics, 12), resolvedOptions);
     if (!lexRank.length) return rebuildSentencePacket(base, baseTopics, resolvedChars);
-    const lexTopics = lexRank.map(sentenceTopic);
+    const lexTopics = lexRank.map(sentenceTopic).filter((topic) => topicAllowedForOutput(topic, resolvedOptions));
     const best = lexTopics[0];
-    const shouldForce = Boolean(best && (best.primary || best.score >= 58 || (resolvedOptions.outputType === "ticket" && best.id.startsWith("sv-tickets-") && best.score >= 26) || !baseTopics.length));
+    const second = lexTopics[1];
+    const lexGap = best ? Number(best.score || 0) - Number(second?.score || 0) : 0;
+    const lexStrong = Boolean(best && best.score >= 82 && lexGap >= 14);
+    const shouldForce = Boolean(best && (best.primary || !baseTopics.length || (!base.primaryRoute && !base.exactTitleMatch && lexStrong)));
     const exactTitleTopicId = base.exactTitleTopicId || null;
     const merged = (shouldForce
       ? [...lexTopics, ...baseTopics.filter((topic) => !lexTopics.some((lexTopic) => lexTopic.id === topic.id))]
       : [...baseTopics, ...lexTopics.filter((topic) => !baseTopics.some((baseTopic) => baseTopic.id === topic.id))]
-    ).map((topic) => {
+    ).filter((topic) => topicAllowedForOutput(topic, resolvedOptions)).map((topic) => {
       const routePrimary = (base.primaryTopicIds || []).includes(topic.id);
       return routePrimary ? { ...topic, primary: true, score: Math.max(Number(topic.score || 0), 900) } : topic;
     }).sort((a, b) => {
       if (exactTitleTopicId && (a.id === exactTitleTopicId || b.id === exactTitleTopicId)) return a.id === exactTitleTopicId ? -1 : 1;
       if (Boolean(a.primary) !== Boolean(b.primary)) return a.primary ? -1 : 1;
-      const aTicket = String(a.id || "").startsWith("sv-tickets-");
-      const bTicket = String(b.id || "").startsWith("sv-tickets-");
-      if (aTicket !== bTicket && resolvedOptions.outputType === "ticket") return aTicket ? -1 : 1;
+      if (base.routeConflict) {
+        const aBaseIndex = (base.topicIds || []).indexOf(a.id);
+        const bBaseIndex = (base.topicIds || []).indexOf(b.id);
+        if (aBaseIndex >= 0 || bBaseIndex >= 0) {
+          if (aBaseIndex < 0) return 1;
+          if (bBaseIndex < 0) return -1;
+          if (aBaseIndex !== bBaseIndex) return aBaseIndex - bBaseIndex;
+        }
+      }
+      const aPrimaryIndex = (base.primaryTopicIds || []).indexOf(a.id);
+      const bPrimaryIndex = (base.primaryTopicIds || []).indexOf(b.id);
+      if (aPrimaryIndex >= 0 || bPrimaryIndex >= 0) {
+        if (aPrimaryIndex < 0) return 1;
+        if (bPrimaryIndex < 0) return -1;
+        if (aPrimaryIndex !== bPrimaryIndex) return aPrimaryIndex - bPrimaryIndex;
+      }
       return Number(b.score || 0) - Number(a.score || 0) || String(a.id).localeCompare(String(b.id));
     }).slice(0, resolvedMaxTopics);
     return rebuildSentencePacket(base, merged, resolvedChars);

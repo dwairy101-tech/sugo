@@ -263,7 +263,7 @@ export default {
       return jsonResponse({
         ok: true,
         service: "SUGO SOP AI Proxy",
-        version: "3.0.0-accuracy-dedup",
+        version: "3.1.0-mode-aware-accuracy",
         providers: providerStatus(env),
         health: "/health",
         diagnostics: "/diagnostics",
@@ -863,7 +863,7 @@ function buildWorkerHealthReport(env, diagnostics = false) {
   const report = {
     ok: true,
     service: "SUGO SOP AI Proxy",
-    version: "3.0.0-accuracy-dedup",
+    version: "3.1.0-mode-aware-accuracy",
     timestamp: new Date().toISOString(),
     bindings: {
       kv: Boolean(env.SUGO_KV),

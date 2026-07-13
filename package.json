@@ -1,6 +1,6 @@
 {
   "name": "sugo-sop-portal",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
   "description": "SUGO bilingual SOP portal with Cloudflare Worker AI and editable media/content management.",
   "scripts": {

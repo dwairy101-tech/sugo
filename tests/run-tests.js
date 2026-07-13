@@ -7,6 +7,7 @@ const tests = [
   "project-integrity.test.js",
   "apology-guard.test.js",
   "accuracy-dedup.test.js",
+  "matcher-mode-accuracy.test.js",
   "worker-smoke.test.js"
 ];
 

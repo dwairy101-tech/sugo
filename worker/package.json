@@ -1,7 +1,7 @@
 {
   "name": "sugo-existing-ai-media-manager",
   "private": true,
-  "version": "3.0.0",
+  "version": "3.1.0",
   "scripts": {
     "deploy": "wrangler deploy --keep-vars",
     "check": "wrangler deploy --dry-run",
