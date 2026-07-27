@@ -29,6 +29,7 @@ for (const relative of [
   "js/kb-content.js",
   "js/kb-ticket-macros.js",
   "js/kb-matcher.js",
+  "js/kb-search.js",
   "js/worker-api.js",
   "js/kb-media.js"
 ]) {
@@ -50,8 +51,10 @@ assert.ok(contentStart >= contentMarker.length, "Knowledge-base content payload 
 const contentTail = contentSourceText.slice(contentStart);
 const statsHash = SUGO.KnowledgeBaseContent.stats.activeContentSha256;
 const auditHash = JSON.parse(fs.readFileSync(path.join(ROOT, "data/content-audit.json"), "utf8")).activeContentSha256;
-// The generated file stores the pane object as one compact JSON literal before `;\n  const stats`.
-const contentJson = contentTail.slice(0, contentTail.indexOf(";\n  const stats"));
+// The generated file may use LF or CRLF and stores one compact JSON literal before `const stats`.
+const contentEnd = contentTail.search(/;\r?\n {2}const stats/);
+assert.ok(contentEnd > 0, "Knowledge-base content payload terminator is missing.");
+const contentJson = contentTail.slice(0, contentEnd);
 const actualContentHash = crypto.createHash("sha256").update(contentJson).digest("hex");
 assert.equal(actualContentHash, statsHash, "Knowledge-base stats hash is stale.");
 assert.equal(actualContentHash, auditHash, "Content audit hash is stale.");
@@ -112,23 +115,18 @@ assert.deepEqual(
 const routingCases = [
   {
     query: "اريد تغيير البلد",
-    route: "country-change",
-    acceptedTop: ["sv-tickets-country-1", "sv-tickets-country-2"]
+    route: "country-change-direct",
+    acceptedTop: ["sv-tickets-country-1"]
   },
   {
     query: "نسيت كلمة المرور",
-    route: "password-reset",
-    acceptedTop: ["sv-tickets-binding-request-reset-password", "account-security-reset"]
-  },
-  {
-    query: "الحساب مقيد وما بقدر اسجل دخول",
-    route: "account-restriction-general",
-    acceptedTop: ["account-ban-reasons"]
+    route: "password-reset-guide",
+    acceptedTop: ["account-security-reset"]
   },
   {
     query: "لم استلم الكوينز بعد الشحن",
-    route: "coins-not-received",
-    acceptedTop: ["sv-tickets-coins-not-received", "payment-recharge-missing-coins"]
+    route: "coins-not-received-safe",
+    acceptedTop: ["sv-tickets-coins-not-received"]
   },
   {
     query: "الميكروفون لا يعمل في الغرفة",
@@ -144,6 +142,10 @@ for (const test of routingCases) {
   assert.equal(test.acceptedTop.includes(result.topics[0]?.id), true, `Wrong top topic for: ${test.query}`);
 }
 
+const ambiguousRestriction = matcher.match("الحساب مقيد وما بقدر اسجل دخول", 8, 1800, null, { outputType: "ticket" });
+assert.equal(ambiguousRestriction.ambiguous, true, "Generic restriction/login text must request clarification.");
+assert.equal(ambiguousRestriction.hasMeaningfulMatch, false, "Ambiguous restriction/login text must not be treated as decisive.");
+
 const arabicRequest = SUGO.WorkerAPI.buildRequest({
   query: "اريد تغيير البلد",
   kbQuery: "اريد تغيير البلد",
@@ -158,7 +160,7 @@ const arabicRequest = SUGO.WorkerAPI.buildRequest({
 assert.equal(arabicRequest.body.language, "arabic");
 assert.equal(arabicRequest.body.requested_language, "arabic");
 assert.match(arabicRequest.body.messages[0].content, /Write the entire result in formal Modern Standard Arabic/);
-assert.equal(arabicRequest.body.kb_primary_route, "country-change");
+assert.equal(arabicRequest.body.kb_primary_route, "country-change-direct");
 
 const htmlFiles = ["index.html", "404.html"];
 for (const htmlFile of htmlFiles) {

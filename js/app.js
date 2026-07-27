@@ -95,8 +95,8 @@
     Object.freeze({ value: "step", label: "Steps" })
   ]);
   const ASK_AI_KNOWLEDGE_MODES = Object.freeze([
-    Object.freeze({ value: "hybrid", label: "Hybrid" }),
-    Object.freeze({ value: "sop_only", label: "SOP Only" })
+    Object.freeze({ value: "sop_only", label: "SOP Only" }),
+    Object.freeze({ value: "hybrid", label: "Hybrid (model fallback)" })
   ]);
   const OUTPUT_LANGUAGES = Object.freeze([
     Object.freeze({ value: "english", label: "English" }),
@@ -144,8 +144,8 @@
     Object.freeze({ value: "step", label: "Steps" })
   ]);
   const VISION_KNOWLEDGE_MODES = Object.freeze([
-    Object.freeze({ value: "hybrid", label: "Hybrid" }),
-    Object.freeze({ value: "sop_only", label: "SOP Only" })
+    Object.freeze({ value: "sop_only", label: "SOP Only" }),
+    Object.freeze({ value: "hybrid", label: "Hybrid (model fallback)" })
   ]);
   const VISION_ANALYSIS_TYPES = Object.freeze([
     Object.freeze({
@@ -217,7 +217,7 @@
     query: "",
     language: "english",
     response: "brief",
-    sop: "hybrid",
+    sop: "sop_only",
     focus: "agent",
     answer: "",
     currentQuestion: "",
@@ -239,7 +239,7 @@
     output: "answer",
     language: "english",
     response: "brief",
-    sop: "hybrid",
+    sop: "sop_only",
     analysis: "screenshot_case",
     userId: "",
     contextId: "",
@@ -5538,47 +5538,53 @@
     return values.sort((a, b) => a.label.localeCompare(b.label));
   }
 
+  function buildSearchRouteBoosts(query) {
+    const matcher = window.SUGO?.KnowledgeBaseMatcher;
+    if (!matcher?.match) return {};
+    const match = matcher.match(query, 16, 1800, null, {
+      outputType: "answer",
+      completeAnswer: false
+    });
+    if (match.ambiguous || match.routeConflict) return {};
+    const boosts = Object.create(null);
+    if (match.exactTitleMatch && match.exactTitleTopicId) {
+      boosts[match.exactTitleTopicId] = 1200;
+      return boosts;
+    }
+    if (!match.primaryRoute) return boosts;
+    (match.topics || []).forEach((topic, index) => {
+      if (!topic?.primary || !topic.id) return;
+      boosts[topic.id] = Math.max(260, 700 - (index * 70));
+    });
+    return boosts;
+  }
+
   function runSearch(query = searchViewState.query) {
     const rawQuery = String(query || "").trim();
-    const queryNorm = normalizeSearchText(rawQuery);
-    const terms = queryNorm.split(/\s+/).filter((term) => term.length > 1 || /^\d+$/.test(term));
-    if (!queryNorm || !terms.length) return [];
+    const searchEngine = window.SUGO?.KnowledgeSearch;
+    const terms = searchEngine?.tokenize?.(searchEngine.normalizeQuery(rawQuery)) || [];
+    if (!rawQuery || !terms.length || !searchEngine?.rank) return [];
 
-    const results = [];
-    for (const item of buildSearchIndex()) {
-      if (searchViewState.category && item.categoryId !== searchViewState.category) continue;
-      if (searchViewState.section && item.sectionId !== searchViewState.section) continue;
-
-      const english = scoreSearchLanguage(item, queryNorm, terms, "english");
-      const arabic = scoreSearchLanguage(item, queryNorm, terms, "arabic");
-      let language = english.score >= arabic.score ? "english" : "arabic";
-      let score = Math.max(english.score, arabic.score);
-      let hits = Math.max(english.hits, arabic.hits);
-
-      if (searchViewState.language === "english") {
-        language = "english";
-        score = english.score;
-        hits = english.hits;
-      } else if (searchViewState.language === "arabic") {
-        language = "arabic";
-        score = arabic.score;
-        hits = arabic.hits;
-      }
-      if (score <= 0 || hits <= 0) continue;
-
-      const snippetText = language === "arabic" ? item.arabicText : item.englishText;
-      results.push({
+    const candidates = buildSearchIndex().filter((item) => {
+      if (searchViewState.category && item.categoryId !== searchViewState.category) return false;
+      if (searchViewState.section && item.sectionId !== searchViewState.section) return false;
+      return true;
+    });
+    const language = searchViewState.language === "english" || searchViewState.language === "arabic"
+      ? searchViewState.language
+      : "all";
+    const ranked = searchEngine.rank(candidates, rawQuery, {
+      language,
+      limit: SEARCH_RESULT_LIMIT,
+      routeBoosts: buildSearchRouteBoosts(rawQuery)
+    });
+    return ranked.map((item) => {
+      const snippetText = item.matchedLanguage === "arabic" ? item.arabicText : item.englishText;
+      return {
         ...item,
-        score,
-        hits,
-        matchedLanguage: language,
         snippet: searchSnippet(snippetText, terms)
-      });
-    }
-
-    return results
-      .sort((a, b) => b.score - a.score || b.hits - a.hits || a.title.localeCompare(b.title))
-      .slice(0, SEARCH_RESULT_LIMIT);
+      };
+    });
   }
 
   function selectSearchResult(paneId, source = "search-result") {

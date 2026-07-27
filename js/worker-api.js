@@ -4,6 +4,7 @@
   window.SUGO = window.SUGO || {};
 
   const DEFAULT_BASE_URL = "https://sugo.dwairy101.workers.dev";
+  const API_VERSION = "4.0-grounded-accuracy";
   function baseUrl() {
     return String(window.SUGO_WORKER_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
   }
@@ -548,7 +549,8 @@
     const contentSource = window.SUGO?.Admin?.getPane ? window.SUGO.Admin : window.SUGO?.KnowledgeBaseContent;
     const ticketSource = window.SUGO?.TicketMacros;
     const candidates = [kb?.bestTopic, ...(Array.isArray(kb?.topics) ? kb.topics : [])]
-      .filter((topic, index, rows) => topic?.id && rows.findIndex((item) => item?.id === topic.id) === index);
+      .filter((topic) => topic?.id && (topic.id === kb?.bestTopic?.id || topic.primary || topic.selected))
+      .filter((topic, index, rows) => rows.findIndex((item) => item?.id === topic.id) === index);
 
     for (const topic of candidates) {
       const contentPane = contentSource?.getPane?.(topic.id);
@@ -560,6 +562,37 @@
       if (ticketText) return { id: topic.id, text: ticketText, source: "ticket-macro" };
     }
     return null;
+  }
+
+  function getPrimaryAnswerReference(kb, language) {
+    const topic = kb?.bestTopic;
+    if (!topic?.id || String(topic.id).startsWith("sv-tickets-")) return "";
+    const contentSource = window.SUGO?.Admin?.getPane ? window.SUGO.Admin : window.SUGO?.KnowledgeBaseContent;
+    const pane = contentSource?.getPane?.(topic.id);
+    const answer = supportMacroFieldText(pane, language, "answer");
+    if (answer) return answer;
+    return String(contentSource?.getPaneText?.(topic.id, language) || "").trim();
+  }
+
+  function decisiveRouteIds(kb, outputType) {
+    if (!kb?.primaryRoute) return [];
+    const ids = outputType === "ticket"
+      ? kb.primaryRoute.ticketTopicIds || []
+      : [...(kb.primaryRoute.topicIds || []), ...(kb.primaryRoute.topicIdsFromRule || [])];
+    return [...new Set(ids.filter((id) => (kb.topics || []).some((topic) => topic.id === id)))];
+  }
+
+  function isReliableKbMatch(kb, outputType) {
+    if (!kb?.bestTopic || kb.routeConflict || kb.ambiguous) return false;
+    if (kb.exactTitleMatch && kb.exactTitleTopicId === kb.bestTopic.id) return true;
+    const routeIds = decisiveRouteIds(kb, outputType);
+    if (routeIds.length === 1 && routeIds[0] === kb.bestTopic.id && kb.bestTopic.primary) return true;
+    return Boolean(
+      kb.hasMeaningfulMatch
+      && kb.confidence === "high"
+      && Number(kb.confidenceScore || 0) >= 78
+      && Number(kb.confidenceGap || 0) >= 14
+    );
   }
 
   function isRequestedLanguage(text, language) {
@@ -591,6 +624,58 @@
     return hits / referenceTokens.length;
   }
 
+  function groundingPrecisionScore(answer, reference) {
+    const tokenize = (value) => [...new Set(String(value || "")
+      .toLowerCase()
+      .replace(/https?:\/\/\S+/gi, " ")
+      .replace(/[\u064B-\u065F\u0670]/g, "")
+      .replace(/[إأآٱا]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه")
+      .replace(/[^a-z0-9\u0600-\u06ff]+/gi, " ")
+      .split(/\s+/)
+      .filter((token) => token.length >= 3))];
+    const answerTokens = tokenize(answer).filter((token) => ![
+      "مرحبا", "عزيزي", "العميل", "يرجي", "شكرا", "سوجو", "المشكله", "الخطوه",
+      "hello", "dear", "customer", "please", "thank", "sugo", "support", "step"
+    ].includes(token));
+    if (!answerTokens.length) return 0;
+    const referenceTokens = new Set(tokenize(reference));
+    return answerTokens.filter((token) => referenceTokens.has(token)).length / answerTokens.length;
+  }
+
+  function factualNumbers(value) {
+    const numbers = new Set();
+    String(value || "")
+      .replace(/^\s*(?:\d+|[٠-٩]+)[.)-]\s+/gm, "")
+      .replace(/https?:\/\/\S+/gi, " ")
+      .replace(/\b(?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\b/gi, " ")
+      .replace(/(?:أولاً|اولا|ثانياً|ثانيا|ثالثاً|ثالثا|رابعاً|رابعا|خامساً|خامسا)/g, " ")
+      .match(/\d+(?:[.,]\d+)?/g)?.forEach((number) => numbers.add(number.replace(",", ".")));
+    return numbers;
+  }
+
+  function hasUnsupportedNumbers(answer, reference) {
+    const allowed = factualNumbers(reference);
+    return [...factualNumbers(answer)].some((number) => !allowed.has(number));
+  }
+
+  function isGroundedCompletion(answer, request) {
+    if (request.body.has_image || request.body.sop_mode !== "sop_only") return true;
+    const reference = [
+      request.groundingReference,
+      request.localTicketMacro?.text,
+      request.query,
+      request.lookupQuery
+    ].filter(Boolean).join("\n");
+    if (!reference.trim()) return false;
+    if (hasUnsupportedNumbers(answer, reference)) return false;
+    if (request.body.output_type === "ticket" && request.localTicketMacro?.text) {
+      return groundingOverlapScore(answer, request.localTicketMacro.text) >= 0.16;
+    }
+    return groundingPrecisionScore(answer, reference) >= 0.18;
+  }
+
   function isTicketTypeCompliant(answer, request) {
     const text = String(answer || "").trim();
     if (!text) return false;
@@ -616,6 +701,10 @@
     const userId = String(input.userId || "").trim();
     const orderId = String(input.orderId || "").trim();
 
+    if (request.body.output_type === "answer" && request.groundingReference) {
+      return request.groundingReference;
+    }
+
     if (ticketType !== "internal_escalation" && request.localTicketMacro?.text) {
       return request.localTicketMacro.text;
     }
@@ -640,6 +729,19 @@
         orderId ? `Related ID: ${orderId}` : "Related ID: Not provided.",
         evidence ? `Available evidence: ${evidence}` : "Available evidence: No evidence attached.",
         "Recommended action: Review the case against the matched SOP and verify all identifiers and evidence before making a decision or communicating an outcome to the customer."
+      ].join("\n\n");
+    }
+
+    if (request.body.output_type === "answer" && language === "arabic") {
+      return [
+        "لم أجد تطابقًا واحدًا موثوقًا في إجراءات SUGO لهذا الوصف، لذلك لن أفترض إجراءً غير مؤكد.",
+        "أرسل وصفًا أدق لما حدث، ورسالة الخطأ كما ظهرت، ومعرّف الحساب أو العملية المرتبطة عند الحاجة، وحدد هل المطلوب شرح الإجراء أم مراجعة حالة فعلية."
+      ].join("\n\n");
+    }
+    if (request.body.output_type === "answer") {
+      return [
+        "I could not find one decisive SUGO procedure for this description, so I will not guess.",
+        "Please provide a more specific description, the exact error or status shown, any relevant account or transaction ID, and whether you need procedure guidance or review of a real case."
       ].join("\n\n");
     }
 
@@ -675,7 +777,7 @@
       ? "## KNOWLEDGE MODE — STRICT SOP ONLY:\nUse only the internal knowledge base supplied below. Never invent policy or use outside information. If the SOP is incomplete, request the exact missing details or recommend internal escalation.\n\n"
       : "## KNOWLEDGE MODE — HYBRID:\nUse the internal knowledge base first. Only use SUGO-specific public fallback information when the local SOP is genuinely incomplete.\n\n";
     const imageInstruction = hasImage
-      ? "## ATTACHED IMAGE:\nRead only clearly visible information. Do not invent unreadable or hidden details. Use the image as evidence and state what still needs verification.\n\n"
+      ? "## ATTACHED IMAGE:\nRead only clearly visible information. Do not invent unreadable or hidden details. For an agent answer, use these sections: Visible evidence; Unclear or not visible; Matching SOP (only if decisive); Safe next action. Never claim that a payment, withdrawal, ban reason, identity, ownership, or violation is confirmed unless it is explicitly visible and the supplied SOP supports that conclusion. For a customer ticket, return only the safe final message and request verification when the evidence is incomplete.\n\n"
       : "";
     const ticketTypeInstructions = {
       customer_reply: "Return exactly one polished customer-facing reply ready to send. No analysis, source notes, confidence labels, or internal routing.",
@@ -759,28 +861,20 @@
 
     const matcher = window.SUGO?.KnowledgeBaseMatcher;
     if (!matcher?.match || !matcher?.toRequestMatches) throw new WorkerRequestError("The knowledge-base matcher is not available.", { code: "MATCHER_UNAVAILABLE" });
-    const kb = matcher.match(lookupQuery || finalQuery, hasImage ? 8 : 14, hasImage ? 2600 : 4200, input.exactPaneId || null, {
+    const kb = matcher.match(lookupQuery || finalQuery, hasImage ? 4 : 6, hasImage ? 2200 : 3200, input.exactPaneId || null, {
       outputType,
       preferTicketTopics: outputType === "ticket",
       smartTicket: outputType === "ticket",
       compactPrompt: false,
-      completeAnswer: true
+      completeAnswer: !hasImage
     });
     const kbHasContent = Boolean(kb.hasMeaningfulMatch && String(kb.text || "").trim().length > 100);
-    const kbReliable = Boolean(
-      kb.exactTitleMatch
-      || kb.primaryRoute
-      || (kbHasContent && !kb.ambiguous && (kb.confidence === "high" || Number(kb.confidenceScore || 0) >= 42))
-    );
+    const kbReliable = Boolean(kbHasContent && isReliableKbMatch(kb, outputType));
     const candidateTicketMacro = outputType === "ticket" ? getPrimaryTicketMacro(kb, language) : null;
     const localTicketMacro = kbReliable ? candidateTicketMacro : null;
     const forceClarificationFallback = Boolean(outputType === "ticket" && strictSop && !hasImage && !kbReliable);
-    if (strictSop && !kbReliable && !hasImage && outputType !== "ticket") {
-      throw new WorkerRequestError(
-        "No clear SOP match found. SOP Only mode will not generate a guessed answer outside the local knowledge base.",
-        { name: "SopMatchError", code: "NO_SOP_MATCH" }
-      );
-    }
+    const forceAnswerClarificationFallback = Boolean(outputType === "answer" && strictSop && !hasImage && !kbReliable);
+    const groundingReference = outputType === "answer" && kbReliable ? getPrimaryAnswerReference(kb, language) : "";
     const hasTicketExtras = Boolean(
       String(input.userId || "").trim()
       || String(input.orderId || "").trim()
@@ -791,7 +885,7 @@
     );
     const useExactMacroDirectly = Boolean(
       outputType === "ticket"
-      && kb.exactTitleMatch
+      && kbReliable
       && localTicketMacro?.text
       && !hasTicketExtras
       && ["customer_reply", "policy_sensitive"].includes(ticketType)
@@ -838,6 +932,8 @@
       kb_exact_title_topic_id: kb.exactTitleTopicId || null,
       kb_reliable: kbReliable,
       kb_query_intents: kb.queryIntents || [],
+      retrieval_version: kb.retrievalVersion || null,
+      accuracy_contract_version: API_VERSION,
       has_image: hasImage,
       images,
       image: images?.[0],
@@ -847,8 +943,8 @@
     };
     return {
       body, kb, query: finalQuery, lookupQuery, kbHasContent, kbReliable,
-      localTicketMacro, ticketType, ticketTone, apologyStyle,
-      forceClarificationFallback, useExactMacroDirectly,
+      localTicketMacro, groundingReference, ticketType, ticketTone, apologyStyle,
+      forceClarificationFallback, forceAnswerClarificationFallback, useExactMacroDirectly,
       originalInput: normalizedInput
     };
   }
@@ -946,6 +1042,10 @@
       state.pending = false;
       return buildLocalCompletionResult(request, buildLanguageSafeFallback(request), "local-clarification", options);
     }
+    if (request.forceAnswerClarificationFallback) {
+      state.pending = false;
+      return buildLocalCompletionResult(request, buildLanguageSafeFallback(request), "local-sop-clarification", options);
+    }
     const controller = new AbortController();
     state.controller = controller;
     state.pending = true;
@@ -970,7 +1070,11 @@
           })
         : await parseJsonResponse(response);
       let answer = stripLatexNotation(stripPreamble(parsed.answer));
-      if (!isRequestedLanguage(answer, request.body.language) || !isTicketTypeCompliant(answer, request)) {
+      if (
+        !isRequestedLanguage(answer, request.body.language)
+        || !isTicketTypeCompliant(answer, request)
+        || !isGroundedCompletion(answer, request)
+      ) {
         answer = buildLanguageSafeFallback(request);
       }
       answer = finalizeTicketAnswer(answer, request);
@@ -1027,7 +1131,7 @@
       outputType: "answer",
       responseMode: input.responseMode || "brief",
       language: input.language === "arabic" ? "arabic" : "english",
-      sopMode: input.sopMode || "hybrid"
+      sopMode: input.sopMode || "sop_only"
     });
     return requestCompletion(request, options);
   }

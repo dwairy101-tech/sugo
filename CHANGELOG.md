@@ -1,5 +1,30 @@
 # Changelog
 
+## 4.0.0 — 2026-07-28
+
+### Grounded search and results
+
+- Added a high-precision bilingual BM25-style search index with title/path/body weighting, IDF, full-token coverage checks, and deterministic boosts only for decisive routes.
+- Made SOP-only mode the default for Ask AI and image analysis.
+- Added precise direct/follow-up routes for password reset, country changes, missing recharge, game/app crashes, agencies, and other common Arabic/English requests.
+- Ambiguous ban or account-restriction questions now ask for the missing case detail instead of forcing a random policy.
+
+### Ask AI, Create Ticket, and image safety
+
+- Separated reset guidance from a previously submitted reset request, and general recharge troubleshooting from a completed account review.
+- Restricted local ticket macros to reliable best/primary candidates.
+- Added language, ticket-type, grounding-overlap, grounding-precision, and unsupported-number validation before displaying provider output.
+- Image prompts now separate visible evidence, unclear information, the matching SOP, and the safe next action.
+- External web search is opt-in only and cannot silently replace internal SOP results.
+- Request bodies can no longer disable the Worker's strict accuracy gate.
+
+### Runtime and validation
+
+- Updated supported provider model fallbacks for Gemini, Cerebras, and xAI.
+- Added search-precision and grounding-accuracy regression suites.
+- Added `.gitignore` protection for Cloudflare state, credentials, dependencies, logs, and generated packages.
+- Worker release identifier updated to `4.0.0-grounded-accuracy`.
+
 ## 3.1.0 — 2026-07-13
 
 ### Ask AI and Create Ticket accuracy

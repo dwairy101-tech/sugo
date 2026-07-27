@@ -8,6 +8,8 @@ const tests = [
   "apology-guard.test.js",
   "accuracy-dedup.test.js",
   "matcher-mode-accuracy.test.js",
+  "search-precision.test.js",
+  "grounding-accuracy.test.js",
   "worker-smoke.test.js"
 ];
 

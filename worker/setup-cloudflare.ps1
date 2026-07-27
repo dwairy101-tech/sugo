@@ -175,7 +175,7 @@ try {
 $toml = @"
 name = "$WorkerName"
 main = "worker.js"
-compatibility_date = "2026-07-11"
+compatibility_date = "2026-07-28"
 workers_dev = true
 preview_urls = false
 

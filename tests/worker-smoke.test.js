@@ -30,7 +30,7 @@ class MemoryKV {
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("access-control-allow-origin"), "https://owner.github.io");
   assert.equal(response.headers.get("x-content-type-options"), "nosniff");
-  assert.equal((await response.json()).version, "3.1.0-mode-aware-accuracy");
+  assert.equal((await response.json()).version, "4.0.0-grounded-accuracy");
 
   response = await worker.fetch(
     new Request("https://worker.example/diagnostics"),
@@ -100,10 +100,34 @@ class MemoryKV {
   const failureBody = await response.json();
   assert.equal(Object.hasOwn(failureBody, "debug"), false, "Provider details must be hidden by default.");
 
+  response = await worker.fetch(
+    new Request("https://worker.example/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.12" },
+      body: JSON.stringify({
+        strict_accuracy_gate: false,
+        messages: [{ role: "user", content: "انحظر حسابي" }],
+        output_type: "answer",
+        sop_mode: "sop_only",
+        kb_confidence: "low",
+        kb_ambiguous: true,
+        kb_reliable: false
+      })
+    }),
+    {},
+    ctx
+  );
+  assert.equal(response.status, 200);
+  const gatedBody = await response.json();
+  assert.equal(gatedBody._meta.provider, "worker-accuracy-gate");
+  assert.equal(gatedBody._meta.strictGate, true);
+  assert.match(gatedBody.choices[0].message.content, /لن أعطيك إجراءً تخمينيًا/);
+
   console.log("PASS — Worker health/CORS security headers");
   console.log("PASS — diagnostics authentication and rate limiting");
   console.log("PASS — admin HTML sanitization");
   console.log("PASS — provider debug details hidden by default");
+  console.log("PASS — request payload cannot bypass the strict SOP accuracy gate");
 })().catch((error) => {
   console.error(error);
   process.exit(1);

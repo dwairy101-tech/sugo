@@ -49,9 +49,11 @@ const askCases = [
   ["كيف افتح وكالة", "sv-refined-create-host-agency"],
   ["صورة جنسية في الرسائل", "sv-refined-ban-sexual-content-in-messages"],
   ["ما بقدر افوت حسابي", "account-login-issues"],
-  ["انحظر حسابي", "account-ban-reasons"],
-  ["ما وصلني الشحن", "sv-refined-coins-not-received"],
-  ["نسيت كلمة السر", "sv-refined-password-reset-request-submitted"]
+  ["ما وصلني الشحن", "payment-recharge-missing-coins"],
+  ["نسيت كلمة السر", "account-security-reset"],
+  ["تم تقديم طلب استرجاع كلمة السر بدي اتابع", "sv-refined-password-reset-request-submitted"],
+  ["game crash", "function-games-crashing"],
+  ["اريد تغيير البلد", "sv-refined-change-country"]
 ];
 
 for (const [query, expected] of askCases) {
@@ -68,7 +70,8 @@ const ticketCases = [
   ["كيف افتح وكالة", "sv-tickets-agency-create"],
   ["صورة جنسية في الرسائل", "sv-tickets-ban-sexual-picture"],
   ["ما وصلني الشحن", "sv-tickets-coins-not-received"],
-  ["نسيت كلمة السر", "sv-tickets-binding-request-reset-password"]
+  ["نسيت كلمة السر", "account-security-reset"],
+  ["تم تقديم طلب استرجاع كلمة السر بدي اتابع", "sv-tickets-binding-request-reset-password"]
 ];
 
 for (const [query, expected] of ticketCases) {
@@ -105,6 +108,18 @@ const sexualTicketRequest = api.buildRequest({
 });
 assert.equal(sexualTicketRequest.body.primary_ticket_macro_id, "sv-tickets-ban-sexual-picture");
 assert.equal(sexualTicketRequest.kb.topics[0]?.id, "sv-tickets-ban-sexual-picture");
+
+const ambiguousBan = ask("انحظر حسابي");
+assert.equal(ambiguousBan.topics[0]?.id, "account-ban-reasons");
+assert.equal(ambiguousBan.ambiguous, true, "A generic ban statement must ask what the user needs instead of guessing reasons vs appeal.");
+assert.notEqual(ambiguousBan.confidence, "high");
+const ambiguousBanRequest = api.buildRequest({
+  query: "انحظر حسابي",
+  language: "arabic",
+  outputType: "answer",
+  sopMode: "sop_only"
+});
+assert.equal(ambiguousBanRequest.forceAnswerClarificationFallback, true);
 
 const generic = ask("مرحبا دعم");
 assert.notEqual(generic.confidence === "high" && generic.ambiguous, true,

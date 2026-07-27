@@ -1,5 +1,5 @@
 /**
- * SUGO SOP AI Proxy — Super Worker v3.0.0 Accuracy & Deduplication
+ * SUGO SOP AI Proxy — Worker v4.0 Grounded Accuracy
  *
  * What changed from the uploaded Worker:
  * - More tolerant environment variable names.
@@ -263,7 +263,7 @@ export default {
       return jsonResponse({
         ok: true,
         service: "SUGO SOP AI Proxy",
-        version: "3.1.0-mode-aware-accuracy",
+        version: "4.0.0-grounded-accuracy",
         providers: providerStatus(env),
         health: "/health",
         diagnostics: "/diagnostics",
@@ -340,22 +340,20 @@ export default {
 
     const models = {
       gemini: modelCandidates(env.GEMINI_MODEL, [
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
-        "gemini-2.0-flash",
-        "gemini-1.5-flash"
+        "gemini-3.6-flash",
+        "gemini-3.5-flash",
+        "gemini-3.5-flash-lite",
+        "gemini-2.5-flash"
       ]),
       cerebras: modelCandidates(env.CEREBRAS_MODEL, [
         "gpt-oss-120b",
-        "llama-4-scout-17b-16e-instruct",
-        "llama-3.3-70b",
-        "qwen-3-32b"
+        "zai-glm-4.7"
       ]),
       grok: modelCandidates(env.GROK_MODEL, [
+        "grok-4.5",
         "grok-4.20",
         "grok-4",
-        "grok-3-mini",
-        "grok-3"
+        "grok-4-latest"
       ])
     };
 
@@ -802,12 +800,9 @@ function isRetryableStatus(status) {
 
 function detectNeedsWebSearch(systemMsg, incoming) {
   if (incoming?.sop_mode === "sop_only") return false;
-  const sys = systemMsg?.content || "";
-  const explicit = incoming.web_search === true;
-  const noKb = sys.includes("[No directly relevant articles found");
-  const mustSearch = sys.includes("You MUST use your web search tool");
-  const sugoSearch = sys.includes("Use web search to find SUGO");
-  return Boolean(explicit || noKb || mustSearch || sugoSearch);
+  // External search is opt-in only. A weak local match must never silently
+  // switch a SUGO policy question to unrelated public web results.
+  return incoming.web_search === true;
 }
 
 const SUGO_ALLOWED_TASK_TYPES = new Set(["ask_ai", "create_ticket", "image_analysis"]);
@@ -863,7 +858,7 @@ function buildWorkerHealthReport(env, diagnostics = false) {
   const report = {
     ok: true,
     service: "SUGO SOP AI Proxy",
-    version: "3.1.0-mode-aware-accuracy",
+    version: "4.0.0-grounded-accuracy",
     timestamp: new Date().toISOString(),
     bindings: {
       kv: Boolean(env.SUGO_KV),
@@ -900,22 +895,19 @@ function buildWorkerHealthReport(env, diagnostics = false) {
 
 function buildStrictAccuracyGateResponse({ incoming, outputType, sopMode, taskType, needsWebSearch, routeProfile, requestAnalysis, kbMatchAudit, hasImages, requestId, startedAt, rateLimit, env }) {
   if (String(env?.STRICT_ACCURACY_GATE || "true").toLowerCase() === "false") return null;
-  if (String(incoming?.strict_accuracy_gate || "").toLowerCase() === "false") return null;
   if (hasImages) return null;
   const sensitive = Boolean(requestAnalysis?.sensitiveCategories?.length);
   const missing = Array.isArray(requestAnalysis?.missingInfo) ? requestAnalysis.missingInfo : [];
   const lowKb = ["low", "unknown"].includes(effectiveKnowledgeConfidence(requestAnalysis, kbMatchAudit));
   const ambiguous = Boolean(kbMatchAudit?.ambiguous);
+  const reliable = incoming?.kb_reliable === true && !ambiguous && !lowKb;
+  const shouldGateTicket = outputType === "ticket" && (!reliable || (sensitive && missing.length > 0));
+  const shouldGateAnswer = outputType === "answer" && sopMode === "sop_only" && !reliable;
+  if (!shouldGateTicket && !shouldGateAnswer) return null;
 
-  // FIX 2026-07-07:
-  // Do not block every Create Ticket request just because KB confidence is low/unknown.
-  // The previous gate was too aggressive and returned a generic missing-info ticket
-  // for normal informational topics such as "إنشاء وكالة".
-  // Gate only when the user's actual case is sensitive AND specific required fields are missing.
-  const shouldGateTicket = outputType === "ticket" && sensitive && missing.length > 0;
-  if (!shouldGateTicket) return null;
-
-  const finalText = buildSafeTicketFallback({ missing, lowKb, ambiguous, requestAnalysis, kbMatchAudit });
+  const finalText = shouldGateAnswer
+    ? buildSafeAnswerFallback({ requestAnalysis, ambiguous })
+    : buildSafeTicketFallback({ missing, lowKb, ambiguous, requestAnalysis, kbMatchAudit });
   return {
     choices: [{ message: { role: "assistant", content: finalText } }],
     _meta: {
@@ -943,12 +935,30 @@ function buildStrictAccuracyGateResponse({ incoming, outputType, sopMode, taskTy
       missingInfo: missing,
       quality: {
         strictGateApplied: true,
-        reason: "missing_required_information",
+        reason: shouldGateAnswer ? "no_decisive_sop_match" : (!reliable ? "unreliable_ticket_match" : "missing_required_information"),
         length: finalText.length
       },
       rateLimitRemaining: rateLimit?.remaining ?? null
     }
   };
+}
+
+function buildSafeAnswerFallback({ requestAnalysis, ambiguous }) {
+  const lang = requestAnalysis?.likelyLanguage === "ar" ? "ar" : "en";
+  if (lang === "ar") {
+    return [
+      ambiguous
+        ? "ظهرت عدة إجراءات متقاربة، ولا يوجد تطابق واحد حاسم لهذا الوصف."
+        : "لم يظهر إجراء موثوق ومباشر في قاعدة SUGO لهذا الوصف.",
+      "لن أعطيك إجراءً تخمينيًا. أرسل وصفًا أدق، ورسالة الخطأ أو الحالة كما ظهرت، وأي معرّف حساب أو عملية مرتبط عند الحاجة، وحدد هل سؤالك عن شرح الإجراء أم عن مراجعة حالة فعلية."
+    ].join("\n\n");
+  }
+  return [
+    ambiguous
+      ? "Several procedures are close matches, but none is decisive for this description."
+      : "No direct, reliable SUGO procedure matched this description.",
+    "I will not guess. Please provide the exact error or status shown, a more specific description, any relevant account or transaction ID, and whether you need procedure guidance or review of a real case."
+  ].join("\n\n");
 }
 
 function buildSafeTicketFallback({ missing, lowKb, ambiguous, requestAnalysis }) {
@@ -1099,6 +1109,7 @@ function buildWorkerSystemAddendum({ responseMode, outputType, sopMode, taskType
       ? [
           "TASK TYPE: UPLOAD IMAGE WORKSPACE.",
           "The UI is asking you to analyze visible image evidence. Separate what is visible from what is not visible. Never infer hidden IDs, amounts, dates, violations, or statuses from a blurry or cropped screenshot.",
+          "For an agent answer, use exactly these sections: Visible evidence; Unclear or not visible; Matching SOP (only when decisive); Safe next action.",
           "If output_type is ticket, convert the visual findings into the selected ticket type without exposing internal analysis."
         ].join(" ")
       : [
@@ -1367,6 +1378,7 @@ function sanitizeKbMatchAudit(incoming = {}) {
     confidence,
     score,
     ambiguous: incoming.kb_ambiguous === true,
+    reliable: incoming.kb_reliable === true,
     primaryRoute,
     queryIntents,
     matches
@@ -1391,7 +1403,7 @@ function buildKbMatchInstruction(kbMatchAudit = {}) {
     : "The UI did not mark the match as ambiguous.";
   return [
     "STRUCTURED KB MATCH AUDIT:",
-    `UI confidence: ${kbMatchAudit.confidence || "unknown"} (${kbMatchAudit.score || 0}).`,
+    `UI confidence: ${kbMatchAudit.confidence || "unknown"} (${kbMatchAudit.score || 0}); reliable: ${kbMatchAudit.reliable === true ? "yes" : "no"}.`,
     kbMatchAudit.primaryRoute ? `Primary route: ${kbMatchAudit.primaryRoute}. Use primary/selected matches before broad or generic articles.` : "Primary route: none.",
     kbMatchAudit.queryIntents?.length ? `Detected query intents: ${kbMatchAudit.queryIntents.join(", ")}.` : "Detected query intents: none supplied.",
     ambiguity,
@@ -2002,6 +2014,10 @@ async function runProvidersInSmartOrder(args, providerFns, isSuccess) {
 function isProviderResultAcceptable(result, args) {
   if (!result?.text || String(result.text).trim().length < 2) return false;
   const text = String(result.text || "");
+  if (!matchesRequestedLanguage(text, args?.requestedLanguage)) {
+    recordAttempt(args.attempts, result.provider || "provider", result.model, "quality-reject", "Response language did not match the requested language.");
+    return false;
+  }
   if (args?.outputType === "ticket" && text.length < 20) {
     recordAttempt(args.attempts, result.provider || "provider", result.model, "quality-reject", "Ticket response too short.");
     return false;
@@ -2010,6 +2026,16 @@ function isProviderResultAcceptable(result, args) {
     recordAttempt(args.attempts, result.provider || "provider", result.model, "quality-warning", "Internal note markers detected; final sanitizer will remove them.");
   }
   return true;
+}
+
+function matchesRequestedLanguage(text, requestedLanguage) {
+  const clean = String(text || "")
+    .replace(/https?:\/\/\S+/gi, " ")
+    .replace(/\b[A-Z0-9][A-Z0-9_.\/-]{2,}\b/g, " ");
+  const arabicCount = (clean.match(/[\u0600-\u06FF]/g) || []).length;
+  const latinCount = (clean.match(/[A-Za-z]/g) || []).length;
+  if (requestedLanguage === "arabic") return arabicCount >= 12 && arabicCount >= latinCount * 0.7;
+  return latinCount >= 12 && arabicCount <= Math.max(5, latinCount * 0.1);
 }
 
 function getProviderOrder(args) {
@@ -2098,7 +2124,7 @@ async function sha256Hex(text) {
 
 async function buildCacheKey(payload) {
   const digest = await sha256Hex(JSON.stringify(payload));
-  return new Request(`https://sugo-ai-cache.local/v3/${digest}`, { method: "GET" });
+  return new Request(`https://sugo-ai-cache.local/v4/${digest}`, { method: "GET" });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -2121,11 +2147,25 @@ function applyWorkerQualityPipeline(text, options = {}) {
     out = enforceTicketApologyStyle(out, options);
     out = removeSemanticTicketDuplicates(out);
   }
+  if (options.hasImages) out = enforceVisualEvidenceGuard(out, options);
   out = applySensitivePromiseGuard(out, options);
   out = enforceAccuracyFloor(out, options);
   if (options.outputType === "ticket") out = removeSemanticTicketDuplicates(out);
   out = normalizeAssistantWhitespace(out);
   return out.trim();
+}
+
+function enforceVisualEvidenceGuard(text, options = {}) {
+  const sensitive = Boolean(options.requestAnalysis?.sensitiveCategories?.length || options.routeProfile?.sensitive);
+  if (!sensitive) return text;
+  const weakKb = ["low", "unknown"].includes(effectiveKnowledgeConfidence(options.requestAnalysis, options.kbMatchAudit))
+    || options.kbMatchAudit?.ambiguous;
+  if (!weakKb) return text;
+  return String(text || "")
+    .replace(/\b(?:the image|the screenshot) (?:proves|confirms|definitively shows)\b/gi, "the image appears to show")
+    .replace(/\b(?:payment|withdrawal|refund|ban reason|identity|ownership|violation) is confirmed\b/gi, "$1 requires verification")
+    .replace(/(?:الصورة|لقطة الشاشة) (?:تثبت|تؤكد) بشكل قاطع/g, "يبدو من الصورة، مع الحاجة إلى التحقق، أن")
+    .replace(/تم تأكيد (الدفع|السحب|الاسترداد|سبب الحظر|الهوية|الملكية|المخالفة)/g, "تحتاج $1 إلى تحقق إضافي");
 }
 
 function enforceAccuracyFloor(text, options = {}) {

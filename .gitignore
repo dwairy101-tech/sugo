@@ -1,0 +1,23 @@
+# Secrets and local Cloudflare state
+.dev.vars
+.env
+.env.*
+!.env.example
+worker/.dev.vars
+worker/.wrangler/
+.wrangler/
+ADMIN_PASSWORD_READ_ME.txt
+CLOUDFLARE_PREVIOUS_VERSION.txt
+
+# Dependencies, logs, and generated packages
+node_modules/
+worker/node_modules/
+*.log
+SUGO_GITHUB_UPLOAD_READY*.zip
+SUGO_GITHUB_READY*.zip
+
+# Operating-system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
