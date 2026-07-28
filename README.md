@@ -1,4 +1,4 @@
-# SUGO SOP Command Center — GitHub Ready
+# SUGO SOP Portal — GitHub Ready
 
 A bilingual Arabic/English support portal with:
 
@@ -9,13 +9,11 @@ A bilingual Arabic/English support portal with:
 - Mode-aware routing: Ask AI uses visible SOP articles, while Create Ticket uses only reliable primary ticket macros.
 - 142 bundled visual-guide images.
 - Cloudflare Worker integration for AI, editable content, admin access, and KV image storage.
-- Editorial Command Center redesign with a responsive desktop, tablet, and mobile layout.
-- Self-hosted open-source Inter and Amiri fonts with no paid UI dependency.
 - Automated validation through `npm test` and GitHub Actions.
 
 ## Upload to GitHub Pages
 
-1. Extract `SUGO_GITHUB_READY_v6.0.0_SWISS_EDITORIAL.zip`.
+1. Extract `SUGO_GITHUB_READY_v4.1.0.zip`.
 2. Upload **the extracted files and folders themselves** to the repository root. Do not upload the ZIP as a single file.
 3. In GitHub, open **Settings → Pages**.
 4. Choose **Deploy from a branch**, select `main`, and select `/(root)`.

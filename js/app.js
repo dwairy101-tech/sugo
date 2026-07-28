@@ -585,11 +585,11 @@
   }
 
   function applyTheme(_theme, { persist = true } = {}) {
-    const resolved = "editorial";
+    const resolved = "dark";
     root.dataset.theme = resolved;
 
     const themeMeta = document.querySelector('meta[name="theme-color"]');
-    if (themeMeta) themeMeta.content = "#f2f0ea";
+    if (themeMeta) themeMeta.content = "#080809";
 
     if (persist) storeTheme(resolved);
 
@@ -616,7 +616,7 @@
       <span class="topbar__brand-mark" aria-hidden="true">S</span>
       <span class="topbar__brand-copy">
         <strong class="topbar__brand-title">SUGO SOP</strong>
-        <span class="topbar__brand-subtitle">SUPPORT OPERATIONS / MENA</span>
+        <span class="topbar__brand-subtitle">Knowledge Lounge · MENA</span>
       </span>
     `;
     return brand;
@@ -656,39 +656,17 @@
       <span class="topbar__utility-divider" aria-hidden="true"></span>
       <span class="topbar__context-avatar" aria-hidden="true">S</span>
       <span class="topbar__context-copy">
-        <strong>LIVE INDEX</strong>
-        <span>284 VERIFIED TOPICS</span>
+        <strong>SUGO SOP</strong>
+        <span>Knowledge Lounge · MENA</span>
       </span>
     `;
     return utilities;
   }
 
-  function createHeaderCommand() {
-    const command = document.createElement("div");
-    command.className = "topbar__command";
-    command.append(createBreadcrumb());
-    return command;
-  }
-
   function createHeader() {
     const header = document.createElement("header");
     header.className = "app-shell__header topbar shell-surface";
-
-    const menuToggle = document.createElement("button");
-    menuToggle.id = "sugoMenuToggle";
-    menuToggle.className = "topbar__menu-toggle";
-    menuToggle.type = "button";
-    menuToggle.setAttribute("aria-label", "Open navigation");
-    menuToggle.setAttribute("aria-controls", "sugoPrimarySidebar");
-    menuToggle.setAttribute("aria-expanded", "false");
-    menuToggle.innerHTML = `<span aria-hidden="true">${ICONS.menu}</span>`;
-
-    header.append(
-      menuToggle,
-      createBrand(),
-      createHeaderCommand(),
-      createHeaderUtilities()
-    );
+    header.append(createBrand(), createBreadcrumb(), createHeaderUtilities());
     return header;
   }
 
@@ -1328,7 +1306,7 @@
     heading.setAttribute("aria-controls", "sidebarNav");
     heading.innerHTML = `
       <span class="sidebar-navigation__heading-icon">${ICONS.menu}</span>
-      <span class="sidebar-navigation__heading-label">Knowledge Index</span>
+      <span class="sidebar-navigation__heading-label">Menu</span>
       <span class="sidebar-navigation__heading-chevron">${ICONS.chevron}</span>
     `;
 
@@ -1915,16 +1893,11 @@
 
   function createSidebarTools() {
     const sidebar = createShellRegion("app-shell__sidebar shell-surface", { hidden: false });
-    sidebar.id = "sugoPrimarySidebar";
     sidebar.setAttribute("aria-label", "Primary tools");
 
     const tools = document.createElement("div");
     tools.className = "sidebar-tools";
     tools.innerHTML = `
-      <div class="sidebar-tools__label" aria-hidden="true">
-        <span>TOOLS</span>
-        <small>03</small>
-      </div>
       <div class="sidebar-tools__search">
         <span class="sidebar-tools__search-icon">${ICONS.search}</span>
         <label class="visually-hidden" for="searchInput">Search Arabic / English keywords...</label>
@@ -1941,17 +1914,14 @@
 
       <div class="sidebar-tools__actions" aria-label="AI workspaces">
         <button class="sidebar-tool-button sidebar-tool-button--primary" id="askAIBtn" type="button" data-workspace="${WORKSPACES.ASK_AI}" aria-pressed="false" title="Ask AI">
-          <span class="sidebar-tool-button__number" aria-hidden="true">01</span>
           <span class="sidebar-tool-button__icon">${ICONS.askAI}</span>
           <span class="sidebar-tool-button__label">Ask AI</span>
         </button>
         <button class="sidebar-tool-button" id="createTicketBtn" type="button" data-workspace="${WORKSPACES.CREATE_TICKET}" aria-pressed="false" title="Open dedicated ticket workspace">
-          <span class="sidebar-tool-button__number" aria-hidden="true">02</span>
           <span class="sidebar-tool-button__icon">${ICONS.ticket}</span>
           <span class="sidebar-tool-button__label">Create Ticket</span>
         </button>
         <button class="sidebar-tool-button" id="sugoVisionUploadBtn" type="button" data-workspace="${WORKSPACES.UPLOAD_IMAGE}" aria-pressed="false" title="Open dedicated image workspace">
-          <span class="sidebar-tool-button__number" aria-hidden="true">03</span>
           <span class="sidebar-tool-button__icon">${ICONS.upload}</span>
           <span class="sidebar-tool-button__label">Upload image</span>
         </button>
@@ -3572,7 +3542,6 @@
     view.className = "ask-ai-workspace";
     view.innerHTML = `
       <header class="ask-ai-workspace__hero">
-        <span class="ask-ai-workspace__index" aria-hidden="true">01 / AI SUPPORT</span>
         <span class="ask-ai-workspace__hero-icon" aria-hidden="true">${ICONS.askAI}</span>
         <span class="ask-ai-workspace__hero-copy">
           <span class="ask-ai-workspace__kicker">Dedicated AI Workspace</span>
@@ -4393,7 +4362,6 @@
     view.className = "vision-workspace";
     view.innerHTML = `
       <header class="vision-workspace__hero">
-        <span class="vision-workspace__index" aria-hidden="true">03 / VISUAL EVIDENCE</span>
         <span class="vision-workspace__hero-icon" aria-hidden="true">${ICONS.image}</span>
         <span class="vision-workspace__hero-copy">
           <span class="vision-workspace__kicker">Dedicated Vision Workspace</span>
@@ -5901,7 +5869,6 @@
     const hero = document.createElement("header");
     hero.className = "search-view__hero";
     hero.innerHTML = `
-      <span class="search-view__index" aria-hidden="true">INDEX / SEARCH</span>
       <span class="search-view__hero-icon" aria-hidden="true">${ICONS.search}</span>
       <span class="search-view__hero-copy">
         <span class="search-view__kicker">Search in topics</span>
@@ -6032,36 +5999,34 @@
     preview?.classList.remove("has-home");
   }
 
-  function createHomeWorkspaceCard({ workspace, icon, title, description, index = "01", featured = false }) {
+  function createHomeWorkspaceCard({ workspace, icon, title, description, featured = false }) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `home-action-card${featured ? " home-action-card--featured" : ""}`;
     button.dataset.homeWorkspace = workspace;
     button.innerHTML = `
-      <span class="home-action-card__number" aria-hidden="true">${escapeHtml(index)}</span>
       <span class="home-action-card__icon" aria-hidden="true">${icon}</span>
       <span class="home-action-card__copy">
         <strong>${escapeHtml(title)}</strong>
         <span>${escapeHtml(description)}</span>
       </span>
-      <span class="home-action-card__arrow" aria-hidden="true">OPEN ↗</span>
+      <span class="home-action-card__arrow" aria-hidden="true">${ICONS.chevron}</span>
     `;
     return button;
   }
 
-  function createHomeLibraryCard(library, count, index = "A") {
+  function createHomeLibraryCard(library, count) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "home-library-card";
     button.dataset.homeLibrary = library.id;
     button.innerHTML = `
-      <span class="home-library-card__index" aria-hidden="true">${escapeHtml(index)}</span>
       <span class="home-library-card__icon" aria-hidden="true">${ICONS.folder}</span>
       <span class="home-library-card__copy">
         <strong>${escapeHtml(library.title)}</strong>
         <span>${Number(count || 0).toLocaleString("en-US")} topics</span>
       </span>
-      <span class="home-library-card__arrow" aria-hidden="true">BROWSE ↗</span>
+      <span class="home-library-card__arrow" aria-hidden="true">${ICONS.chevron}</span>
     `;
     return button;
   }
@@ -6116,9 +6081,9 @@
       <section class="home-overview__brand">
         <span class="home-overview__brand-mark" aria-hidden="true">S</span>
         <span>
-          <span class="home-overview__eyebrow">OPERATIONAL DIRECTORY</span>
-          <h2>LIVE<br>INDEX</h2>
-          <p>Knowledge, guided decisions, ticket replies, and visual evidence in one verified system.</p>
+          <span class="home-overview__eyebrow">Knowledge Lounge · MENA</span>
+          <h2>SUGO SOP</h2>
+          <p>One workspace for knowledge, AI guidance, tickets, and image analysis.</p>
         </span>
       </section>
 
@@ -6176,17 +6141,11 @@
     hero.className = "home-dashboard__hero";
     hero.setAttribute("aria-labelledby", "home-dashboard-title");
     hero.innerHTML = `
-      <span class="home-dashboard__hero-index" aria-hidden="true">INDEX / 001</span>
+      <span class="home-dashboard__hero-glow" aria-hidden="true"></span>
       <div class="home-dashboard__hero-content">
         <span class="home-dashboard__hero-copy">
-          <span class="home-dashboard__eyebrow">SUGO — SUPPORT OPERATIONS / MENA</span>
-          <h1 id="home-dashboard-title">SUPPORT /<br>OPERATIONS<br>INDEX</h1>
-          <p>A precision workspace for verified answers, clean decisions, and faster customer support.</p>
-        </span>
-        <span class="home-dashboard__status" aria-label="System status: all systems operational">
-          <span class="home-dashboard__status-label">CURRENT STATE</span>
-          <span class="home-dashboard__status-value"><i aria-hidden="true"></i>OPERATIONAL</span>
-          <span class="home-dashboard__status-time">Knowledge synced / ready</span>
+          <span class="home-dashboard__eyebrow">Knowledge Lounge · MENA</span>
+          <h1 id="home-dashboard-title">Welcome to SUGO SOP</h1>
         </span>
       </div>
     `;
@@ -6196,8 +6155,8 @@
     actions.innerHTML = `
       <header class="home-dashboard__section-heading">
         <span>
-          <span class="home-dashboard__section-kicker">01 / WORKSPACES</span>
-          <h2>Select an operation</h2>
+          <span class="home-dashboard__section-kicker">Workspaces</span>
+          <h2>Start a task</h2>
         </span>
         <p>Choose the tool that matches the support case.</p>
       </header>
@@ -6211,22 +6170,19 @@
         icon: ICONS.askAI,
         title: "Ask AI",
         description: "Agent guidance, SOP checks, troubleshooting, and escalation review.",
-        index: "01",
         featured: true
       }),
       createHomeWorkspaceCard({
         workspace: WORKSPACES.CREATE_TICKET,
         icon: ICONS.ticket,
         title: "Create Ticket",
-        description: "Prepare a customer reply, missing-information request, or escalation note.",
-        index: "02"
+        description: "Prepare a customer reply, missing-information request, or escalation note."
       }),
       createHomeWorkspaceCard({
         workspace: WORKSPACES.UPLOAD_IMAGE,
         icon: ICONS.upload,
         title: "Upload image",
-        description: "Analyze screenshots and evidence images with knowledge-base context.",
-        index: "03"
+        description: "Analyze screenshots and evidence images with knowledge-base context."
       })
     );
     actions.append(actionGrid);
@@ -6236,8 +6192,8 @@
     libraries.innerHTML = `
       <header class="home-dashboard__section-heading">
         <span>
-          <span class="home-dashboard__section-kicker">02 / KNOWLEDGE</span>
-          <h2>Browse the verified index</h2>
+          <span class="home-dashboard__section-kicker">Knowledge Bases</span>
+          <h2>Browse verified content</h2>
         </span>
         <p>${Number(stats.topicCount || 284).toLocaleString("en-US")} topics across the two original SUGO libraries.</p>
       </header>
@@ -6245,15 +6201,15 @@
 
     const libraryGrid = document.createElement("div");
     libraryGrid.className = "home-library-grid";
-    navigation.forEach((library, libraryIndex) => {
+    for (const library of navigation) {
       const calculatedCount = (library.categories || []).reduce((libraryTotal, category) => {
         return libraryTotal + (category.sections || []).reduce((categoryTotal, section) => {
           return categoryTotal + (section.topics || []).length;
         }, 0);
       }, 0);
       const count = stats.byLibrary?.[library.id]?.topics || calculatedCount;
-      libraryGrid.append(createHomeLibraryCard(library, count, String.fromCharCode(65 + libraryIndex)));
-    });
+      libraryGrid.append(createHomeLibraryCard(library, count));
+    }
     libraries.append(libraryGrid);
 
     home.append(hero, actions, libraries);
@@ -6317,11 +6273,10 @@
     view.className = "ticket-workspace";
     view.innerHTML = `
       <header class="ticket-workspace__hero">
-        <span class="ticket-workspace__index" aria-hidden="true">02 / TICKETS</span>
         <span class="ticket-workspace__hero-icon">${ICONS.ticket}</span>
         <span class="ticket-workspace__hero-copy">
           <h1>Create Ticket</h1>
-          <p>Build a clean ready-to-send customer reply, escalation note, or missing-information request from the case details.</p>
+          <p>Build a clean ready-to-send customer reply, escalation note, or missing-information request from the case details. This workspace is locked to Ticket output.</p>
         </span>
       </header>
     `;
@@ -6479,7 +6434,7 @@
   }
 
   function bindSidebarTools(sidebar) {
-    const searchInput = document.getElementById("searchInput");
+    const searchInput = sidebar.querySelector("#searchInput");
 
     sidebar.addEventListener("click", (event) => {
       const button = event.target.closest(".sidebar-tool-button[data-workspace]");
@@ -6550,44 +6505,10 @@
     const sidebar = createSidebarTools();
     const workspace = createShellRegion("app-shell__workspace shell-surface");
     const preview = createShellRegion("app-shell__preview shell-surface");
-    const command = header.querySelector(".topbar__command");
-    const globalSearch = sidebar.querySelector(".sidebar-tools__search");
-
-    if (command && globalSearch) {
-      command.prepend(globalSearch);
-    }
-
-    const mobileScrim = document.createElement("button");
-    mobileScrim.type = "button";
-    mobileScrim.className = "mobile-sidebar-scrim";
-    mobileScrim.setAttribute("aria-label", "Close navigation");
 
     body.append(sidebar, workspace, preview);
-    shell.append(header, body, mobileScrim);
+    shell.append(header, body);
     mount.replaceChildren(shell);
-
-    const menuToggle = header.querySelector("#sugoMenuToggle");
-    const setSidebarOpen = (isOpen) => {
-      shell.classList.toggle("is-sidebar-open", Boolean(isOpen));
-      menuToggle?.setAttribute("aria-expanded", String(Boolean(isOpen)));
-      menuToggle?.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
-    };
-
-    menuToggle?.addEventListener("click", () => {
-      setSidebarOpen(!shell.classList.contains("is-sidebar-open"));
-    });
-    mobileScrim.addEventListener("click", () => setSidebarOpen(false));
-    shell.addEventListener("click", (event) => {
-      if (event.target.closest("[data-workspace], [data-pane], [data-home-workspace]")) {
-        setSidebarOpen(false);
-      }
-    });
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && shell.classList.contains("is-sidebar-open")) {
-        setSidebarOpen(false);
-        menuToggle?.focus();
-      }
-    });
 
     bindSidebarTools(sidebar);
     bindContentCloseButton(workspace, preview);
@@ -6635,7 +6556,7 @@
     root.lang = "en";
     root.dir = "ltr";
 
-    applyTheme("editorial", { persist: false });
+    applyTheme("dark", { persist: false });
 
     mountApplicationShell();
   }

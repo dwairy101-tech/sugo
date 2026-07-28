@@ -12,7 +12,6 @@ const tests = [
   "all-title-coverage.test.js",
   "search-precision.test.js",
   "grounding-accuracy.test.js",
-  "redesign-contract.test.js",
   "worker-smoke.test.js"
 ];
 
