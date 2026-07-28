@@ -1,5 +1,16 @@
 # Changelog
 
+## 6.0.0 — 2026-07-28
+
+### Swiss Editorial Index — complete interface rebuild
+
+- Replaced the previous dark dashboard composition with a new warm-paper editorial grid.
+- Rebuilt the header, numbered tool rail, home index, live overview, workspace heroes, cards, forms, results, and output panels.
+- Redesigned Search, Ask AI, Create Ticket, Upload Image, articles, visual guides, navigation, and the complete admin editor.
+- Kept all interface controls and navigation labels in English while preserving Amiri for Arabic content.
+- Preserved the original SUGO black and wine-red identity, all knowledge data, all 73 ticket macros, and the v4.1.0 accuracy logic.
+- Added responsive desktop, tablet, and mobile layouts with keyboard focus and reduced-motion support.
+
 ## 5.0.0 — 2026-07-28
 
 ### Global Editorial Command Center redesign
