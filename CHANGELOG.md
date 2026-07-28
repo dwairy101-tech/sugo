@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.1.0 — 2026-07-28
+
+### Complete ticket-title grounding
+
+- Fixed Create Ticket so an official ticket title selects the ticket macro instead of a visible article with the same title.
+- Added exhaustive Arabic/English assertions for all 73 official ticket macros.
+- Added natural wrapper handling such as `بدي تذكرة عن ...` and `create ticket about ...`.
+- Fixed Arabic definite-article matching for short words such as `البث`.
+- Added semantic title matching across the entire ticket catalog instead of relying only on a small hard-coded phrase list.
+- Replaced generic failure text with focused choices when a short title genuinely matches two procedures.
+- Allowed a grounded exact ticket macro to pass the Worker accuracy gate without requiring unrelated case identifiers.
+- Updated browser cache keys so GitHub Pages loads the corrected matcher immediately.
+
 ## 4.0.0 — 2026-07-28
 
 ### Grounded search and results

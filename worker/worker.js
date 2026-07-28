@@ -263,7 +263,7 @@ export default {
       return jsonResponse({
         ok: true,
         service: "SUGO SOP AI Proxy",
-        version: "4.0.0-grounded-accuracy",
+        version: "4.1.0-ticket-title-accuracy",
         providers: providerStatus(env),
         health: "/health",
         diagnostics: "/diagnostics",
@@ -858,7 +858,7 @@ function buildWorkerHealthReport(env, diagnostics = false) {
   const report = {
     ok: true,
     service: "SUGO SOP AI Proxy",
-    version: "4.0.0-grounded-accuracy",
+    version: "4.1.0-ticket-title-accuracy",
     timestamp: new Date().toISOString(),
     bindings: {
       kv: Boolean(env.SUGO_KV),
@@ -901,7 +901,15 @@ function buildStrictAccuracyGateResponse({ incoming, outputType, sopMode, taskTy
   const lowKb = ["low", "unknown"].includes(effectiveKnowledgeConfidence(requestAnalysis, kbMatchAudit));
   const ambiguous = Boolean(kbMatchAudit?.ambiguous);
   const reliable = incoming?.kb_reliable === true && !ambiguous && !lowKb;
-  const shouldGateTicket = outputType === "ticket" && (!reliable || (sensitive && missing.length > 0));
+  const hasGroundedTicketMacro = Boolean(
+    outputType === "ticket"
+    && reliable
+    && String(incoming?.primary_ticket_macro_id || "").startsWith("sv-tickets-")
+  );
+  const shouldGateTicket = outputType === "ticket" && (
+    !reliable
+    || (!hasGroundedTicketMacro && sensitive && missing.length > 0)
+  );
   const shouldGateAnswer = outputType === "answer" && sopMode === "sop_only" && !reliable;
   if (!shouldGateTicket && !shouldGateAnswer) return null;
 

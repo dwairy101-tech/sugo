@@ -1,6 +1,6 @@
 ﻿name = "sugo"
 main = "worker.js"
-compatibility_date = "2026-07-28"
+compatibility_date = "2026-07-27"
 workers_dev = true
 preview_urls = false
 

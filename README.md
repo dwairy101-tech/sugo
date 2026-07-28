@@ -13,7 +13,7 @@ A bilingual Arabic/English support portal with:
 
 ## Upload to GitHub Pages
 
-1. Extract `SUGO_GITHUB_READY_v4.0.0.zip`.
+1. Extract `SUGO_GITHUB_READY_v4.1.0.zip`.
 2. Upload **the extracted files and folders themselves** to the repository root. Do not upload the ZIP as a single file.
 3. In GitHub, open **Settings → Pages**.
 4. Choose **Deploy from a branch**, select `main`, and select `/(root)`.

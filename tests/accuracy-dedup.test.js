@@ -45,9 +45,17 @@ for (const [query, expectedId] of exactCases) {
 
 for (const pane of SUGO.KnowledgeBaseContent.listPanes().filter((item) => item.format === "support_macro")) {
   for (const title of [pane.title, pane.english?.title, pane.arabic?.title].filter(Boolean)) {
-    const result = matcher.match(title, 5, 1800, null, { outputType: "ticket", preferTicketTopics: true });
+    const result = matcher.match(title, 5, 1800, null, { outputType: "answer" });
     assert.equal(result.exactTitleMatch, true, `Visible support title was not exact-matched: ${title}`);
     assert.equal(result.topics[0]?.id, pane.id, `Visible support title routed to the wrong topic: ${title}`);
+  }
+}
+
+for (const pane of SUGO.TicketMacros.listPanes()) {
+  for (const title of [pane.title, pane.english?.title, pane.arabic?.title].filter(Boolean)) {
+    const result = matcher.match(title, 5, 1800, null, { outputType: "ticket", preferTicketTopics: true });
+    assert.equal(result.exactTitleMatch, true, `Ticket title was not exact-matched: ${title}`);
+    assert.equal(result.topics[0]?.id, pane.id, `Create Ticket routed an official title to the wrong macro: ${title}`);
   }
 }
 
@@ -150,7 +158,7 @@ assert.equal((repeatedAgentNames.match(/- MANDO/g) || []).length, 2,
       sopMode: "sop_only"
     });
     assert.equal(ambiguous.responseBranch, "local-clarification");
-    assert.match(ambiguous.answer, /complete description/i);
+    assert.match(ambiguous.answer, /specific issue|No reliable match/i);
     assert.doesNotMatch(ambiguous.answer, /unban|2400|Medium Risk/i);
   } finally {
     global.fetch = originalFetch;

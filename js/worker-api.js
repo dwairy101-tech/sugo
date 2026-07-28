@@ -4,7 +4,7 @@
   window.SUGO = window.SUGO || {};
 
   const DEFAULT_BASE_URL = "https://sugo.dwairy101.workers.dev";
-  const API_VERSION = "4.0-grounded-accuracy";
+  const API_VERSION = "4.1-ticket-title-accuracy";
   function baseUrl() {
     return String(window.SUGO_WORKER_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
   }
@@ -709,6 +709,42 @@
       return request.localTicketMacro.text;
     }
 
+    const titleMatch = request.kb?.ticketTitleMatch;
+    const titleCandidates = Array.isArray(titleMatch?.titleCandidates)
+      ? titleMatch.titleCandidates.filter((candidate) => candidate?.id || candidate?.title).slice(0, 3)
+      : [];
+    if (
+      request.body.output_type === "ticket"
+      && titleMatch?.titleAmbiguous
+      && titleCandidates.length > 1
+    ) {
+      const contentSource = window.SUGO?.TicketMacros;
+      const labels = titleCandidates.map((candidate) => {
+        const pane = contentSource?.getPane?.(candidate.id);
+        return language === "arabic"
+          ? String(pane?.arabic?.title || candidate.title || candidate.id).trim()
+          : String(pane?.english?.title || candidate.title || candidate.id).trim();
+      }).filter(Boolean);
+      if (language === "arabic") {
+        return [
+          "مرحبًا بك في عائلة سوجو!",
+          "العنوان يطابق أكثر من إجراء محدد في قاعدة سوجو، لذلك نحتاج منك اختيار الحالة الدقيقة حتى لا نرسل تذكرة خاطئة:",
+          ...labels.map((label, index) => `${index + 1}- ${label}`),
+          "اكتب رقم الخيار أو أضف الكلمة التي تميّز الحالة، وسنُرجع لك التذكرة المطابقة مباشرة.",
+          "شكرًا لتواصلك مع سوجو.",
+          "فريق خدمة عملاء سوجو"
+        ].join("\n\n");
+      }
+      return [
+        "Welcome to the SUGO family!",
+        "This title matches more than one specific SUGO procedure. Please select the exact case so we do not return the wrong ticket:",
+        ...labels.map((label, index) => `${index + 1}- ${label}`),
+        "Reply with the option number or add the distinguishing word, and the matching ticket will be returned directly.",
+        "Thank you for contacting SUGO.",
+        "SUGO Customer Service Team"
+      ].join("\n\n");
+    }
+
     if (ticketType === "internal_escalation") {
       if (language === "arabic") {
         return [
@@ -748,16 +784,16 @@
     if (language === "arabic") {
       return [
         "مرحبًا بك في عائلة سوجو!",
-        "لم نتمكن من تحديد الإجراء الصحيح من العنوان أو الوصف المختصر وحده. يرجى إرسال وصف كامل لما حدث، ومعرّف الحساب، وأي رقم عملية أو غرفة مرتبط، وصورة أو تسجيل شاشة يوضح المشكلة إن أمكن.",
-        "بعد استلام التفاصيل الكافية، سيتم تحديد الإجراء المطابق ومراجعة الحالة دون افتراضات.",
+        "لم يظهر تطابق موثوق مع أي عنوان أو قالب تذكرة موجود في قاعدة سوجو.",
+        "اكتب موضوع الحالة بكلمات محددة كما ظهر لك، مثل نوع المشكلة والعملية أو الميزة المرتبطة بها. أرسل معرّف الحساب أو العملية والدليل فقط إذا كانت الحالة نفسها تحتاجها.",
         "شكرًا لتواصلك مع سوجو.",
         "فريق خدمة عملاء سوجو"
       ].join("\n\n");
     }
     return [
       "Welcome to the SUGO family!",
-      "We could not identify the correct procedure from the title or short description alone. Please send a complete description of what happened, the account ID, any related transaction or room ID, and a screenshot or screen recording when possible.",
-      "Once enough details are provided, the matching procedure can be identified and the case can be reviewed without guessing.",
+      "No reliable match was found among the SUGO ticket titles or templates.",
+      "Describe the case with the specific issue and the related operation or feature. Include an account or transaction ID and evidence only when that procedure requires them.",
       "Thank you for contacting SUGO.",
       "SUGO Customer Service Team"
     ].join("\n\n");
