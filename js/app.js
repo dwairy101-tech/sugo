@@ -663,10 +663,32 @@
     return utilities;
   }
 
+  function createHeaderCommand() {
+    const command = document.createElement("div");
+    command.className = "topbar__command";
+    command.append(createBreadcrumb());
+    return command;
+  }
+
   function createHeader() {
     const header = document.createElement("header");
     header.className = "app-shell__header topbar shell-surface";
-    header.append(createBrand(), createBreadcrumb(), createHeaderUtilities());
+
+    const menuToggle = document.createElement("button");
+    menuToggle.id = "sugoMenuToggle";
+    menuToggle.className = "topbar__menu-toggle";
+    menuToggle.type = "button";
+    menuToggle.setAttribute("aria-label", "Open navigation");
+    menuToggle.setAttribute("aria-controls", "sugoPrimarySidebar");
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.innerHTML = `<span aria-hidden="true">${ICONS.menu}</span>`;
+
+    header.append(
+      menuToggle,
+      createBrand(),
+      createHeaderCommand(),
+      createHeaderUtilities()
+    );
     return header;
   }
 
@@ -1893,6 +1915,7 @@
 
   function createSidebarTools() {
     const sidebar = createShellRegion("app-shell__sidebar shell-surface", { hidden: false });
+    sidebar.id = "sugoPrimarySidebar";
     sidebar.setAttribute("aria-label", "Primary tools");
 
     const tools = document.createElement("div");
@@ -6146,6 +6169,12 @@
         <span class="home-dashboard__hero-copy">
           <span class="home-dashboard__eyebrow">Knowledge Lounge · MENA</span>
           <h1 id="home-dashboard-title">Welcome to SUGO SOP</h1>
+          <p>Find answers faster. Solve issues smarter. Deliver exceptional support.</p>
+        </span>
+        <span class="home-dashboard__status" aria-label="System status: all systems operational">
+          <span class="home-dashboard__status-label">System status</span>
+          <span class="home-dashboard__status-value"><i aria-hidden="true"></i>All systems operational</span>
+          <span class="home-dashboard__status-time">Knowledge synced · ready</span>
         </span>
       </div>
     `;
@@ -6434,7 +6463,7 @@
   }
 
   function bindSidebarTools(sidebar) {
-    const searchInput = sidebar.querySelector("#searchInput");
+    const searchInput = document.getElementById("searchInput");
 
     sidebar.addEventListener("click", (event) => {
       const button = event.target.closest(".sidebar-tool-button[data-workspace]");
@@ -6505,10 +6534,44 @@
     const sidebar = createSidebarTools();
     const workspace = createShellRegion("app-shell__workspace shell-surface");
     const preview = createShellRegion("app-shell__preview shell-surface");
+    const command = header.querySelector(".topbar__command");
+    const globalSearch = sidebar.querySelector(".sidebar-tools__search");
+
+    if (command && globalSearch) {
+      command.prepend(globalSearch);
+    }
+
+    const mobileScrim = document.createElement("button");
+    mobileScrim.type = "button";
+    mobileScrim.className = "mobile-sidebar-scrim";
+    mobileScrim.setAttribute("aria-label", "Close navigation");
 
     body.append(sidebar, workspace, preview);
-    shell.append(header, body);
+    shell.append(header, body, mobileScrim);
     mount.replaceChildren(shell);
+
+    const menuToggle = header.querySelector("#sugoMenuToggle");
+    const setSidebarOpen = (isOpen) => {
+      shell.classList.toggle("is-sidebar-open", Boolean(isOpen));
+      menuToggle?.setAttribute("aria-expanded", String(Boolean(isOpen)));
+      menuToggle?.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+    };
+
+    menuToggle?.addEventListener("click", () => {
+      setSidebarOpen(!shell.classList.contains("is-sidebar-open"));
+    });
+    mobileScrim.addEventListener("click", () => setSidebarOpen(false));
+    shell.addEventListener("click", (event) => {
+      if (event.target.closest("[data-workspace], [data-pane], [data-home-workspace]")) {
+        setSidebarOpen(false);
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && shell.classList.contains("is-sidebar-open")) {
+        setSidebarOpen(false);
+        menuToggle?.focus();
+      }
+    });
 
     bindSidebarTools(sidebar);
     bindContentCloseButton(workspace, preview);

@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.0.0 — 2026-07-28
+
+### Global Editorial Command Center redesign
+
+- Rebuilt the full visual system while preserving the v4.1.0 knowledge data, matcher, Worker contract, ticket macros, and image-analysis behavior.
+- Moved global Arabic/English search into the command header and added a responsive navigation drawer.
+- Redesigned Home, Ask AI, Create Ticket, Upload Image, Search, article, preview, and admin surfaces with one consistent component language.
+- Removed the fixed 1280px desktop minimum and added adaptive desktop, tablet, and mobile layouts.
+- Added accessible 2px focus rings, larger touch targets, reduced-motion handling, and improved dark-surface hierarchy.
+- Added self-hosted open-source Inter and Amiri webfonts; Arabic content uses Amiri.
+- Kept the original black, charcoal, and wine-red SUGO palette.
+
 ## 4.1.0 — 2026-07-28
 
 ### Complete ticket-title grounding
